@@ -1,7 +1,8 @@
 -- 03. Dashboard_MyUni_Registrations: registered students per semester, degree, semester number and shift (Students tab).
 -- A registration counts when it is active, its student is active, and it falls in the semester
 -- (RegisterInId; the first semester, SemesterSessionId, when RegisterInId is empty).
--- With dates chosen, only semesters that overlap @StartDate to @EndDate are counted.
+-- With dates chosen, only the semesters running in @StartDate to @EndDate are counted. A semester runs from its
+-- start until the next one starts, so every date belongs to a semester.
 -- Check the USE line names the right database. Run the whole script (SSMS: F5; DBeaver: Execute script, Alt+X).
 
 USE SAC400;
@@ -41,6 +42,22 @@ BEGIN
           AND (ISNULL(@DepartmentId, 0) = 0 OR UD.DepartmentId = @DepartmentId)
           AND (@FacultyId IS NULL OR EXISTS (SELECT 1 FROM FacultyDetails FD2 WITH (NOLOCK)
                                              WHERE FD2.DepartmentId = UD.DepartmentId AND FD2.FacultyGUID = @FacultyId))
+    ),
+    -- Sem: the semesters the dates select. A semester is taken to run from its start until the next semester of the
+    -- company starts (or to its own end date when that is later), and the latest one has no end. So the gaps between
+    -- semesters, and a semester stored with a one-day span, still belong to a semester.
+    Sem AS (
+        SELECT SD.Id
+        FROM UNIAcademicYearSemesterDetails SD WITH (NOLOCK)
+        JOIN UNIAcademicCalender AC WITH (NOLOCK) ON AC.Id = SD.AcademicCalenderId AND AC.CompanyId = @CompanyId
+        OUTER APPLY (SELECT MIN(N.StartDate) AS NextStart
+                     FROM UNIAcademicYearSemesterDetails N WITH (NOLOCK)
+                     JOIN UNIAcademicCalender NC WITH (NOLOCK) ON NC.Id = N.AcademicCalenderId AND NC.CompanyId = @CompanyId
+                     WHERE N.StartDate > SD.StartDate) NX
+        WHERE SD.StartDate < @To
+          AND CASE WHEN NX.NextStart IS NULL THEN CAST('99991231' AS DATE)
+                   WHEN SD.EndDate > DATEADD(DAY, -1, NX.NextStart) THEN SD.EndDate
+                   ELSE DATEADD(DAY, -1, NX.NextStart) END >= @From
     )
     SELECT SEM.Id AS SemesterId, SEM.Code AS Semester, SEM.StartDate AS SemesterStart,
            G.Id AS DegreeId, G.DegreeCode, G.DegreeName AS Degree, G.Department, G.Faculty,
@@ -55,7 +72,7 @@ BEGIN
       AND R.Status = 1
       AND (ISNULL(@BranchId, 0) = 0 OR R.BranchId = @BranchId)
       AND (@SemesterId IS NULL OR ISNULL(R.RegisterInId, R.SemesterSessionId) = @SemesterId)
-      AND (@AllDates = 1 OR ISNULL(R.RegisterInId, R.SemesterSessionId) IN (SELECT SD.Id FROM UNIAcademicYearSemesterDetails SD WITH (NOLOCK) WHERE SD.StartDate < @To AND SD.EndDate >= @From))
+      AND (@AllDates = 1 OR ISNULL(R.RegisterInId, R.SemesterSessionId) IN (SELECT Id FROM Sem))
     GROUP BY SEM.Id, SEM.Code, SEM.StartDate, G.Id, G.DegreeCode, G.DegreeName, G.Department, G.Faculty,
              R.SemesterNo, PT.[Description]
     ORDER BY SEM.StartDate, G.DegreeName, R.SemesterNo;

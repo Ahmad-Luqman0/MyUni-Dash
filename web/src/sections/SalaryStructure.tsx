@@ -87,7 +87,7 @@ export function SalaryStructure({ q, reload }: SectionProps) {
             </div>
 
             <Card title="Salary structures" subtitle="One row per employee. Select a column heading to sort">
-              <DataTable caption="Salary structures" columns={columns} rows={rows} rowKey={(r) => String(r.employeeId)} pageSize={12}
+              <DataTable caption="Salary structures" columns={columns} rows={rows} rowKey={(r) => String(r.employeeId)}
                 initialSort={{ key: 'gross', dir: 'desc' }}
                 search={(r) => `${r.code} ${r.name} ${r.designation} ${r.department}`} searchLabel="Search by name, code, designation or department" />
             </Card>

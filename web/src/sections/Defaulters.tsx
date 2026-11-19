@@ -63,7 +63,7 @@ export function Defaulters({ q, reload }: SectionProps) {
             </div>
 
             <Card title="Students with an overdue balance" subtitle="Select a column heading to sort">
-              <DataTable caption="Students with an overdue balance" columns={columns} rows={rows} rowKey={(r) => r.studentId} pageSize={12}
+              <DataTable caption="Students with an overdue balance" columns={columns} rows={rows} rowKey={(r) => r.studentId}
                 initialSort={{ key: 'balance', dir: 'desc' }}
                 search={(r) => `${r.regNo} ${r.student} ${r.degree} ${r.degreeCode} ${r.remarks ?? ''}`} searchLabel="Search by name, reg no. or degree" />
             </Card>

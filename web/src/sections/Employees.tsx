@@ -106,7 +106,7 @@ export function Employees({ q, reload }: SectionProps) {
             </div>
 
             <Card title="Employees" subtitle="Everyone on record, including those who have left. Select a column heading to sort">
-              <DataTable caption="Employees" columns={columns} rows={rows} rowKey={(r) => String(r.employeeId)} pageSize={12}
+              <DataTable caption="Employees" columns={columns} rows={rows} rowKey={(r) => String(r.employeeId)}
                 initialSort={{ key: 'hired', dir: 'desc' }}
                 search={(r) => `${r.code} ${r.name} ${r.designation} ${r.department} ${r.employmentStatus ?? ''} ${r.branch ?? ''} ${r.isActive ? 'Active' : 'Left'}`}
                 searchLabel="Search by name, code, designation or department" />

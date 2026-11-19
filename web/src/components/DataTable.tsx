@@ -14,16 +14,23 @@ export interface Column<T> {
   nowrap?: boolean
 }
 
+/** How many rows a page can hold; the reader picks one under the table. */
+const PAGE_SIZES = [10, 25, 50, 100]
+
 /** A table that sorts, searches and pages in the browser, and scrolls sideways inside its own frame on narrow screens. */
-export function DataTable<T>({ columns, rows, rowKey, initialSort, search, searchLabel, pageSize = 10, caption }: {
+export function DataTable<T>({ columns, rows, rowKey, initialSort, search, searchLabel, pageSize: firstPageSize = 10, caption }: {
   columns: Column<T>[]; rows: T[]; rowKey: (row: T, i: number) => string
   initialSort?: { key: string; dir: 'asc' | 'desc' }
   /** Text of a row that the search box looks through. */
-  search?: (row: T) => string; searchLabel?: string; pageSize?: number; caption: string
+  search?: (row: T) => string; searchLabel?: string
+  /** Rows per page to start with; the reader can change it. */
+  pageSize?: number; caption: string
 }) {
   const [sortBy, setSortBy] = useState(initialSort ?? null)
   const [term, setTerm] = useState('')
   const [page, setPage] = useState(0)
+  const [pageSize, setPageSize] = useState(firstPageSize)
+  const sizes = PAGE_SIZES.includes(firstPageSize) ? PAGE_SIZES : [...PAGE_SIZES, firstPageSize].sort((a, b) => a - b)
 
   const sorted = useMemo(() => {
     const t = term.trim().toLowerCase()
@@ -98,9 +105,22 @@ export function DataTable<T>({ columns, rows, rowKey, initialSort, search, searc
           </tbody>
         </table>
       </div>
-      <div className="mt-3 flex flex-wrap items-center justify-between gap-2 text-[13px] text-ink-2">
-        <span aria-live="polite">
-          {sorted.length === 0 ? 'No rows' : `Rows ${count(current * pageSize + 1)} to ${count(Math.min(sorted.length, (current + 1) * pageSize))} of ${count(sorted.length)}`}
+      <div className="mt-3 flex flex-wrap items-center justify-between gap-x-4 gap-y-2 text-[13px] text-ink-2">
+        <span className="flex flex-wrap items-center gap-x-4 gap-y-2">
+          <span aria-live="polite">
+            {sorted.length === 0 ? 'No rows' : `Rows ${count(current * pageSize + 1)} to ${count(Math.min(sorted.length, (current + 1) * pageSize))} of ${count(sorted.length)}`}
+          </span>
+          {rows.length > sizes[0] && (
+            <label className="flex items-center gap-2">
+              Rows per page
+              <span className="select-wrap block">
+                <select value={pageSize} onChange={(e) => { setPageSize(Number(e.target.value)); setPage(0) }}
+                  className="h-9 rounded-md border border-line bg-surface pr-8 pl-2.5 text-[13px] text-ink hover:border-ink-3 focus-visible:border-accent focus-visible:outline-2 focus-visible:outline-offset-0 focus-visible:outline-accent">
+                  {sizes.map((n) => <option key={n} value={n}>{n}</option>)}
+                </select>
+              </span>
+            </label>
+          )}
         </span>
         {pages > 1 && (
           <span className="flex items-center gap-1">

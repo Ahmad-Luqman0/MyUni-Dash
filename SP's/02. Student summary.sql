@@ -1,7 +1,8 @@
 -- 02. Dashboard_MyUni_StudentSummary: the headline numbers of the Overview tab, one row.
 -- Every figure follows @StartDate / @EndDate:
--- Students: students on record in the allowed degrees; with dates, those registered in a semester that overlaps the dates.
--- RegisteredStudents, NewAdmissions: for the chosen semester, or the semesters that overlap the dates.
+-- Students: students on record in the allowed degrees; with dates, those registered in a semester running in the dates
+--           (a semester runs from its start until the next one starts, so every date belongs to a semester).
+-- RegisteredStudents, NewAdmissions: for the chosen semester, or the semesters running in the dates.
 -- DegreeCompleted: students flagged as completed; with dates, those whose completion date falls in them.
 -- Billed, Received, Outstanding, Discounts: challans dated in the range (rules of Dashboard_MyUni_Receivables).
 -- Overdue, Defaulters: challans that fell due in the dates, judged on @EndDate (rules of Dashboard_MyUni_Defaulters).
@@ -48,6 +49,22 @@ BEGIN
           AND (ISNULL(@DepartmentId, 0) = 0 OR UD.DepartmentId = @DepartmentId)
           AND (@FacultyId IS NULL OR EXISTS (SELECT 1 FROM FacultyDetails FD2 WITH (NOLOCK)
                                              WHERE FD2.DepartmentId = UD.DepartmentId AND FD2.FacultyGUID = @FacultyId))
+    ),
+    -- Sem: the semesters the dates select. A semester is taken to run from its start until the next semester of the
+    -- company starts (or to its own end date when that is later), and the latest one has no end. So the gaps between
+    -- semesters, and a semester stored with a one-day span, still belong to a semester.
+    Sem AS (
+        SELECT SD.Id
+        FROM UNIAcademicYearSemesterDetails SD WITH (NOLOCK)
+        JOIN UNIAcademicCalender AC WITH (NOLOCK) ON AC.Id = SD.AcademicCalenderId AND AC.CompanyId = @CompanyId
+        OUTER APPLY (SELECT MIN(N.StartDate) AS NextStart
+                     FROM UNIAcademicYearSemesterDetails N WITH (NOLOCK)
+                     JOIN UNIAcademicCalender NC WITH (NOLOCK) ON NC.Id = N.AcademicCalenderId AND NC.CompanyId = @CompanyId
+                     WHERE N.StartDate > SD.StartDate) NX
+        WHERE SD.StartDate < @To
+          AND CASE WHEN NX.NextStart IS NULL THEN CAST('99991231' AS DATE)
+                   WHEN SD.EndDate > DATEADD(DAY, -1, NX.NextStart) THEN SD.EndDate
+                   ELSE DATEADD(DAY, -1, NX.NextStart) END >= @From
     ),
     Ch AS (
         SELECT C.Id, C.StudentId, C.DegreeId, C.ChallanDescription,
@@ -116,7 +133,7 @@ BEGIN
          WHERE S.Status = 1 AND (ISNULL(@BranchId, 0) = 0 OR S.BranchId = @BranchId)
            AND (@AllDates = 1 OR EXISTS (SELECT 1 FROM UNIStudentsRegistrations R WITH (NOLOCK)
                                          WHERE R.StudentsId = S.Id AND R.Status = 1
-                                           AND ISNULL(R.RegisterInId, R.SemesterSessionId) IN (SELECT SD.Id FROM UNIAcademicYearSemesterDetails SD WITH (NOLOCK) WHERE SD.StartDate < @To AND SD.EndDate >= @From)))) AS Students,
+                                           AND ISNULL(R.RegisterInId, R.SemesterSessionId) IN (SELECT Id FROM Sem)))) AS Students,
 
         (SELECT COUNT(DISTINCT R.StudentsId)
          FROM UNIStudentsRegistrations R WITH (NOLOCK)
@@ -125,7 +142,7 @@ BEGIN
          WHERE R.CompanyId = @CompanyId AND R.Status = 1
            AND (ISNULL(@BranchId, 0) = 0 OR R.BranchId = @BranchId)
            AND (@SemesterId IS NULL OR ISNULL(R.RegisterInId, R.SemesterSessionId) = @SemesterId)
-           AND (@AllDates = 1 OR ISNULL(R.RegisterInId, R.SemesterSessionId) IN (SELECT SD.Id FROM UNIAcademicYearSemesterDetails SD WITH (NOLOCK) WHERE SD.StartDate < @To AND SD.EndDate >= @From))) AS RegisteredStudents,
+           AND (@AllDates = 1 OR ISNULL(R.RegisterInId, R.SemesterSessionId) IN (SELECT Id FROM Sem))) AS RegisteredStudents,
 
         (SELECT COUNT(*) FROM UNIStudents S WITH (NOLOCK) JOIN Deg G ON G.Id = S.DegreeId
          WHERE S.Status = 1 AND S.IsDegreeCompleted = 1
@@ -141,7 +158,7 @@ BEGIN
          WHERE SA.Status = 1
            AND (ISNULL(@BranchId, 0) = 0 OR S.BranchId = @BranchId)
            AND (@SemesterId IS NULL OR SA.SemesterSessionId = @SemesterId)
-           AND (@AllDates = 1 OR SA.SemesterSessionId IN (SELECT SD.Id FROM UNIAcademicYearSemesterDetails SD WITH (NOLOCK) WHERE SD.StartDate < @To AND SD.EndDate >= @From))) AS NewAdmissions,
+           AND (@AllDates = 1 OR SA.SemesterSessionId IN (SELECT Id FROM Sem))) AS NewAdmissions,
 
         ISNULL((SELECT SUM(C.IsBilled * C.Net) FROM Ch C WHERE C.InRange = 1), 0) AS Billed,
         ISNULL((SELECT SUM(C.IsPaid * C.Net)   FROM Ch C WHERE C.InRange = 1), 0) AS Received,
