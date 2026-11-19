@@ -9,7 +9,10 @@ import { Card, Loadable, Segmented } from '../components/ui'
 import { DegreeCell, SectionSkeleton } from './shared'
 import { CHALLAN_COLOR, challanLabel, degreeKey, degreeName, monthKey, usePortion, type SectionProps } from './helpers'
 
-const SOURCES = [{ key: 'Bank receipt', label: 'Bank receipt', color: C.s1 }, { key: 'Fee receipt', label: 'Fee receipt', color: C.s3 }]
+const CASH = 'Cash Fee Receipt'
+const SOURCES = [{ key: 'Bank receipt', label: 'Bank receipt', color: C.s1 }, { key: CASH, label: CASH, color: C.s3 }]
+/** A database that still has the earlier procedure calls these rows 'Fee receipt'; show them under the same name. */
+const named = (rows: CollectionRow[]) => rows.map((r) => (r.source === 'Fee receipt' ? { ...r, source: CASH } : r))
 
 const columns: Column<CollectionRow>[] = [
   { key: 'date', header: 'Date', cell: (r) => dateLabel(r.receiptDate), sort: (r) => r.receiptDate, nowrap: true },
@@ -25,7 +28,8 @@ export function Collections({ q, reload }: SectionProps) {
   const [grain, setGrain] = useState<'month' | 'day'>('month')
   return (
     <Loadable state={state} noun="collections" skeleton={<SectionSkeleton />}>
-      {(rows) => {
+      {(raw) => {
+        const rows = named(raw)
         const total = sum(rows, (r) => r.amount), receipts = sum(rows, (r) => r.receipts)
         const bank = sum(rows.filter((r) => r.source === 'Bank receipt'), (r) => r.amount)
         const months = new Map<string, Record<string, number>>()
@@ -59,7 +63,7 @@ export function Collections({ q, reload }: SectionProps) {
 
             <div className="grid gap-4 xl:grid-cols-2">
               <div className="grid content-start gap-4">
-                <Card title="By source" subtitle="Fee receipts are taken at the counter; bank receipts arrive through the bank">
+                <Card title="By source" subtitle="Cash fee receipts are taken at the counter; bank receipts arrive through the bank">
                   <SplitBar format={rs} parts={[
                     ...SOURCES.map((s) => ({ label: s.label, color: s.color, value: sources.find((x) => x.key === s.key)?.amount ?? 0 })),
                     ...(otherSources.length ? [{ label: 'Other sources', color: C.s4, value: sum(otherSources, (s) => s.amount) }] : []),

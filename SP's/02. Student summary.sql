@@ -23,7 +23,7 @@ CREATE PROCEDURE dbo.Dashboard_MyUni_StudentSummary
     @SemesterId   UNIQUEIDENTIFIER = NULL,   -- NULL = all
     @StartDate    DATE             = NULL,   -- NULL = no limit
     @EndDate      DATE             = NULL,   -- whole day included; NULL = no limit
-    @RequireApproved BIT           = 1       -- 0 also counts pending fee receipts: only for a test database
+    @RequireApproved BIT           = 1       -- not used any more (kept so the API's call still works)
 AS
 BEGIN
     SET NOCOUNT ON;
@@ -106,7 +106,13 @@ BEGIN
                      FROM AEOFeeReceiptsDetail FRD WITH (NOLOCK) WHERE FRD.FeeReceiptId = FR.Id) DT
         WHERE FR.CompanyId = @CompanyId
           AND FR.Status = 1
-          AND (FR.FeeStatus = 19 OR (@RequireApproved = 0 AND FR.FeeStatus = 4))
+          AND FR.FeeStatus IN (4, 19)                       -- 4 = received (set when the receipt is saved), 19 = approved
+          AND (SC.Id IS NULL OR SC.ChallanStatus <> 40)     -- not against a cancelled challan
+          -- not already counted as a bank receipt for the same challan
+          AND NOT EXISTS (SELECT 1 FROM UNIBankReceiptsDetail BD WITH (NOLOCK)
+                          JOIN UNIBankReceipts BH WITH (NOLOCK) ON BH.Id = BD.BankReceiptId
+                          WHERE BD.StudentId = FR.UNIStudentId AND BD.ChallanNo = SC.ChallanNo
+                            AND BH.Status = 1 AND BD.DocStatus = 35 AND BH.BankReceiptStatus IN (2, 34))
           AND (ISNULL(@BranchId, 0) = 0 OR FR.BranchId = @BranchId)
           AND FR.TransDate >= @From AND FR.TransDate < @To
           AND (@SemesterId IS NULL OR SC.RegisterInId = @SemesterId)

@@ -163,7 +163,7 @@ const cols: Col[] = []
       const receipts = 1 + Math.floor(rnd() * 9 * monthWeight[d.getMonth()])
       cols.push({
         deg, branch: weighted(DEGREES[deg].branches.map((b) => [b, BRANCHES[b - 1].share] as const)), date: d,
-        source: rnd() < 0.63 ? 'Bank receipt' : 'Fee receipt',
+        source: rnd() < 0.63 ? 'Bank receipt' : 'Cash Fee Receipt',
         challanType: rnd() < 0.04 ? null : weighted(CHALLAN_TYPES),
         receipts, amount: Math.round(receipts * DEGREES[deg].fee * between(0.45, 1) / 100) * 100,
       })
