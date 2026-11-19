@@ -47,7 +47,7 @@ export function Overview({ q, reload }: SectionProps) {
 
         <Block title="Billed and received by degree" subtitle="Fee billed on challans, and how much of it has been paid" state={recv} noun="receivables">
           {(rows) => (
-            <BarList format={rsShort} max={7} series={[{ label: 'Billed', color: C.s3 }, { label: 'Received', color: C.s1 }]}
+            <BarList format={rsShort} max={7} series={[{ label: 'Billed', color: C.s1 }, { label: 'Received', color: C.s3 }]}
               rows={rollup(rows, degreeKey, ['billed', 'received']).map((g) => ({
                 key: g.key, label: degreeName(g.first), values: [g.billed, g.received], note: `${pct(g.received, g.billed)} paid`,
               }))} />

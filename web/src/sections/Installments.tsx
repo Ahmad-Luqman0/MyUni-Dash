@@ -9,7 +9,7 @@ import { DegreeCell, SectionSkeleton } from './shared'
 import { degreeKey, degreeName, monthKey, usePortion, type SectionProps } from './helpers'
 
 // Paid / Overdue / Upcoming are states, so they keep the same three colours everywhere.
-const STATES = [{ key: 'Paid', label: 'Paid', color: C.s1 }, { key: 'Overdue', label: 'Overdue', color: C.bad }, { key: 'Upcoming', label: 'Upcoming', color: C.s3 }]
+const STATES = [{ key: 'Paid', label: 'Paid', color: C.s3 }, { key: 'Overdue', label: 'Overdue', color: C.bad }, { key: 'Upcoming', label: 'Upcoming', color: C.s1 }]
 
 const columns: Column<InstallmentRow>[] = [
   { key: 'month', header: 'Month', cell: (r) => monthLabel(r.month), sort: (r) => r.month, nowrap: true },
@@ -58,7 +58,7 @@ export function Installments({ q, reload }: SectionProps) {
             <div className="grid gap-4 xl:grid-cols-2">
               <Card title="Plans approved and pending" subtitle="Installment plans by approval, by amount">
                 <SplitBar format={rs} parts={[
-                  { label: 'Approved', color: C.s1, value: plan('Approved')?.amount ?? 0, note: `${count(plan('Approved')?.plans ?? 0)} plans` },
+                  { label: 'Approved', color: C.s3, value: plan('Approved')?.amount ?? 0, note: `${count(plan('Approved')?.plans ?? 0)} plans` },
                   { label: 'Pending', color: C.s2, value: plan('Pending')?.amount ?? 0, note: `${count(plan('Pending')?.plans ?? 0)} plans` },
                 ]} />
               </Card>

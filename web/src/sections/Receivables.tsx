@@ -46,7 +46,7 @@ export function Receivables({ q, reload }: SectionProps) {
                 <Card title="Received and balance by semester" subtitle="The two together are the fee billed">
                   {semesters.length > 1
                     ? <Columns stacked name="Received and balance by semester" format={rs} axisFormat={rsShort}
-                        series={[{ key: 'received', label: 'Received', color: C.s1 }, { key: 'balance', label: 'Balance', color: C.s2 }]}
+                        series={[{ key: 'received', label: 'Received', color: C.s3 }, { key: 'balance', label: 'Balance', color: C.s2 }]}
                         data={semesters.map((s) => ({ label: s.first.semester ?? '–', received: s.received, balance: Math.max(0, s.billed - s.received) }))} />
                     : <Quiet>Only {semesters[0]?.first.semester ?? 'one semester'} is in view. Choose “All semesters” on the strip above to compare semesters.</Quiet>}
                 </Card>
@@ -58,7 +58,7 @@ export function Receivables({ q, reload }: SectionProps) {
                 </Card>
               </div>
               <Card title="Billed and received by degree" subtitle="Fee billed on challans, and how much of it has been paid">
-                <BarList format={rsShort} max={12} series={[{ label: 'Billed', color: C.s3 }, { label: 'Received', color: C.s1 }]}
+                <BarList format={rsShort} max={12} series={[{ label: 'Billed', color: C.s1 }, { label: 'Received', color: C.s3 }]}
                   rows={degrees.map((g) => ({ key: g.key, label: degreeName(g.first), values: [g.billed, g.received], note: `Balance ${rsShort(g.billed - g.received)}` }))} />
               </Card>
             </div>

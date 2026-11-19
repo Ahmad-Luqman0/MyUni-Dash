@@ -71,7 +71,7 @@ export function SemesterStrip({ state, selected, onSelect, onRetry }: {
               className={`group relative min-w-[136px] flex-1 px-3 pt-3 pb-3 text-left transition-colors last:rounded-r-lg sm:px-4 ${on ? 'bg-chalk-soft' : 'hover:bg-bg'}`}>
               <span className="flex h-14 items-end gap-2">
                 <span aria-hidden className="rise block w-7 rounded-t-[4px] transition-colors"
-                  style={{ height: h, animationDelay: `${i * 45}ms`, background: on ? 'var(--rail)' : selected === null ? 'var(--s1)' : 'var(--s1-soft)' }} />
+                  style={{ height: h, animationDelay: `${i * 45}ms`, background: on ? 'var(--accent)' : selected === null ? 'var(--s1)' : 'var(--s1-soft)' }} />
                 <span className="pb-0.5 text-[13px] leading-tight text-ink-2"><span className="font-semibold text-ink">{count(s.students)}</span><br />students</span>
               </span>
               {/* the timeline: one continuous rule with a tick at each semester's start */}

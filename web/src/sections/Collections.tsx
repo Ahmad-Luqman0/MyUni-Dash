@@ -9,7 +9,7 @@ import { Card, Loadable, Segmented } from '../components/ui'
 import { DegreeCell, SectionSkeleton } from './shared'
 import { CHALLAN_COLOR, challanLabel, degreeKey, degreeName, monthKey, usePortion, type SectionProps } from './helpers'
 
-const SOURCES = [{ key: 'Bank receipt', label: 'Bank receipt', color: C.s3 }, { key: 'Fee receipt', label: 'Fee receipt', color: C.s1 }]
+const SOURCES = [{ key: 'Bank receipt', label: 'Bank receipt', color: C.s1 }, { key: 'Fee receipt', label: 'Fee receipt', color: C.s3 }]
 
 const columns: Column<CollectionRow>[] = [
   { key: 'date', header: 'Date', cell: (r) => dateLabel(r.receiptDate), sort: (r) => r.receiptDate, nowrap: true },

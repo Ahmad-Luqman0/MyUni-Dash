@@ -53,7 +53,7 @@ export function Button({ children, onClick, disabled, quiet }: { children: React
   return (
     <button type="button" onClick={onClick} disabled={disabled}
       className={`inline-flex h-10 shrink-0 items-center justify-center gap-2 rounded-md px-3.5 text-sm font-medium transition-colors disabled:opacity-60 ${
-        quiet ? 'border border-line bg-surface text-ink hover:border-ink-3' : 'bg-rail text-rail-ink hover:bg-rail-2'}`}>
+        quiet ? 'border border-line bg-surface text-ink hover:border-ink-3' : 'bg-accent text-white hover:bg-accent-deep'}`}>
       {children}
     </button>
   )

@@ -47,14 +47,14 @@ export function Admissions({ q, reload }: SectionProps) {
 
             <div className="grid gap-4 xl:grid-cols-2">
               <Card title="Seats and admissions by degree" subtitle="Seats announced against students admitted">
-                <BarList format={count} max={12} series={[{ label: 'Seats', color: C.s3 }, { label: 'Admitted', color: C.s1 }]}
+                <BarList format={count} max={12} series={[{ label: 'Seats', color: C.s1 }, { label: 'Admitted', color: C.s3 }]}
                   rows={degrees.map((g) => ({ key: g.key, label: degreeName(g.first), values: [g.seats, g.admitted], note: `${pct(g.admitted, g.seats)} filled` }))} />
               </Card>
               <div className="grid content-start gap-4">
                 <Card title="Seats and admissions by semester" subtitle="Each admission intake">
                   {semesters.length > 1
                     ? <Columns name="Seats and admissions by semester" format={count} axisFormat={countShort}
-                        series={[{ key: 'seats', label: 'Seats', color: C.s3 }, { key: 'admitted', label: 'Admitted', color: C.s1 }]}
+                        series={[{ key: 'seats', label: 'Seats', color: C.s1 }, { key: 'admitted', label: 'Admitted', color: C.s3 }]}
                         data={semesters.map((s) => ({ label: s.first.semester ?? '–', seats: s.seats, admitted: s.admitted }))} />
                     : <Quiet>Only {semesters[0]?.first.semester ?? 'one semester'} is in view. Choose “All semesters” on the strip above to compare intakes.</Quiet>}
                 </Card>

@@ -57,7 +57,7 @@ export function Discounts({ q, reload }: SectionProps) {
             <div className="grid gap-4 xl:grid-cols-3">
               <Card title="Approved and pending" subtitle="By amount">
                 <SplitBar format={rs} parts={[
-                  { label: 'Approved', color: C.s1, value: approved, note: `${count(status.find((s) => s.key === 'Approved')?.students ?? 0)} students` },
+                  { label: 'Approved', color: C.s3, value: approved, note: `${count(status.find((s) => s.key === 'Approved')?.students ?? 0)} students` },
                   { label: 'Pending', color: C.s2, value: pending, note: `${count(status.find((s) => s.key === 'Pending')?.students ?? 0)} students` },
                 ]} />
               </Card>
