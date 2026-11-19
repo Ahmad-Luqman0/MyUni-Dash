@@ -34,6 +34,16 @@ BEGIN
     DECLARE @Today    DATE = CAST(GETDATE() AS DATE);
     DECLARE @AsOf     DATE = CASE WHEN @EndDate IS NULL OR @EndDate > @Today THEN @Today ELSE DATEADD(DAY, 1, @EndDate) END;
 
+    -- The challans that already have a verified bank receipt, keyed so each cash fee receipt is checked with one
+    -- index seek. (Checking against the bank receipt tables directly took minutes on a full database.)
+    DECLARE @BankPaid TABLE (StudentId UNIQUEIDENTIFIER NOT NULL, ChallanNo NVARCHAR(200) NOT NULL, PRIMARY KEY (StudentId, ChallanNo));
+    INSERT INTO @BankPaid (StudentId, ChallanNo)
+    SELECT DISTINCT BD.StudentId, CAST(BD.ChallanNo AS NVARCHAR(200))
+    FROM UNIBankReceiptsDetail BD WITH (NOLOCK)
+    JOIN UNIBankReceipts BH WITH (NOLOCK) ON BH.Id = BD.BankReceiptId
+    WHERE BH.Status = 1 AND BD.DocStatus = 35 AND BH.BankReceiptStatus IN (2, 34)
+      AND BD.StudentId IS NOT NULL AND BD.ChallanNo IS NOT NULL;
+
     -- Deg: the degree programs the filters allow, with their department and faculty names.
     ;WITH Deg AS (
         SELECT UD.Id, UD.DegreeCode, UD.DegreeName, UD.Status, D.[Description] AS Department, FA.Faculty
@@ -109,10 +119,7 @@ BEGIN
           AND FR.FeeStatus IN (4, 19)                       -- 4 = received (set when the receipt is saved), 19 = approved
           AND (SC.Id IS NULL OR SC.ChallanStatus <> 40)     -- not against a cancelled challan
           -- not already counted as a bank receipt for the same challan
-          AND NOT EXISTS (SELECT 1 FROM UNIBankReceiptsDetail BD WITH (NOLOCK)
-                          JOIN UNIBankReceipts BH WITH (NOLOCK) ON BH.Id = BD.BankReceiptId
-                          WHERE BD.StudentId = FR.UNIStudentId AND BD.ChallanNo = SC.ChallanNo
-                            AND BH.Status = 1 AND BD.DocStatus = 35 AND BH.BankReceiptStatus IN (2, 34))
+          AND NOT EXISTS (SELECT 1 FROM @BankPaid BP WHERE BP.StudentId = FR.UNIStudentId AND BP.ChallanNo = SC.ChallanNo)
           AND (ISNULL(@BranchId, 0) = 0 OR FR.BranchId = @BranchId)
           AND FR.TransDate >= @From AND FR.TransDate < @To
           AND (@SemesterId IS NULL OR SC.RegisterInId = @SemesterId)
