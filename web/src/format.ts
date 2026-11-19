@@ -19,6 +19,9 @@ export const monthLabel = (iso: string) => monthFmt.format(new Date(iso))
 export const dateLabel = (iso: string | null) => (iso ? dayFmt.format(new Date(iso)) : '–')
 /** 3 Mar */
 export const dayLabel = (iso: string) => shortDayFmt.format(new Date(iso))
+/** "14 Mar to 17 Nov 2026" within one year; "14 Mar 2024 to 17 Nov 2026" when the two dates are in different years. */
+export const rangeLabel = (from: string, to: string) =>
+  `${from.slice(0, 4) === to.slice(0, 4) ? dayLabel(from) : dateLabel(from)} to ${dateLabel(to)}`
 
 /** yyyy-mm-dd in local time */
 export const isoDate = (d: Date) =>

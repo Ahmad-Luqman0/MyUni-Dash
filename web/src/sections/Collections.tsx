@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import type { CollectionRow } from '../api'
 import { rollup, sum } from '../useData'
-import { count, dateLabel, dayLabel, monthLabel, pct, rs, rsShort } from '../format'
+import { count, dateLabel, dayLabel, monthLabel, pct, rangeLabel, rs, rsShort } from '../format'
 import { BarList, Columns, Ledger, SplitBar, Tile, TrendArea } from '../components/charts'
 import { C } from '../palette'
 import { DataTable, type Column } from '../components/DataTable'
@@ -42,7 +42,7 @@ export function Collections({ q, reload }: SectionProps) {
         return (
           <div className="space-y-4">
             <Ledger cols={4}>
-              <Tile label="Collected" value={rsShort(total)} full={rs(total)} note={`${dayLabel(days[0].key)} to ${dateLabel(days[days.length - 1].key)}`} />
+              <Tile label="Collected" value={rsShort(total)} full={rs(total)} note={rangeLabel(days[0].key, days[days.length - 1].key)} />
               <Tile label="Receipts" value={count(receipts)} note={`${rs(receipts > 0 ? total / receipts : 0)} on average`} />
               <Tile label="Through the bank" value={pct(bank, total)} note={`${rsShort(bank)} came in as bank receipts`} />
               <Tile label="Busiest day" value={rsShort(best.amount)} full={rs(best.amount)} note={dateLabel(best.key)} />

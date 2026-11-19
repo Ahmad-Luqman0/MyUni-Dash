@@ -1,7 +1,7 @@
 import { useEffect, useRef } from 'react'
 import type { Semester } from '../api'
 import type { Loaded } from '../useData'
-import { count, dateLabel, dayLabel, isoDate } from '../format'
+import { count, isoDate, rangeLabel } from '../format'
 import { Skeleton } from './ui'
 
 const TODAY = isoDate(new Date())
@@ -86,7 +86,7 @@ export function SemesterStrip({ state, selected, onSelect, onRetry }: {
               <span aria-hidden className={`absolute top-[67px] h-[3px] rounded-full ${on ? 'inset-x-0 bg-chalk' : 'left-3 w-7 bg-transparent sm:left-4'}`} />
               <span className="mt-3 block font-display text-base leading-tight font-semibold whitespace-nowrap text-ink">{s.code}</span>
               <span className="mt-0.5 block text-xs whitespace-nowrap text-ink-2">
-                {s.startDate && s.endDate ? `${dayLabel(s.startDate)} to ${dateLabel(s.endDate)}` : 'Dates not set'}
+                {s.startDate && s.endDate ? rangeLabel(s.startDate, s.endDate) : 'Dates not set'}
               </span>
               <span className="mt-1 block h-4 text-xs text-ink-3">
                 {s.isAdmissionOpen ? 'Admissions open' : inSession ? 'In session' : ''}
