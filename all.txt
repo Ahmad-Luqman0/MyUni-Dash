@@ -35,39 +35,40 @@ FROM (VALUES
         (N'HRMSalarySheetDetail', N'HRMSalarySheetId'), (N'HRMSalarySheetDetail', N'IncomeTax'), (N'HRMSalarySheetDetail', N'MonthlyAllowances'), (N'HRMSalarySheetDetail', N'MonthlyDeductions'),
         (N'HRMSalarySheetDetail', N'OverTimeAmt'), (N'HRMSalarySheetDetail', N'ProvidentFund'), (N'HRMSalarySheetDetail', N'RecurringAllowances'), (N'HRMSalarySheetDetail', N'RecurringDeductions'),
         (N'HRMSalarySheetDetail', N'SpecialAllowances'), (N'HRMSalarySheetDetail', N'TotalAllowances'), (N'HRMSalarySheetDetail', N'TotalLoans'), (N'HRMSalaryStructure', N'BasicSalary'),
-        (N'HRMSalaryStructure', N'CompanyId'), (N'HRMSalaryStructure', N'EffectiveDate'), (N'HRMSalaryStructure', N'EmployeeId'), (N'HRMSalaryStructure', N'GrossSalary'),
-        (N'HRMSalaryStructure', N'Id'), (N'HRMSalaryStructure', N'RatePerDay'), (N'HRMSalaryStructure', N'SpecialAllowance'), (N'HRMSalaryStructure', N'Status'),
-        (N'HRMSalaryStructure', N'TotalAllowance'), (N'ProgramType', N'Description'), (N'ProgramType', N'Id'), (N'UNIAcademicCalender', N'BranchId'),
-        (N'UNIAcademicCalender', N'CalenderName'), (N'UNIAcademicCalender', N'CompanyId'), (N'UNIAcademicCalender', N'Id'), (N'UNIAcademicYearSemesterDetails', N'AcademicCalenderId'),
-        (N'UNIAcademicYearSemesterDetails', N'Code'), (N'UNIAcademicYearSemesterDetails', N'EndDate'), (N'UNIAcademicYearSemesterDetails', N'Id'), (N'UNIAcademicYearSemesterDetails', N'IsAdmissionOpen'),
-        (N'UNIAcademicYearSemesterDetails', N'OrderId'), (N'UNIAcademicYearSemesterDetails', N'StartDate'), (N'UNIAdmissionAnnouncement', N'BranchId'), (N'UNIAdmissionAnnouncement', N'CompanyId'),
-        (N'UNIAdmissionAnnouncement', N'Id'), (N'UNIAdmissionAnnouncement', N'Status'), (N'UNIAdmissionAnnouncementDetails', N'AdmissionAnnouncementId'), (N'UNIAdmissionAnnouncementDetails', N'AvailableSeats'),
-        (N'UNIAdmissionAnnouncementDetails', N'DegreeId'), (N'UNIAdmissionAnnouncementDetails', N'FeeAmount'), (N'UNIAdmissionAnnouncementDetails', N'ProgramTypeId'), (N'UNIAdmissionAnnouncementDetails', N'SemesterSessionId'),
-        (N'UNIBankReceipts', N'BankReceiptStatus'), (N'UNIBankReceipts', N'BranchId'), (N'UNIBankReceipts', N'Id'), (N'UNIBankReceipts', N'Status'),
-        (N'UNIBankReceipts', N'UploadedDate'), (N'UNIBankReceiptsDetail', N'Amount'), (N'UNIBankReceiptsDetail', N'BankReceiptId'), (N'UNIBankReceiptsDetail', N'ChallanNo'),
-        (N'UNIBankReceiptsDetail', N'DegreeId'), (N'UNIBankReceiptsDetail', N'DocStatus'), (N'UNIBankReceiptsDetail', N'StudentId'), (N'UNIChallanTypes', N'ChallanType'),
-        (N'UNIChallanTypes', N'Id'), (N'UNIDegree', N'BranchId'), (N'UNIDegree', N'CompanyId'), (N'UNIDegree', N'DegreeCode'),
-        (N'UNIDegree', N'DegreeLevel'), (N'UNIDegree', N'DegreeName'), (N'UNIDegree', N'DepartmentId'), (N'UNIDegree', N'Id'),
-        (N'UNIDegree', N'Status'), (N'UNIDegreeLevels', N'DegreeLevelName'), (N'UNIDegreeLevels', N'Id'), (N'UNIDiscountCatagory', N'Description'),
-        (N'UNIDiscountCatagory', N'Id'), (N'UNIDiscountsTypes', N'Description'), (N'UNIDiscountsTypes', N'Id'), (N'UNIFeeDiscount', N'AppliedSemesterId'),
-        (N'UNIFeeDiscount', N'BranchId'), (N'UNIFeeDiscount', N'CompanyId'), (N'UNIFeeDiscount', N'DiscountCatagoryId'), (N'UNIFeeDiscount', N'DiscountStatus'),
-        (N'UNIFeeDiscount', N'Id'), (N'UNIFeeDiscount', N'StartDate'), (N'UNIFeeDiscount', N'Status'), (N'UNIFeeDiscountDetails', N'DegreeId'),
-        (N'UNIFeeDiscountDetails', N'DiscountedAmount'), (N'UNIFeeDiscountDetails', N'DiscountsTypeId'), (N'UNIFeeDiscountDetails', N'FeedDiscountId'), (N'UNIFeeDiscountDetails', N'FeeTypeId'),
-        (N'UNIFeeDiscountDetails', N'Status'), (N'UNIFeeDiscountDetails', N'StudentId'), (N'UNIFeeInstallments', N'BranchId'), (N'UNIFeeInstallments', N'CompanyId'),
-        (N'UNIFeeInstallments', N'Id'), (N'UNIFeeInstallments', N'InstallmentStatus'), (N'UNIFeeInstallments', N'SemesterId'), (N'UNIFeeInstallments', N'Status'),
-        (N'UNIFeeInstallments', N'StudentId'), (N'UNIFeeInstallmentsDetail', N'Amount'), (N'UNIFeeInstallmentsDetail', N'ChallanGUID'), (N'UNIFeeInstallmentsDetail', N'FeeInstallmentId'),
-        (N'UNIFeeInstallmentsDetail', N'InstallmentStatus'), (N'UNIFeeInstallmentsDetail', N'Month'), (N'UNIFeeInstallmentsDetail', N'Status'), (N'UNIFeeInstallmentsDetail', N'ValidityDate'),
-        (N'UNIFeeTypes', N'Description'), (N'UNIFeeTypes', N'Id'), (N'UNIStudentAnnounceDetails', N'DegreeId'), (N'UNIStudentAnnounceDetails', N'SemesterSessionId'),
-        (N'UNIStudentAnnounceDetails', N'Status'), (N'UNIStudentAnnounceDetails', N'StudentsId'), (N'UNIStudents', N'AdmissionNumber'), (N'UNIStudents', N'BranchId'),
-        (N'UNIStudents', N'DegreeId'), (N'UNIStudents', N'Id'), (N'UNIStudents', N'IsDegreeCompleted'), (N'UNIStudents', N'ShiftId'),
-        (N'UNIStudents', N'Status'), (N'UNIStudents', N'StudentFullName'), (N'UNIStudentsChallan', N'BranchId'), (N'UNIStudentsChallan', N'ChallanDescription'),
-        (N'UNIStudentsChallan', N'ChallanNo'), (N'UNIStudentsChallan', N'ChallanStatus'), (N'UNIStudentsChallan', N'ChallanTypeId'), (N'UNIStudentsChallan', N'CompanyId'),
-        (N'UNIStudentsChallan', N'DegreeId'), (N'UNIStudentsChallan', N'DueDate'), (N'UNIStudentsChallan', N'FineAmount'), (N'UNIStudentsChallan', N'GovtFeeDiscountAmt'),
-        (N'UNIStudentsChallan', N'Id'), (N'UNIStudentsChallan', N'NetChallanAmt'), (N'UNIStudentsChallan', N'ParentIdGuid'), (N'UNIStudentsChallan', N'RegisterInId'),
-        (N'UNIStudentsChallan', N'SemesterSessionId'), (N'UNIStudentsChallan', N'Status'), (N'UNIStudentsChallan', N'StudentId'), (N'UNIStudentsChallan', N'TotalAmount'),
-        (N'UNIStudentsChallan', N'TotalDiscountAmt'), (N'UNIStudentsChallan', N'TransDate'), (N'UNIStudentsChallan', N'ValidityDate'), (N'UNIStudentsRegistrations', N'BranchId'),
-        (N'UNIStudentsRegistrations', N'CompanyId'), (N'UNIStudentsRegistrations', N'DegreeId'), (N'UNIStudentsRegistrations', N'RegisterInId'), (N'UNIStudentsRegistrations', N'SemesterNo'),
-        (N'UNIStudentsRegistrations', N'SemesterSessionId'), (N'UNIStudentsRegistrations', N'Status'), (N'UNIStudentsRegistrations', N'StudentsId')
+        (N'HRMSalaryStructure', N'CompanyId'), (N'HRMSalaryStructure', N'EffectiveDate'), (N'HRMSalaryStructure', N'EmployeeId'), (N'HRMSalaryStructure', N'ExpiryDate'),
+        (N'HRMSalaryStructure', N'GrossSalary'), (N'HRMSalaryStructure', N'Id'), (N'HRMSalaryStructure', N'RatePerDay'), (N'HRMSalaryStructure', N'SpecialAllowance'),
+        (N'HRMSalaryStructure', N'Status'), (N'HRMSalaryStructure', N'TotalAllowance'), (N'ProgramType', N'Description'), (N'ProgramType', N'Id'),
+        (N'UNIAcademicCalender', N'BranchId'), (N'UNIAcademicCalender', N'CalenderName'), (N'UNIAcademicCalender', N'CompanyId'), (N'UNIAcademicCalender', N'Id'),
+        (N'UNIAcademicYearSemesterDetails', N'AcademicCalenderId'), (N'UNIAcademicYearSemesterDetails', N'Code'), (N'UNIAcademicYearSemesterDetails', N'EndDate'), (N'UNIAcademicYearSemesterDetails', N'Id'),
+        (N'UNIAcademicYearSemesterDetails', N'IsAdmissionOpen'), (N'UNIAcademicYearSemesterDetails', N'OrderId'), (N'UNIAcademicYearSemesterDetails', N'StartDate'), (N'UNIAdmissionAnnouncement', N'BranchId'),
+        (N'UNIAdmissionAnnouncement', N'CompanyId'), (N'UNIAdmissionAnnouncement', N'Id'), (N'UNIAdmissionAnnouncement', N'Status'), (N'UNIAdmissionAnnouncementDetails', N'AdmissionAnnouncementId'),
+        (N'UNIAdmissionAnnouncementDetails', N'AvailableSeats'), (N'UNIAdmissionAnnouncementDetails', N'DegreeId'), (N'UNIAdmissionAnnouncementDetails', N'FeeAmount'), (N'UNIAdmissionAnnouncementDetails', N'ProgramTypeId'),
+        (N'UNIAdmissionAnnouncementDetails', N'SemesterSessionId'), (N'UNIBankReceipts', N'BankReceiptStatus'), (N'UNIBankReceipts', N'BranchId'), (N'UNIBankReceipts', N'Id'),
+        (N'UNIBankReceipts', N'Status'), (N'UNIBankReceipts', N'UploadedDate'), (N'UNIBankReceiptsDetail', N'Amount'), (N'UNIBankReceiptsDetail', N'BankReceiptId'),
+        (N'UNIBankReceiptsDetail', N'ChallanNo'), (N'UNIBankReceiptsDetail', N'DegreeId'), (N'UNIBankReceiptsDetail', N'DocStatus'), (N'UNIBankReceiptsDetail', N'StudentId'),
+        (N'UNIChallanTypes', N'ChallanType'), (N'UNIChallanTypes', N'Id'), (N'UNIDegree', N'BranchId'), (N'UNIDegree', N'CompanyId'),
+        (N'UNIDegree', N'DegreeCode'), (N'UNIDegree', N'DegreeLevel'), (N'UNIDegree', N'DegreeName'), (N'UNIDegree', N'DepartmentId'),
+        (N'UNIDegree', N'Id'), (N'UNIDegree', N'Status'), (N'UNIDegreeLevels', N'DegreeLevelName'), (N'UNIDegreeLevels', N'Id'),
+        (N'UNIDiscountCatagory', N'Description'), (N'UNIDiscountCatagory', N'Id'), (N'UNIDiscountsTypes', N'Description'), (N'UNIDiscountsTypes', N'Id'),
+        (N'UNIFeeDiscount', N'AppliedSemesterId'), (N'UNIFeeDiscount', N'BranchId'), (N'UNIFeeDiscount', N'CompanyId'), (N'UNIFeeDiscount', N'DiscountCatagoryId'),
+        (N'UNIFeeDiscount', N'DiscountStatus'), (N'UNIFeeDiscount', N'Id'), (N'UNIFeeDiscount', N'StartDate'), (N'UNIFeeDiscount', N'Status'),
+        (N'UNIFeeDiscountDetails', N'DegreeId'), (N'UNIFeeDiscountDetails', N'DiscountedAmount'), (N'UNIFeeDiscountDetails', N'DiscountsTypeId'), (N'UNIFeeDiscountDetails', N'FeedDiscountId'),
+        (N'UNIFeeDiscountDetails', N'FeeTypeId'), (N'UNIFeeDiscountDetails', N'Status'), (N'UNIFeeDiscountDetails', N'StudentId'), (N'UNIFeeInstallments', N'BranchId'),
+        (N'UNIFeeInstallments', N'CompanyId'), (N'UNIFeeInstallments', N'Id'), (N'UNIFeeInstallments', N'InstallmentStatus'), (N'UNIFeeInstallments', N'SemesterId'),
+        (N'UNIFeeInstallments', N'Status'), (N'UNIFeeInstallments', N'StudentId'), (N'UNIFeeInstallmentsDetail', N'Amount'), (N'UNIFeeInstallmentsDetail', N'ChallanGUID'),
+        (N'UNIFeeInstallmentsDetail', N'FeeInstallmentId'), (N'UNIFeeInstallmentsDetail', N'InstallmentStatus'), (N'UNIFeeInstallmentsDetail', N'Month'), (N'UNIFeeInstallmentsDetail', N'Status'),
+        (N'UNIFeeInstallmentsDetail', N'ValidityDate'), (N'UNIFeeTypes', N'Description'), (N'UNIFeeTypes', N'Id'), (N'UNIStudentAnnounceDetails', N'DegreeId'),
+        (N'UNIStudentAnnounceDetails', N'SemesterSessionId'), (N'UNIStudentAnnounceDetails', N'Status'), (N'UNIStudentAnnounceDetails', N'StudentsId'), (N'UNIStudents', N'AdmissionNumber'),
+        (N'UNIStudents', N'BranchId'), (N'UNIStudents', N'CompletionDate'), (N'UNIStudents', N'DegreeId'), (N'UNIStudents', N'Id'),
+        (N'UNIStudents', N'IsDegreeCompleted'), (N'UNIStudents', N'ShiftId'), (N'UNIStudents', N'Status'), (N'UNIStudents', N'StudentFullName'),
+        (N'UNIStudentsChallan', N'BranchId'), (N'UNIStudentsChallan', N'ChallanDescription'), (N'UNIStudentsChallan', N'ChallanNo'), (N'UNIStudentsChallan', N'ChallanStatus'),
+        (N'UNIStudentsChallan', N'ChallanTypeId'), (N'UNIStudentsChallan', N'CompanyId'), (N'UNIStudentsChallan', N'DegreeId'), (N'UNIStudentsChallan', N'DueDate'),
+        (N'UNIStudentsChallan', N'FineAmount'), (N'UNIStudentsChallan', N'GovtFeeDiscountAmt'), (N'UNIStudentsChallan', N'Id'), (N'UNIStudentsChallan', N'NetChallanAmt'),
+        (N'UNIStudentsChallan', N'ParentIdGuid'), (N'UNIStudentsChallan', N'RegisterInId'), (N'UNIStudentsChallan', N'SemesterSessionId'), (N'UNIStudentsChallan', N'Status'),
+        (N'UNIStudentsChallan', N'StudentId'), (N'UNIStudentsChallan', N'TotalAmount'), (N'UNIStudentsChallan', N'TotalDiscountAmt'), (N'UNIStudentsChallan', N'TransDate'),
+        (N'UNIStudentsChallan', N'ValidityDate'), (N'UNIStudentsRegistrations', N'BranchId'), (N'UNIStudentsRegistrations', N'CompanyId'), (N'UNIStudentsRegistrations', N'DegreeId'),
+        (N'UNIStudentsRegistrations', N'RegisterInId'), (N'UNIStudentsRegistrations', N'SemesterNo'), (N'UNIStudentsRegistrations', N'SemesterSessionId'), (N'UNIStudentsRegistrations', N'Status'),
+        (N'UNIStudentsRegistrations', N'StudentsId')
      ) R(Obj, Col)
 WHERE COL_LENGTH(N'dbo.' + R.Obj, R.Col) IS NULL;
 IF @Missing <> N''
@@ -207,10 +208,12 @@ END
 GO
 
 -- 02. Dashboard_MyUni_StudentSummary: the headline numbers of the Overview tab, one row.
--- Students / DegreeCompleted: active students in the allowed degrees (the semester filter does not apply).
--- RegisteredStudents, NewAdmissions: for the chosen semester, or all semesters.
+-- Every figure follows @StartDate / @EndDate:
+-- Students: students on record in the allowed degrees; with dates, those registered in a semester that overlaps the dates.
+-- RegisteredStudents, NewAdmissions: for the chosen semester, or the semesters that overlap the dates.
+-- DegreeCompleted: students flagged as completed; with dates, those whose completion date falls in them.
 -- Billed, Received, Outstanding, Discounts: challans dated in the range (rules of Dashboard_MyUni_Receivables).
--- Overdue, Defaulters: as of @EndDate (today when empty), rules of Dashboard_MyUni_Defaulters.
+-- Overdue, Defaulters: challans that fell due in the dates, judged on @EndDate (rules of Dashboard_MyUni_Defaulters).
 -- Collected: receipts dated in the range (rules of Dashboard_MyUni_Collections).
 DROP PROCEDURE IF EXISTS dbo.Dashboard_MyUni_StudentSummary;
 GO
@@ -228,9 +231,11 @@ AS
 BEGIN
     SET NOCOUNT ON;
 
-    DECLARE @From DATE = ISNULL(@StartDate, '19000101');
-    DECLARE @To   DATE = DATEADD(DAY, 1, ISNULL(@EndDate, '99991230'));
-    DECLARE @AsOf DATE = ISNULL(@EndDate, CAST(GETDATE() AS DATE));
+    DECLARE @From     DATE = ISNULL(@StartDate, '19000101');
+    DECLARE @To       DATE = DATEADD(DAY, 1, ISNULL(@EndDate, '99991230'));
+    DECLARE @AllDates BIT  = CASE WHEN @StartDate IS NULL AND @EndDate IS NULL THEN 1 ELSE 0 END;
+    DECLARE @Today    DATE = CAST(GETDATE() AS DATE);
+    DECLARE @AsOf     DATE = CASE WHEN @EndDate IS NULL OR @EndDate > @Today THEN @Today ELSE DATEADD(DAY, 1, @EndDate) END;
 
     -- Deg: the degree programs the filters allow, with their department and faculty names.
     ;WITH Deg AS (
@@ -257,7 +262,8 @@ BEGIN
                CASE WHEN C.ParentIdGuid IS NULL AND C.ChallanStatus NOT IN (3, 40) THEN 1 ELSE 0 END AS IsBilled,
                CASE WHEN C.ChallanStatus IN (1, 62) THEN 1 ELSE 0 END AS IsPaid,
                CASE WHEN C.ParentIdGuid IS NULL AND C.ChallanStatus NOT IN (1, 62, 3, 40, 63, 64)
-                         AND ISNULL(C.ValidityDate, C.DueDate) < @AsOf THEN 1 ELSE 0 END AS IsOverdue
+                         AND ISNULL(C.ValidityDate, C.DueDate) < @AsOf THEN 1 ELSE 0 END AS IsOverdue,
+               CASE WHEN @AllDates = 1 OR (ISNULL(C.ValidityDate, C.DueDate) >= @From AND ISNULL(C.ValidityDate, C.DueDate) < @To) THEN 1 ELSE 0 END AS InDue
         FROM UNIStudentsChallan C WITH (NOLOCK)
         JOIN UNIStudents S WITH (NOLOCK) ON S.Id = C.StudentId AND S.Status = 1
         JOIN Deg G ON G.Id = C.DegreeId
@@ -274,6 +280,7 @@ BEGIN
                SUM(C.IsOverdue)        AS UnpaidChallans,
                MIN(CASE WHEN C.IsOverdue = 1 THEN C.DueOn END) AS OldestDueDate
         FROM Ch C
+        WHERE C.InDue = 1
         GROUP BY C.StudentId, C.DegreeId
         HAVING SUM(C.IsBilled * C.Net) - SUM(C.IsPaid * C.Net) > 0 AND SUM(C.IsOverdue) > 0
     ),
@@ -310,7 +317,10 @@ BEGIN
     )
     SELECT
         (SELECT COUNT(*) FROM UNIStudents S WITH (NOLOCK) JOIN Deg G ON G.Id = S.DegreeId
-         WHERE S.Status = 1 AND (ISNULL(@BranchId, 0) = 0 OR S.BranchId = @BranchId)) AS Students,
+         WHERE S.Status = 1 AND (ISNULL(@BranchId, 0) = 0 OR S.BranchId = @BranchId)
+           AND (@AllDates = 1 OR EXISTS (SELECT 1 FROM UNIStudentsRegistrations R WITH (NOLOCK)
+                                         WHERE R.StudentsId = S.Id AND R.Status = 1
+                                           AND ISNULL(R.RegisterInId, R.SemesterSessionId) IN (SELECT SD.Id FROM UNIAcademicYearSemesterDetails SD WITH (NOLOCK) WHERE SD.StartDate < @To AND SD.EndDate >= @From)))) AS Students,
 
         (SELECT COUNT(DISTINCT R.StudentsId)
          FROM UNIStudentsRegistrations R WITH (NOLOCK)
@@ -318,11 +328,13 @@ BEGIN
          JOIN Deg G ON G.Id = R.DegreeId
          WHERE R.CompanyId = @CompanyId AND R.Status = 1
            AND (ISNULL(@BranchId, 0) = 0 OR R.BranchId = @BranchId)
-           AND (@SemesterId IS NULL OR ISNULL(R.RegisterInId, R.SemesterSessionId) = @SemesterId)) AS RegisteredStudents,
+           AND (@SemesterId IS NULL OR ISNULL(R.RegisterInId, R.SemesterSessionId) = @SemesterId)
+           AND (@AllDates = 1 OR ISNULL(R.RegisterInId, R.SemesterSessionId) IN (SELECT SD.Id FROM UNIAcademicYearSemesterDetails SD WITH (NOLOCK) WHERE SD.StartDate < @To AND SD.EndDate >= @From))) AS RegisteredStudents,
 
         (SELECT COUNT(*) FROM UNIStudents S WITH (NOLOCK) JOIN Deg G ON G.Id = S.DegreeId
          WHERE S.Status = 1 AND S.IsDegreeCompleted = 1
-           AND (ISNULL(@BranchId, 0) = 0 OR S.BranchId = @BranchId)) AS DegreeCompleted,
+           AND (ISNULL(@BranchId, 0) = 0 OR S.BranchId = @BranchId)
+           AND (@AllDates = 1 OR (S.CompletionDate >= @From AND S.CompletionDate < @To))) AS DegreeCompleted,
 
         (SELECT COUNT(*) FROM Deg G WHERE G.Status = 1) AS Programs,
 
@@ -332,12 +344,13 @@ BEGIN
          JOIN Deg G ON G.Id = SA.DegreeId
          WHERE SA.Status = 1
            AND (ISNULL(@BranchId, 0) = 0 OR S.BranchId = @BranchId)
-           AND (@SemesterId IS NULL OR SA.SemesterSessionId = @SemesterId)) AS NewAdmissions,
+           AND (@SemesterId IS NULL OR SA.SemesterSessionId = @SemesterId)
+           AND (@AllDates = 1 OR SA.SemesterSessionId IN (SELECT SD.Id FROM UNIAcademicYearSemesterDetails SD WITH (NOLOCK) WHERE SD.StartDate < @To AND SD.EndDate >= @From))) AS NewAdmissions,
 
         ISNULL((SELECT SUM(C.IsBilled * C.Net) FROM Ch C WHERE C.InRange = 1), 0) AS Billed,
         ISNULL((SELECT SUM(C.IsPaid * C.Net)   FROM Ch C WHERE C.InRange = 1), 0) AS Received,
         ISNULL((SELECT SUM(C.IsBilled * C.Net) - SUM(C.IsPaid * C.Net) FROM Ch C WHERE C.InRange = 1), 0) AS Outstanding,
-        ISNULL((SELECT SUM(C.Net) FROM Ch C WHERE C.IsOverdue = 1), 0) AS Overdue,
+        ISNULL((SELECT SUM(C.Net) FROM Ch C WHERE C.IsOverdue = 1 AND C.InDue = 1), 0) AS Overdue,
         (SELECT COUNT(DISTINCT D.StudentId) FROM Due D) AS Defaulters,
         ISNULL((SELECT SUM(C.IsBilled * C.Discount) FROM Ch C WHERE C.InRange = 1), 0) AS Discounts,
         ISNULL((SELECT SUM(R.Amount) FROM Rec R JOIN Deg G ON G.Id = R.DegreeId), 0) AS Collected;
@@ -346,7 +359,8 @@ GO
 
 -- 03. Dashboard_MyUni_Registrations: registered students per semester, degree, semester number and shift (Students tab).
 -- A registration counts when it is active, its student is active, and it falls in the semester
--- (RegisterInId; the first semester, SemesterSessionId, when RegisterInId is empty). @StartDate / @EndDate are not used.
+-- (RegisterInId; the first semester, SemesterSessionId, when RegisterInId is empty).
+-- With dates chosen, only semesters that overlap @StartDate to @EndDate are counted.
 DROP PROCEDURE IF EXISTS dbo.Dashboard_MyUni_Registrations;
 GO
 CREATE PROCEDURE dbo.Dashboard_MyUni_Registrations
@@ -357,10 +371,14 @@ CREATE PROCEDURE dbo.Dashboard_MyUni_Registrations
     @DegreeId     UNIQUEIDENTIFIER = NULL,   -- NULL = all
     @SemesterId   UNIQUEIDENTIFIER = NULL,   -- NULL = all
     @StartDate    DATE             = NULL,   -- NULL = no limit
-    @EndDate      DATE             = NULL    -- not used here
+    @EndDate      DATE             = NULL    -- whole day included; NULL = no limit
 AS
 BEGIN
     SET NOCOUNT ON;
+
+    DECLARE @From     DATE = ISNULL(@StartDate, '19000101');
+    DECLARE @To       DATE = DATEADD(DAY, 1, ISNULL(@EndDate, '99991230'));
+    DECLARE @AllDates BIT  = CASE WHEN @StartDate IS NULL AND @EndDate IS NULL THEN 1 ELSE 0 END;
 
     -- Deg: the degree programs the filters allow, with their department and faculty names.
     ;WITH Deg AS (
@@ -391,6 +409,7 @@ BEGIN
       AND R.Status = 1
       AND (ISNULL(@BranchId, 0) = 0 OR R.BranchId = @BranchId)
       AND (@SemesterId IS NULL OR ISNULL(R.RegisterInId, R.SemesterSessionId) = @SemesterId)
+      AND (@AllDates = 1 OR ISNULL(R.RegisterInId, R.SemesterSessionId) IN (SELECT SD.Id FROM UNIAcademicYearSemesterDetails SD WITH (NOLOCK) WHERE SD.StartDate < @To AND SD.EndDate >= @From))
     GROUP BY SEM.Id, SEM.Code, SEM.StartDate, G.Id, G.DegreeCode, G.DegreeName, G.Department, G.Faculty,
              R.SemesterNo, PT.[Description]
     ORDER BY SEM.StartDate, G.DegreeName, R.SemesterNo;
@@ -399,7 +418,8 @@ GO
 
 -- 04. Dashboard_MyUni_Admissions: seats announced and students admitted per semester, degree and shift (Admissions tab).
 -- Seats come from the active admission announcements. Admitted = active students admitted to that degree in that
--- semester (UNIStudentAnnounceDetails), on the same shift. @StartDate / @EndDate are not used.
+-- semester (UNIStudentAnnounceDetails), on the same shift.
+-- With dates chosen, only semesters that overlap @StartDate to @EndDate are counted.
 DROP PROCEDURE IF EXISTS dbo.Dashboard_MyUni_Admissions;
 GO
 CREATE PROCEDURE dbo.Dashboard_MyUni_Admissions
@@ -410,10 +430,14 @@ CREATE PROCEDURE dbo.Dashboard_MyUni_Admissions
     @DegreeId     UNIQUEIDENTIFIER = NULL,   -- NULL = all
     @SemesterId   UNIQUEIDENTIFIER = NULL,   -- NULL = all
     @StartDate    DATE             = NULL,   -- NULL = no limit
-    @EndDate      DATE             = NULL    -- not used here
+    @EndDate      DATE             = NULL    -- whole day included; NULL = no limit
 AS
 BEGIN
     SET NOCOUNT ON;
+
+    DECLARE @From     DATE = ISNULL(@StartDate, '19000101');
+    DECLARE @To       DATE = DATEADD(DAY, 1, ISNULL(@EndDate, '99991230'));
+    DECLARE @AllDates BIT  = CASE WHEN @StartDate IS NULL AND @EndDate IS NULL THEN 1 ELSE 0 END;
 
     -- Deg: the degree programs the filters allow, with their department and faculty names.
     ;WITH Deg AS (
@@ -455,6 +479,7 @@ BEGIN
       AND A.Status = 1
       AND (ISNULL(@BranchId, 0) = 0 OR A.BranchId = @BranchId)
       AND (@SemesterId IS NULL OR AD.SemesterSessionId = @SemesterId)
+      AND (@AllDates = 1 OR AD.SemesterSessionId IN (SELECT SD.Id FROM UNIAcademicYearSemesterDetails SD WITH (NOLOCK) WHERE SD.StartDate < @To AND SD.EndDate >= @From))
     GROUP BY SEM.Id, SEM.Code, SEM.StartDate, G.Id, G.DegreeCode, G.DegreeName, G.Department, G.Faculty, PT.[Description]
     ORDER BY SEM.StartDate, G.DegreeName;
 END
@@ -631,7 +656,8 @@ GO
 --   TotalFee = NetChallanAmt of main challans (ParentIdGuid empty) not expired / cancelled (ChallanStatus 3, 40)
 --   Received = NetChallanAmt of paid challans (ChallanStatus 1, 62);  Balance = TotalFee - Received, must be above 0
 --   and the student has a main challan still open (not 1, 62, 3, 40, 63, 64) whose validity date (else due date)
---   is before @EndDate (today when empty). @StartDate is not used.
+--   has passed. With dates chosen, only challans that fell due between @StartDate and @EndDate are looked at, and
+--   overdue is judged on @EndDate (never on a day that has not come yet). With no dates: every challan, as of today.
 DROP PROCEDURE IF EXISTS dbo.Dashboard_MyUni_Defaulters;
 GO
 CREATE PROCEDURE dbo.Dashboard_MyUni_Defaulters
@@ -642,14 +668,16 @@ CREATE PROCEDURE dbo.Dashboard_MyUni_Defaulters
     @DegreeId     UNIQUEIDENTIFIER = NULL,   -- NULL = all
     @SemesterId   UNIQUEIDENTIFIER = NULL,   -- NULL = all
     @StartDate    DATE             = NULL,   -- NULL = no limit
-    @EndDate      DATE             = NULL    -- "as of" date; NULL = today
+    @EndDate      DATE             = NULL    -- whole day included; NULL = no limit
 AS
 BEGIN
     SET NOCOUNT ON;
 
-    DECLARE @From DATE = '19000101';
-    DECLARE @To   DATE = '99991231';
-    DECLARE @AsOf DATE = ISNULL(@EndDate, CAST(GETDATE() AS DATE));
+    DECLARE @From     DATE = ISNULL(@StartDate, '19000101');
+    DECLARE @To       DATE = DATEADD(DAY, 1, ISNULL(@EndDate, '99991230'));
+    DECLARE @AllDates BIT  = CASE WHEN @StartDate IS NULL AND @EndDate IS NULL THEN 1 ELSE 0 END;
+    DECLARE @Today    DATE = CAST(GETDATE() AS DATE);
+    DECLARE @AsOf     DATE = CASE WHEN @EndDate IS NULL OR @EndDate > @Today THEN @Today ELSE DATEADD(DAY, 1, @EndDate) END;
 
     -- Deg: the degree programs the filters allow, with their department and faculty names.
     ;WITH Deg AS (
@@ -684,6 +712,7 @@ BEGIN
           AND C.Status = 1
           AND (ISNULL(@BranchId, 0) = 0 OR C.BranchId = @BranchId)
           AND (@SemesterId IS NULL OR C.RegisterInId = @SemesterId)
+          AND (@AllDates = 1 OR (ISNULL(C.ValidityDate, C.DueDate) >= @From AND ISNULL(C.ValidityDate, C.DueDate) < @To))
     ),
     -- Due: one row per student and degree; a defaulter has a balance and at least one overdue challan.
     Due AS (
@@ -701,7 +730,7 @@ BEGIN
            PT.[Description] AS ProgramType,
            D.TotalFee, D.Received, D.TotalFee - D.Received AS Balance,
            D.UnpaidChallans, D.OldestDueDate,
-           DATEDIFF(DAY, D.OldestDueDate, @AsOf) AS DaysOverdue,
+           DATEDIFF(DAY, D.OldestDueDate, CASE WHEN @EndDate IS NULL OR @EndDate > @Today THEN @Today ELSE @EndDate END) AS DaysOverdue,
            STUFF((SELECT ', ' + ISNULL(NULLIF(C.ChallanDescription, ''), 'Full fee')
                   FROM Ch C
                   WHERE C.StudentId = D.StudentId AND C.DegreeId = D.DegreeId AND C.IsOverdue = 1
@@ -850,8 +879,9 @@ GO
 
 -- 10. Dashboard_MyUni_Employees: the staff of the company, one row per employee (Employees tab).
 -- Every employee that is active, or that has left (so leavers can be counted). IsActive = active and not discontinued.
--- No personal details (CNIC, phone, address) are returned. @StartDate / @EndDate are not used: the page counts
--- joiners and leavers in the chosen dates from HiringDate and DiscontinuationDate.
+-- No personal details (CNIC, phone, address) are returned.
+-- With dates chosen: the employees who worked at some point between @StartDate and @EndDate (hired on or before
+-- @EndDate, and not gone before @StartDate), and IsActive says whether they were still employed on @EndDate.
 DROP PROCEDURE IF EXISTS dbo.Dashboard_MyUni_Employees;
 GO
 CREATE PROCEDURE dbo.Dashboard_MyUni_Employees
@@ -862,10 +892,13 @@ CREATE PROCEDURE dbo.Dashboard_MyUni_Employees
     @DegreeId     UNIQUEIDENTIFIER = NULL,   -- not used by the HR tabs
     @SemesterId   UNIQUEIDENTIFIER = NULL,   -- not used by the HR tabs
     @StartDate    DATE             = NULL,   -- NULL = no limit
-    @EndDate      DATE             = NULL    -- not used here
+    @EndDate      DATE             = NULL    -- whole day included; NULL = no limit
 AS
 BEGIN
     SET NOCOUNT ON;
+
+    DECLARE @From DATE = ISNULL(@StartDate, '19000101');
+    DECLARE @To   DATE = DATEADD(DAY, 1, ISNULL(@EndDate, '99991230'));
 
     SELECT E.Id AS EmployeeId, E.Code, E.[Name],
            NULLIF(LTRIM(RTRIM(E.Designation)), '') AS Designation,
@@ -875,13 +908,15 @@ BEGIN
            NULLIF(LTRIM(RTRIM(E.Gender)), '') AS Gender,
            B.[Description]  AS Branch,
            E.HiringDate, E.DiscontinuationDate,
-           CAST(CASE WHEN E.Status = 1 AND E.DiscontinuationDate IS NULL THEN 1 ELSE 0 END AS BIT) AS IsActive
+           CAST(CASE WHEN (E.Status = 1 AND E.DiscontinuationDate IS NULL) OR E.DiscontinuationDate >= @To THEN 1 ELSE 0 END AS BIT) AS IsActive
     FROM Employees E WITH (NOLOCK)
     LEFT JOIN Departments D    WITH (NOLOCK) ON D.Id  = E.DepartmentId
     LEFT JOIN EmployeeTypes ET WITH (NOLOCK) ON ET.Id = E.TypeId
     LEFT JOIN Branches B       WITH (NOLOCK) ON B.Id  = E.BranchId
     WHERE E.CompanyId = @CompanyId
       AND (E.Status = 1 OR E.DiscontinuationDate IS NOT NULL)
+      AND (E.HiringDate IS NULL OR E.HiringDate < @To)
+      AND (E.DiscontinuationDate IS NULL OR E.DiscontinuationDate >= @From)
       AND (ISNULL(@BranchId, 0) = 0 OR E.BranchId = @BranchId)
       AND (ISNULL(@DepartmentId, 0) = 0 OR E.DepartmentId = @DepartmentId)
     ORDER BY E.[Name];
@@ -890,7 +925,9 @@ GO
 
 -- 11. Dashboard_MyUni_SalaryStructure: the current salary structure of each active employee, one row per employee (Salary structure tab).
 -- The current structure is the active row of HRMSalaryStructure (Status = 1); when an employee has more than one,
--- the latest by effective date is used. Expired structures are left out. @StartDate / @EndDate are not used.
+-- the latest by effective date is used. Expired structures are left out.
+-- With @EndDate chosen: the structure that was in force on that date (effective on or before it and not yet expired),
+-- for employees who were employed then. @StartDate is not used: a salary structure is a state, not an event.
 DROP PROCEDURE IF EXISTS dbo.Dashboard_MyUni_SalaryStructure;
 GO
 CREATE PROCEDURE dbo.Dashboard_MyUni_SalaryStructure
@@ -901,16 +938,20 @@ CREATE PROCEDURE dbo.Dashboard_MyUni_SalaryStructure
     @DegreeId     UNIQUEIDENTIFIER = NULL,   -- not used by the HR tabs
     @SemesterId   UNIQUEIDENTIFIER = NULL,   -- not used by the HR tabs
     @StartDate    DATE             = NULL,   -- NULL = no limit
-    @EndDate      DATE             = NULL    -- not used here
+    @EndDate      DATE             = NULL    -- the date the structure must be in force on; NULL = today
 AS
 BEGIN
     SET NOCOUNT ON;
+
+    DECLARE @To DATE = DATEADD(DAY, 1, ISNULL(@EndDate, '99991230'));
 
     ;WITH Cur AS (
         SELECT S.EmployeeId, S.BasicSalary, S.SpecialAllowance, S.TotalAllowance, S.GrossSalary, S.RatePerDay, S.EffectiveDate,
                ROW_NUMBER() OVER (PARTITION BY S.EmployeeId ORDER BY S.EffectiveDate DESC, S.Id DESC) AS Rn
         FROM HRMSalaryStructure S WITH (NOLOCK)
-        WHERE S.CompanyId = @CompanyId AND S.Status = 1
+        WHERE S.CompanyId = @CompanyId
+          AND ((@EndDate IS NULL AND S.Status = 1)
+               OR (@EndDate IS NOT NULL AND S.EffectiveDate < @To AND (S.ExpiryDate IS NULL OR S.ExpiryDate >= @To)))
     )
     SELECT E.Id AS EmployeeId, E.Code, E.[Name],
            NULLIF(LTRIM(RTRIM(E.Designation)), '') AS Designation,
@@ -924,7 +965,9 @@ BEGIN
            ISNULL(C.RatePerDay, 0)       AS RatePerDay,
            C.EffectiveDate
     FROM Cur C
-    JOIN Employees E WITH (NOLOCK) ON E.Id = C.EmployeeId AND E.Status = 1 AND E.DiscontinuationDate IS NULL
+    JOIN Employees E WITH (NOLOCK) ON E.Id = C.EmployeeId
+         AND ((E.Status = 1 AND E.DiscontinuationDate IS NULL) OR E.DiscontinuationDate >= @To)
+         AND (E.HiringDate IS NULL OR E.HiringDate < @To)
     LEFT JOIN Departments D WITH (NOLOCK) ON D.Id = E.DepartmentId
     LEFT JOIN Branches B    WITH (NOLOCK) ON B.Id = E.BranchId
     WHERE C.Rn = 1

@@ -45,6 +45,22 @@ The data procedures (02 to 13) take the same filters: `@CompanyId, @BranchId, @F
 
 ## What is counted
 
+Every tab follows the From and To dates. What "in the dates" means depends on the figure:
+
+| Figure | Follows the dates by |
+|---|---|
+| Students, registrations, admissions | Semesters that overlap the dates |
+| Billed, received, discounts | Challan date |
+| Collected | Receipt date |
+| Overdue, defaulters | Challans that fell due in the dates, judged on the To date (never a day that has not come yet) |
+| Installments | Installment month |
+| Discount tab | Discount start date |
+| Employees | Who was employed at some point in the dates; active means still employed on the To date |
+| Salary structure | The structure in force on the To date (From is not used) |
+| Salary sheet, attendance | Sheet / submission month |
+
+With no dates chosen, everything is counted and overdue is judged as of today.
+
 The rules follow the ERP's own reports so the numbers match them.
 
 - **Registered students** (`UNIStudents_Rp_GetRegisteredStudent`): active registrations of active students, in the semester they registered in (`RegisterInId`; the first semester when that is empty).

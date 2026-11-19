@@ -1,6 +1,7 @@
 -- 04. Dashboard_MyUni_Admissions: seats announced and students admitted per semester, degree and shift (Admissions tab).
 -- Seats come from the active admission announcements. Admitted = active students admitted to that degree in that
--- semester (UNIStudentAnnounceDetails), on the same shift. @StartDate / @EndDate are not used.
+-- semester (UNIStudentAnnounceDetails), on the same shift.
+-- With dates chosen, only semesters that overlap @StartDate to @EndDate are counted.
 -- Check the USE line names the right database. Run the whole script (SSMS: F5; DBeaver: Execute script, Alt+X).
 
 USE SAC400;
@@ -16,10 +17,14 @@ CREATE PROCEDURE dbo.Dashboard_MyUni_Admissions
     @DegreeId     UNIQUEIDENTIFIER = NULL,   -- NULL = all
     @SemesterId   UNIQUEIDENTIFIER = NULL,   -- NULL = all
     @StartDate    DATE             = NULL,   -- NULL = no limit
-    @EndDate      DATE             = NULL    -- not used here
+    @EndDate      DATE             = NULL    -- whole day included; NULL = no limit
 AS
 BEGIN
     SET NOCOUNT ON;
+
+    DECLARE @From     DATE = ISNULL(@StartDate, '19000101');
+    DECLARE @To       DATE = DATEADD(DAY, 1, ISNULL(@EndDate, '99991230'));
+    DECLARE @AllDates BIT  = CASE WHEN @StartDate IS NULL AND @EndDate IS NULL THEN 1 ELSE 0 END;
 
     -- Deg: the degree programs the filters allow, with their department and faculty names.
     ;WITH Deg AS (
@@ -61,6 +66,7 @@ BEGIN
       AND A.Status = 1
       AND (ISNULL(@BranchId, 0) = 0 OR A.BranchId = @BranchId)
       AND (@SemesterId IS NULL OR AD.SemesterSessionId = @SemesterId)
+      AND (@AllDates = 1 OR AD.SemesterSessionId IN (SELECT SD.Id FROM UNIAcademicYearSemesterDetails SD WITH (NOLOCK) WHERE SD.StartDate < @To AND SD.EndDate >= @From))
     GROUP BY SEM.Id, SEM.Code, SEM.StartDate, G.Id, G.DegreeCode, G.DegreeName, G.Department, G.Faculty, PT.[Description]
     ORDER BY SEM.StartDate, G.DegreeName;
 END

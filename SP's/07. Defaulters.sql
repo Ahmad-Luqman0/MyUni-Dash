@@ -3,7 +3,8 @@
 --   TotalFee = NetChallanAmt of main challans (ParentIdGuid empty) not expired / cancelled (ChallanStatus 3, 40)
 --   Received = NetChallanAmt of paid challans (ChallanStatus 1, 62);  Balance = TotalFee - Received, must be above 0
 --   and the student has a main challan still open (not 1, 62, 3, 40, 63, 64) whose validity date (else due date)
---   is before @EndDate (today when empty). @StartDate is not used.
+--   has passed. With dates chosen, only challans that fell due between @StartDate and @EndDate are looked at, and
+--   overdue is judged on @EndDate (never on a day that has not come yet). With no dates: every challan, as of today.
 -- Check the USE line names the right database. Run the whole script (SSMS: F5; DBeaver: Execute script, Alt+X).
 
 USE SAC400;
@@ -19,14 +20,16 @@ CREATE PROCEDURE dbo.Dashboard_MyUni_Defaulters
     @DegreeId     UNIQUEIDENTIFIER = NULL,   -- NULL = all
     @SemesterId   UNIQUEIDENTIFIER = NULL,   -- NULL = all
     @StartDate    DATE             = NULL,   -- NULL = no limit
-    @EndDate      DATE             = NULL    -- "as of" date; NULL = today
+    @EndDate      DATE             = NULL    -- whole day included; NULL = no limit
 AS
 BEGIN
     SET NOCOUNT ON;
 
-    DECLARE @From DATE = '19000101';
-    DECLARE @To   DATE = '99991231';
-    DECLARE @AsOf DATE = ISNULL(@EndDate, CAST(GETDATE() AS DATE));
+    DECLARE @From     DATE = ISNULL(@StartDate, '19000101');
+    DECLARE @To       DATE = DATEADD(DAY, 1, ISNULL(@EndDate, '99991230'));
+    DECLARE @AllDates BIT  = CASE WHEN @StartDate IS NULL AND @EndDate IS NULL THEN 1 ELSE 0 END;
+    DECLARE @Today    DATE = CAST(GETDATE() AS DATE);
+    DECLARE @AsOf     DATE = CASE WHEN @EndDate IS NULL OR @EndDate > @Today THEN @Today ELSE DATEADD(DAY, 1, @EndDate) END;
 
     -- Deg: the degree programs the filters allow, with their department and faculty names.
     ;WITH Deg AS (
@@ -61,6 +64,7 @@ BEGIN
           AND C.Status = 1
           AND (ISNULL(@BranchId, 0) = 0 OR C.BranchId = @BranchId)
           AND (@SemesterId IS NULL OR C.RegisterInId = @SemesterId)
+          AND (@AllDates = 1 OR (ISNULL(C.ValidityDate, C.DueDate) >= @From AND ISNULL(C.ValidityDate, C.DueDate) < @To))
     ),
     -- Due: one row per student and degree; a defaulter has a balance and at least one overdue challan.
     Due AS (
@@ -78,7 +82,7 @@ BEGIN
            PT.[Description] AS ProgramType,
            D.TotalFee, D.Received, D.TotalFee - D.Received AS Balance,
            D.UnpaidChallans, D.OldestDueDate,
-           DATEDIFF(DAY, D.OldestDueDate, @AsOf) AS DaysOverdue,
+           DATEDIFF(DAY, D.OldestDueDate, CASE WHEN @EndDate IS NULL OR @EndDate > @Today THEN @Today ELSE @EndDate END) AS DaysOverdue,
            STUFF((SELECT ', ' + ISNULL(NULLIF(C.ChallanDescription, ''), 'Full fee')
                   FROM Ch C
                   WHERE C.StudentId = D.StudentId AND C.DegreeId = D.DegreeId AND C.IsOverdue = 1

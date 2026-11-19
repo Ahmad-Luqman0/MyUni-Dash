@@ -1,8 +1,10 @@
 -- 02. Dashboard_MyUni_StudentSummary: the headline numbers of the Overview tab, one row.
--- Students / DegreeCompleted: active students in the allowed degrees (the semester filter does not apply).
--- RegisteredStudents, NewAdmissions: for the chosen semester, or all semesters.
+-- Every figure follows @StartDate / @EndDate:
+-- Students: students on record in the allowed degrees; with dates, those registered in a semester that overlaps the dates.
+-- RegisteredStudents, NewAdmissions: for the chosen semester, or the semesters that overlap the dates.
+-- DegreeCompleted: students flagged as completed; with dates, those whose completion date falls in them.
 -- Billed, Received, Outstanding, Discounts: challans dated in the range (rules of Dashboard_MyUni_Receivables).
--- Overdue, Defaulters: as of @EndDate (today when empty), rules of Dashboard_MyUni_Defaulters.
+-- Overdue, Defaulters: challans that fell due in the dates, judged on @EndDate (rules of Dashboard_MyUni_Defaulters).
 -- Collected: receipts dated in the range (rules of Dashboard_MyUni_Collections).
 -- Check the USE line names the right database. Run the whole script (SSMS: F5; DBeaver: Execute script, Alt+X).
 
@@ -25,9 +27,11 @@ AS
 BEGIN
     SET NOCOUNT ON;
 
-    DECLARE @From DATE = ISNULL(@StartDate, '19000101');
-    DECLARE @To   DATE = DATEADD(DAY, 1, ISNULL(@EndDate, '99991230'));
-    DECLARE @AsOf DATE = ISNULL(@EndDate, CAST(GETDATE() AS DATE));
+    DECLARE @From     DATE = ISNULL(@StartDate, '19000101');
+    DECLARE @To       DATE = DATEADD(DAY, 1, ISNULL(@EndDate, '99991230'));
+    DECLARE @AllDates BIT  = CASE WHEN @StartDate IS NULL AND @EndDate IS NULL THEN 1 ELSE 0 END;
+    DECLARE @Today    DATE = CAST(GETDATE() AS DATE);
+    DECLARE @AsOf     DATE = CASE WHEN @EndDate IS NULL OR @EndDate > @Today THEN @Today ELSE DATEADD(DAY, 1, @EndDate) END;
 
     -- Deg: the degree programs the filters allow, with their department and faculty names.
     ;WITH Deg AS (
@@ -54,7 +58,8 @@ BEGIN
                CASE WHEN C.ParentIdGuid IS NULL AND C.ChallanStatus NOT IN (3, 40) THEN 1 ELSE 0 END AS IsBilled,
                CASE WHEN C.ChallanStatus IN (1, 62) THEN 1 ELSE 0 END AS IsPaid,
                CASE WHEN C.ParentIdGuid IS NULL AND C.ChallanStatus NOT IN (1, 62, 3, 40, 63, 64)
-                         AND ISNULL(C.ValidityDate, C.DueDate) < @AsOf THEN 1 ELSE 0 END AS IsOverdue
+                         AND ISNULL(C.ValidityDate, C.DueDate) < @AsOf THEN 1 ELSE 0 END AS IsOverdue,
+               CASE WHEN @AllDates = 1 OR (ISNULL(C.ValidityDate, C.DueDate) >= @From AND ISNULL(C.ValidityDate, C.DueDate) < @To) THEN 1 ELSE 0 END AS InDue
         FROM UNIStudentsChallan C WITH (NOLOCK)
         JOIN UNIStudents S WITH (NOLOCK) ON S.Id = C.StudentId AND S.Status = 1
         JOIN Deg G ON G.Id = C.DegreeId
@@ -71,6 +76,7 @@ BEGIN
                SUM(C.IsOverdue)        AS UnpaidChallans,
                MIN(CASE WHEN C.IsOverdue = 1 THEN C.DueOn END) AS OldestDueDate
         FROM Ch C
+        WHERE C.InDue = 1
         GROUP BY C.StudentId, C.DegreeId
         HAVING SUM(C.IsBilled * C.Net) - SUM(C.IsPaid * C.Net) > 0 AND SUM(C.IsOverdue) > 0
     ),
@@ -107,7 +113,10 @@ BEGIN
     )
     SELECT
         (SELECT COUNT(*) FROM UNIStudents S WITH (NOLOCK) JOIN Deg G ON G.Id = S.DegreeId
-         WHERE S.Status = 1 AND (ISNULL(@BranchId, 0) = 0 OR S.BranchId = @BranchId)) AS Students,
+         WHERE S.Status = 1 AND (ISNULL(@BranchId, 0) = 0 OR S.BranchId = @BranchId)
+           AND (@AllDates = 1 OR EXISTS (SELECT 1 FROM UNIStudentsRegistrations R WITH (NOLOCK)
+                                         WHERE R.StudentsId = S.Id AND R.Status = 1
+                                           AND ISNULL(R.RegisterInId, R.SemesterSessionId) IN (SELECT SD.Id FROM UNIAcademicYearSemesterDetails SD WITH (NOLOCK) WHERE SD.StartDate < @To AND SD.EndDate >= @From)))) AS Students,
 
         (SELECT COUNT(DISTINCT R.StudentsId)
          FROM UNIStudentsRegistrations R WITH (NOLOCK)
@@ -115,11 +124,13 @@ BEGIN
          JOIN Deg G ON G.Id = R.DegreeId
          WHERE R.CompanyId = @CompanyId AND R.Status = 1
            AND (ISNULL(@BranchId, 0) = 0 OR R.BranchId = @BranchId)
-           AND (@SemesterId IS NULL OR ISNULL(R.RegisterInId, R.SemesterSessionId) = @SemesterId)) AS RegisteredStudents,
+           AND (@SemesterId IS NULL OR ISNULL(R.RegisterInId, R.SemesterSessionId) = @SemesterId)
+           AND (@AllDates = 1 OR ISNULL(R.RegisterInId, R.SemesterSessionId) IN (SELECT SD.Id FROM UNIAcademicYearSemesterDetails SD WITH (NOLOCK) WHERE SD.StartDate < @To AND SD.EndDate >= @From))) AS RegisteredStudents,
 
         (SELECT COUNT(*) FROM UNIStudents S WITH (NOLOCK) JOIN Deg G ON G.Id = S.DegreeId
          WHERE S.Status = 1 AND S.IsDegreeCompleted = 1
-           AND (ISNULL(@BranchId, 0) = 0 OR S.BranchId = @BranchId)) AS DegreeCompleted,
+           AND (ISNULL(@BranchId, 0) = 0 OR S.BranchId = @BranchId)
+           AND (@AllDates = 1 OR (S.CompletionDate >= @From AND S.CompletionDate < @To))) AS DegreeCompleted,
 
         (SELECT COUNT(*) FROM Deg G WHERE G.Status = 1) AS Programs,
 
@@ -129,12 +140,13 @@ BEGIN
          JOIN Deg G ON G.Id = SA.DegreeId
          WHERE SA.Status = 1
            AND (ISNULL(@BranchId, 0) = 0 OR S.BranchId = @BranchId)
-           AND (@SemesterId IS NULL OR SA.SemesterSessionId = @SemesterId)) AS NewAdmissions,
+           AND (@SemesterId IS NULL OR SA.SemesterSessionId = @SemesterId)
+           AND (@AllDates = 1 OR SA.SemesterSessionId IN (SELECT SD.Id FROM UNIAcademicYearSemesterDetails SD WITH (NOLOCK) WHERE SD.StartDate < @To AND SD.EndDate >= @From))) AS NewAdmissions,
 
         ISNULL((SELECT SUM(C.IsBilled * C.Net) FROM Ch C WHERE C.InRange = 1), 0) AS Billed,
         ISNULL((SELECT SUM(C.IsPaid * C.Net)   FROM Ch C WHERE C.InRange = 1), 0) AS Received,
         ISNULL((SELECT SUM(C.IsBilled * C.Net) - SUM(C.IsPaid * C.Net) FROM Ch C WHERE C.InRange = 1), 0) AS Outstanding,
-        ISNULL((SELECT SUM(C.Net) FROM Ch C WHERE C.IsOverdue = 1), 0) AS Overdue,
+        ISNULL((SELECT SUM(C.Net) FROM Ch C WHERE C.IsOverdue = 1 AND C.InDue = 1), 0) AS Overdue,
         (SELECT COUNT(DISTINCT D.StudentId) FROM Due D) AS Defaulters,
         ISNULL((SELECT SUM(C.IsBilled * C.Discount) FROM Ch C WHERE C.InRange = 1), 0) AS Discounts,
         ISNULL((SELECT SUM(R.Amount) FROM Rec R JOIN Deg G ON G.Id = R.DegreeId), 0) AS Collected;

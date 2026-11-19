@@ -1,6 +1,7 @@
 -- 03. Dashboard_MyUni_Registrations: registered students per semester, degree, semester number and shift (Students tab).
 -- A registration counts when it is active, its student is active, and it falls in the semester
--- (RegisterInId; the first semester, SemesterSessionId, when RegisterInId is empty). @StartDate / @EndDate are not used.
+-- (RegisterInId; the first semester, SemesterSessionId, when RegisterInId is empty).
+-- With dates chosen, only semesters that overlap @StartDate to @EndDate are counted.
 -- Check the USE line names the right database. Run the whole script (SSMS: F5; DBeaver: Execute script, Alt+X).
 
 USE SAC400;
@@ -16,10 +17,14 @@ CREATE PROCEDURE dbo.Dashboard_MyUni_Registrations
     @DegreeId     UNIQUEIDENTIFIER = NULL,   -- NULL = all
     @SemesterId   UNIQUEIDENTIFIER = NULL,   -- NULL = all
     @StartDate    DATE             = NULL,   -- NULL = no limit
-    @EndDate      DATE             = NULL    -- not used here
+    @EndDate      DATE             = NULL    -- whole day included; NULL = no limit
 AS
 BEGIN
     SET NOCOUNT ON;
+
+    DECLARE @From     DATE = ISNULL(@StartDate, '19000101');
+    DECLARE @To       DATE = DATEADD(DAY, 1, ISNULL(@EndDate, '99991230'));
+    DECLARE @AllDates BIT  = CASE WHEN @StartDate IS NULL AND @EndDate IS NULL THEN 1 ELSE 0 END;
 
     -- Deg: the degree programs the filters allow, with their department and faculty names.
     ;WITH Deg AS (
@@ -50,6 +55,7 @@ BEGIN
       AND R.Status = 1
       AND (ISNULL(@BranchId, 0) = 0 OR R.BranchId = @BranchId)
       AND (@SemesterId IS NULL OR ISNULL(R.RegisterInId, R.SemesterSessionId) = @SemesterId)
+      AND (@AllDates = 1 OR ISNULL(R.RegisterInId, R.SemesterSessionId) IN (SELECT SD.Id FROM UNIAcademicYearSemesterDetails SD WITH (NOLOCK) WHERE SD.StartDate < @To AND SD.EndDate >= @From))
     GROUP BY SEM.Id, SEM.Code, SEM.StartDate, G.Id, G.DegreeCode, G.DegreeName, G.Department, G.Faculty,
              R.SemesterNo, PT.[Description]
     ORDER BY SEM.StartDate, G.DegreeName, R.SemesterNo;

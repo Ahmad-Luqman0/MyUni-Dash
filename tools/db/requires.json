@@ -13,7 +13,7 @@
  "HRMAttendenceApprovalDetail": ["Absenties", "AttendanceApprovalId", "DeductionAmount", "EmployeeId", "InMintLate", "Leaves", "NoOfDays", "NoOfLateIn", "NoOfLateOut", "OverTimeAmount"],
  "HRMSalarySheet": ["BranchId", "CompanyId", "Id", "Month", "Status"],
  "HRMSalarySheetDetail": ["AbsentDeductions", "ArrearsAmount", "BasicSalary", "BranchId", "EOBI", "EmployeeId", "HRMSalarySheetId", "IncomeTax", "MonthlyAllowances", "MonthlyDeductions", "OverTimeAmt", "ProvidentFund", "RecurringAllowances", "RecurringDeductions", "SpecialAllowances", "TotalAllowances", "TotalLoans"],
- "HRMSalaryStructure": ["BasicSalary", "CompanyId", "EffectiveDate", "EmployeeId", "GrossSalary", "Id", "RatePerDay", "SpecialAllowance", "Status", "TotalAllowance"],
+ "HRMSalaryStructure": ["BasicSalary", "CompanyId", "EffectiveDate", "EmployeeId", "ExpiryDate", "GrossSalary", "Id", "RatePerDay", "SpecialAllowance", "Status", "TotalAllowance"],
  "ProgramType": ["Description", "Id"],
  "UNIAcademicCalender": ["BranchId", "CalenderName", "CompanyId", "Id"],
  "UNIAcademicYearSemesterDetails": ["AcademicCalenderId", "Code", "EndDate", "Id", "IsAdmissionOpen", "OrderId", "StartDate"],
@@ -32,7 +32,7 @@
  "UNIFeeInstallmentsDetail": ["Amount", "ChallanGUID", "FeeInstallmentId", "InstallmentStatus", "Month", "Status", "ValidityDate"],
  "UNIFeeTypes": ["Description", "Id"],
  "UNIStudentAnnounceDetails": ["DegreeId", "SemesterSessionId", "Status", "StudentsId"],
- "UNIStudents": ["AdmissionNumber", "BranchId", "DegreeId", "Id", "IsDegreeCompleted", "ShiftId", "Status", "StudentFullName"],
+ "UNIStudents": ["AdmissionNumber", "BranchId", "CompletionDate", "DegreeId", "Id", "IsDegreeCompleted", "ShiftId", "Status", "StudentFullName"],
  "UNIStudentsChallan": ["BranchId", "ChallanDescription", "ChallanNo", "ChallanStatus", "ChallanTypeId", "CompanyId", "DegreeId", "DueDate", "FineAmount", "GovtFeeDiscountAmt", "Id", "NetChallanAmt", "ParentIdGuid", "RegisterInId", "SemesterSessionId", "Status", "StudentId", "TotalAmount", "TotalDiscountAmt", "TransDate", "ValidityDate"],
  "UNIStudentsRegistrations": ["BranchId", "CompanyId", "DegreeId", "RegisterInId", "SemesterNo", "SemesterSessionId", "Status", "StudentsId"]
 }
