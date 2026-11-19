@@ -49,7 +49,31 @@ export interface DiscountRow extends DegreeDims {
   discountType: string | null; category: string | null; feeType: string | null; statusText: string | null; students: number; amount: number
 }
 
+/** HR portions: staff, pay and attendance. They use only companyId, branchId, departmentId (the employee's department) and the dates. */
+export interface EmployeeDepartment { id: number; description: string; employees: number }
+export interface EmployeeRow {
+  employeeId: number; code: string | null; name: string | null; designation: string | null; department: string | null
+  employeeType: string | null; employmentStatus: string | null; gender: string | null; branch: string | null
+  hiringDate: string | null; discontinuationDate: string | null; isActive: boolean
+}
+export interface SalaryStructureRow {
+  employeeId: number; code: string | null; name: string | null; designation: string | null; department: string | null
+  employmentStatus: string | null; branch: string | null
+  basicSalary: number; specialAllowance: number; totalAllowance: number; grossSalary: number; ratePerDay: number; effectiveDate: string | null
+}
+export interface SalarySheetRow {
+  month: string; department: string | null; branch: string | null; sheets: number; employees: number
+  basicSalary: number; allowances: number; overTime: number; arrears: number; grossSalary: number
+  deductions: number; loans: number; incomeTax: number; eobi: number; providentFund: number; netPay: number
+}
+export interface AttendanceRow {
+  month: string; department: string | null; branch: string | null; employees: number
+  daysWorked: number; absences: number; leaves: number; lateArrivals: number; earlyDepartures: number; lateMinutes: number
+  overTimeAmount: number; deductionAmount: number
+}
+
 export type Portion = 'summary' | 'registrations' | 'admissions' | 'collections' | 'receivables' | 'defaulters' | 'installments' | 'discounts'
+  | 'employees' | 'salaryStructure' | 'salarySheet' | 'attendance'
 
 function qs(values: Record<string, string | number | null | undefined>) {
   const p = new URLSearchParams()
@@ -71,6 +95,7 @@ export const urls = {
   degrees: (companyId: number, branchId: number | null, facultyId: string | null, departmentId: number | null) =>
     `/api/filters/degrees${qs({ companyId, branchId, facultyId, departmentId })}`,
   semesters: (companyId: number, branchId: number | null) => `/api/filters/semesters${qs({ companyId, branchId })}`,
+  employeeDepartments: (companyId: number, branchId: number | null) => `/api/filters/employee-departments${qs({ companyId, branchId })}`,
   portion: (portion: Portion, q: Query) => `/api/dashboard/${portion}${qs({ ...q })}`,
 }
 

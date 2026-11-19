@@ -12,6 +12,7 @@ public sealed class DashboardController(DashboardDb db) : ControllerBase
     private static readonly HashSet<string> Portions = new(StringComparer.OrdinalIgnoreCase)
     {
         "Summary", "Registrations", "Admissions", "Collections", "Receivables", "Defaulters", "Installments", "Discounts",
+        "Employees", "SalaryStructure", "SalarySheet", "Attendance",
     };
 
     /// <summary>Runs one portion through its procedure with the shared filters. Ints: 0 or missing = all; guids and dates: missing = all.</summary>
@@ -24,8 +25,8 @@ public sealed class DashboardController(DashboardDb db) : ControllerBase
         [FromQuery] int departmentId,
         [FromQuery] string? degreeId,
         [FromQuery] string? semesterId,
-        [FromQuery] DateOnly? startDate,
-        [FromQuery] DateOnly? endDate,
+        [FromQuery] DateTime? startDate,
+        [FromQuery] DateTime? endDate,
         CancellationToken ct)
     {
         if (!Portions.TryGetValue(portion, out var section)) return NotFound(new { error = $"Unknown portion '{portion}'." });
@@ -37,8 +38,8 @@ public sealed class DashboardController(DashboardDb db) : ControllerBase
             DepartmentId = departmentId,
             DegreeId = DashboardDb.ParseGuid(degreeId),
             SemesterId = DashboardDb.ParseGuid(semesterId),
-            StartDate = startDate?.ToDateTime(TimeOnly.MinValue),
-            EndDate = endDate?.ToDateTime(TimeOnly.MinValue),
+            StartDate = startDate?.Date,
+            EndDate = endDate?.Date,
         }, ct);
         return Ok(rows);
     }

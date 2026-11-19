@@ -1,25 +1,41 @@
 using MyUni.API.Data;
+using Microsoft.AspNetCore.Diagnostics;
 
-var builder = WebApplication.CreateBuilder(args);
+namespace MyUni.API;
 
-builder.Services.AddControllers();
-builder.Services.AddOpenApi();
-builder.Services.AddProblemDetails();
-builder.Services.AddSingleton<DashboardDb>();
-
-var origins = builder.Configuration.GetSection("Cors:AllowedOrigins").Get<string[]>() ?? [];
-builder.Services.AddCors(o => o.AddDefaultPolicy(p => p.WithOrigins(origins).AllowAnyHeader().AllowAnyMethod()));
-
-var app = builder.Build();
-
-app.UseExceptionHandler();
-if (app.Environment.IsDevelopment())
+public static class Program
 {
-    app.MapOpenApi();
+    public static void Main(string[] args) =>
+        Host.CreateDefaultBuilder(args).ConfigureWebHostDefaults(web => web.UseStartup<Startup>()).Build().Run();
 }
 
-app.UseCors();
-app.MapControllers();
-app.MapGet("/api/health", () => Results.Ok(new { status = "ok" }));
+/// <summary>Startup in the .NET 5 style (no minimal hosting), so the same code runs on the server's .NET 5 and on newer runtimes.</summary>
+public sealed class Startup(IConfiguration config)
+{
+    public void ConfigureServices(IServiceCollection services)
+    {
+        services.AddControllers();
+        services.AddSingleton<DashboardDb>();
 
-app.Run();
+        var origins = config.GetSection("Cors:AllowedOrigins").Get<string[]>() ?? Array.Empty<string>();
+        services.AddCors(o => o.AddDefaultPolicy(p => p.WithOrigins(origins).AllowAnyHeader().AllowAnyMethod()));
+    }
+
+    public void Configure(IApplicationBuilder app)
+    {
+        // Any unhandled error (a failed procedure, an unreachable database) becomes a plain 500 with no details in the body.
+        app.UseExceptionHandler(errors => errors.Run(async context =>
+        {
+            var error = context.Features.Get<IExceptionHandlerFeature>()?.Error;
+            if (error is not null)
+                context.RequestServices.GetRequiredService<ILoggerFactory>().CreateLogger("Dashboard").LogError(error, "Request failed: {Path}", context.Request.Path);
+            context.Response.StatusCode = StatusCodes.Status500InternalServerError;
+            context.Response.ContentType = "application/problem+json";
+            await context.Response.WriteAsync("{\"title\":\"An error occurred while processing your request.\",\"status\":500}");
+        }));
+
+        app.UseRouting();
+        app.UseCors();
+        app.UseEndpoints(endpoints => endpoints.MapControllers());
+    }
+}

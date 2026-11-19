@@ -1,4 +1,4 @@
--- MYUNI DASHBOARD: 9 procedures, one for the filter lists and one per tab of the dashboard (dbo.Dashboard_MyUni_*).
+-- MYUNI DASHBOARD: 13 procedures, one for the filter lists and one per tab of the dashboard (dbo.Dashboard_MyUni_*).
 -- They only read the ERP tables: they call no other procedure and change no table.
 -- Safe to run again: it drops and re-creates only these procedures.
 -- For DBeaver (Mac), without GO lines. Run it: open in DBeaver, then Execute SQL Script (Option+X),
@@ -18,39 +18,54 @@ FROM (VALUES
         (N''Branches'', N''Code''), (N''Branches'', N''CompanyId''), (N''Branches'', N''Description''), (N''Branches'', N''Id''),
         (N''Branches'', N''Status''), (N''City'', N''Description''), (N''City'', N''Id''), (N''Company'', N''CompanyName''),
         (N''Company'', N''Id''), (N''Company'', N''Status''), (N''Departments'', N''Description''), (N''Departments'', N''Id''),
-        (N''Faculty'', N''Code''), (N''Faculty'', N''CompanyId''), (N''Faculty'', N''Description''), (N''Faculty'', N''FacultyGUID''),
-        (N''Faculty'', N''Status''), (N''FacultyDetails'', N''DepartmentId''), (N''FacultyDetails'', N''FacultyGUID''), (N''ProgramType'', N''Description''),
-        (N''ProgramType'', N''Id''), (N''UNIAcademicCalender'', N''BranchId''), (N''UNIAcademicCalender'', N''CalenderName''), (N''UNIAcademicCalender'', N''CompanyId''),
-        (N''UNIAcademicCalender'', N''Id''), (N''UNIAcademicYearSemesterDetails'', N''AcademicCalenderId''), (N''UNIAcademicYearSemesterDetails'', N''Code''), (N''UNIAcademicYearSemesterDetails'', N''EndDate''),
-        (N''UNIAcademicYearSemesterDetails'', N''Id''), (N''UNIAcademicYearSemesterDetails'', N''IsAdmissionOpen''), (N''UNIAcademicYearSemesterDetails'', N''OrderId''), (N''UNIAcademicYearSemesterDetails'', N''StartDate''),
-        (N''UNIAdmissionAnnouncement'', N''BranchId''), (N''UNIAdmissionAnnouncement'', N''CompanyId''), (N''UNIAdmissionAnnouncement'', N''Id''), (N''UNIAdmissionAnnouncement'', N''Status''),
-        (N''UNIAdmissionAnnouncementDetails'', N''AdmissionAnnouncementId''), (N''UNIAdmissionAnnouncementDetails'', N''AvailableSeats''), (N''UNIAdmissionAnnouncementDetails'', N''DegreeId''), (N''UNIAdmissionAnnouncementDetails'', N''FeeAmount''),
-        (N''UNIAdmissionAnnouncementDetails'', N''ProgramTypeId''), (N''UNIAdmissionAnnouncementDetails'', N''SemesterSessionId''), (N''UNIBankReceipts'', N''BankReceiptStatus''), (N''UNIBankReceipts'', N''BranchId''),
-        (N''UNIBankReceipts'', N''Id''), (N''UNIBankReceipts'', N''Status''), (N''UNIBankReceipts'', N''UploadedDate''), (N''UNIBankReceiptsDetail'', N''Amount''),
-        (N''UNIBankReceiptsDetail'', N''BankReceiptId''), (N''UNIBankReceiptsDetail'', N''ChallanNo''), (N''UNIBankReceiptsDetail'', N''DegreeId''), (N''UNIBankReceiptsDetail'', N''DocStatus''),
-        (N''UNIBankReceiptsDetail'', N''StudentId''), (N''UNIChallanTypes'', N''ChallanType''), (N''UNIChallanTypes'', N''Id''), (N''UNIDegree'', N''BranchId''),
-        (N''UNIDegree'', N''CompanyId''), (N''UNIDegree'', N''DegreeCode''), (N''UNIDegree'', N''DegreeLevel''), (N''UNIDegree'', N''DegreeName''),
-        (N''UNIDegree'', N''DepartmentId''), (N''UNIDegree'', N''Id''), (N''UNIDegree'', N''Status''), (N''UNIDegreeLevels'', N''DegreeLevelName''),
-        (N''UNIDegreeLevels'', N''Id''), (N''UNIDiscountCatagory'', N''Description''), (N''UNIDiscountCatagory'', N''Id''), (N''UNIDiscountsTypes'', N''Description''),
-        (N''UNIDiscountsTypes'', N''Id''), (N''UNIFeeDiscount'', N''AppliedSemesterId''), (N''UNIFeeDiscount'', N''BranchId''), (N''UNIFeeDiscount'', N''CompanyId''),
-        (N''UNIFeeDiscount'', N''DiscountCatagoryId''), (N''UNIFeeDiscount'', N''DiscountStatus''), (N''UNIFeeDiscount'', N''Id''), (N''UNIFeeDiscount'', N''StartDate''),
-        (N''UNIFeeDiscount'', N''Status''), (N''UNIFeeDiscountDetails'', N''DegreeId''), (N''UNIFeeDiscountDetails'', N''DiscountedAmount''), (N''UNIFeeDiscountDetails'', N''DiscountsTypeId''),
-        (N''UNIFeeDiscountDetails'', N''FeedDiscountId''), (N''UNIFeeDiscountDetails'', N''FeeTypeId''), (N''UNIFeeDiscountDetails'', N''Status''), (N''UNIFeeDiscountDetails'', N''StudentId''),
-        (N''UNIFeeInstallments'', N''BranchId''), (N''UNIFeeInstallments'', N''CompanyId''), (N''UNIFeeInstallments'', N''Id''), (N''UNIFeeInstallments'', N''InstallmentStatus''),
-        (N''UNIFeeInstallments'', N''SemesterId''), (N''UNIFeeInstallments'', N''Status''), (N''UNIFeeInstallments'', N''StudentId''), (N''UNIFeeInstallmentsDetail'', N''Amount''),
-        (N''UNIFeeInstallmentsDetail'', N''ChallanGUID''), (N''UNIFeeInstallmentsDetail'', N''FeeInstallmentId''), (N''UNIFeeInstallmentsDetail'', N''InstallmentStatus''), (N''UNIFeeInstallmentsDetail'', N''Month''),
-        (N''UNIFeeInstallmentsDetail'', N''Status''), (N''UNIFeeInstallmentsDetail'', N''ValidityDate''), (N''UNIFeeTypes'', N''Description''), (N''UNIFeeTypes'', N''Id''),
-        (N''UNIStudentAnnounceDetails'', N''DegreeId''), (N''UNIStudentAnnounceDetails'', N''SemesterSessionId''), (N''UNIStudentAnnounceDetails'', N''Status''), (N''UNIStudentAnnounceDetails'', N''StudentsId''),
-        (N''UNIStudents'', N''AdmissionNumber''), (N''UNIStudents'', N''BranchId''), (N''UNIStudents'', N''DegreeId''), (N''UNIStudents'', N''Id''),
-        (N''UNIStudents'', N''IsDegreeCompleted''), (N''UNIStudents'', N''ShiftId''), (N''UNIStudents'', N''Status''), (N''UNIStudents'', N''StudentFullName''),
-        (N''UNIStudentsChallan'', N''BranchId''), (N''UNIStudentsChallan'', N''ChallanDescription''), (N''UNIStudentsChallan'', N''ChallanNo''), (N''UNIStudentsChallan'', N''ChallanStatus''),
-        (N''UNIStudentsChallan'', N''ChallanTypeId''), (N''UNIStudentsChallan'', N''CompanyId''), (N''UNIStudentsChallan'', N''DegreeId''), (N''UNIStudentsChallan'', N''DueDate''),
-        (N''UNIStudentsChallan'', N''FineAmount''), (N''UNIStudentsChallan'', N''GovtFeeDiscountAmt''), (N''UNIStudentsChallan'', N''Id''), (N''UNIStudentsChallan'', N''NetChallanAmt''),
-        (N''UNIStudentsChallan'', N''ParentIdGuid''), (N''UNIStudentsChallan'', N''RegisterInId''), (N''UNIStudentsChallan'', N''SemesterSessionId''), (N''UNIStudentsChallan'', N''Status''),
-        (N''UNIStudentsChallan'', N''StudentId''), (N''UNIStudentsChallan'', N''TotalAmount''), (N''UNIStudentsChallan'', N''TotalDiscountAmt''), (N''UNIStudentsChallan'', N''TransDate''),
-        (N''UNIStudentsChallan'', N''ValidityDate''), (N''UNIStudentsRegistrations'', N''BranchId''), (N''UNIStudentsRegistrations'', N''CompanyId''), (N''UNIStudentsRegistrations'', N''DegreeId''),
-        (N''UNIStudentsRegistrations'', N''RegisterInId''), (N''UNIStudentsRegistrations'', N''SemesterNo''), (N''UNIStudentsRegistrations'', N''SemesterSessionId''), (N''UNIStudentsRegistrations'', N''Status''),
-        (N''UNIStudentsRegistrations'', N''StudentsId'')
+        (N''EmployeeTypes'', N''Description''), (N''EmployeeTypes'', N''Id''), (N''Employees'', N''BranchId''), (N''Employees'', N''Code''),
+        (N''Employees'', N''CompanyId''), (N''Employees'', N''DepartmentId''), (N''Employees'', N''Designation''), (N''Employees'', N''DiscontinuationDate''),
+        (N''Employees'', N''EmployeesStatus''), (N''Employees'', N''Gender''), (N''Employees'', N''HiringDate''), (N''Employees'', N''Id''),
+        (N''Employees'', N''Name''), (N''Employees'', N''Status''), (N''Employees'', N''TypeId''), (N''Faculty'', N''Code''),
+        (N''Faculty'', N''CompanyId''), (N''Faculty'', N''Description''), (N''Faculty'', N''FacultyGUID''), (N''Faculty'', N''Status''),
+        (N''FacultyDetails'', N''DepartmentId''), (N''FacultyDetails'', N''FacultyGUID''), (N''HRMAttendenceApproval'', N''BranchId''), (N''HRMAttendenceApproval'', N''CompanyId''),
+        (N''HRMAttendenceApproval'', N''Id''), (N''HRMAttendenceApproval'', N''Month''), (N''HRMAttendenceApproval'', N''Status''), (N''HRMAttendenceApprovalDetail'', N''Absenties''),
+        (N''HRMAttendenceApprovalDetail'', N''AttendanceApprovalId''), (N''HRMAttendenceApprovalDetail'', N''DeductionAmount''), (N''HRMAttendenceApprovalDetail'', N''EmployeeId''), (N''HRMAttendenceApprovalDetail'', N''InMintLate''),
+        (N''HRMAttendenceApprovalDetail'', N''Leaves''), (N''HRMAttendenceApprovalDetail'', N''NoOfDays''), (N''HRMAttendenceApprovalDetail'', N''NoOfLateIn''), (N''HRMAttendenceApprovalDetail'', N''NoOfLateOut''),
+        (N''HRMAttendenceApprovalDetail'', N''OverTimeAmount''), (N''HRMSalarySheet'', N''BranchId''), (N''HRMSalarySheet'', N''CompanyId''), (N''HRMSalarySheet'', N''Id''),
+        (N''HRMSalarySheet'', N''Month''), (N''HRMSalarySheet'', N''Status''), (N''HRMSalarySheetDetail'', N''AbsentDeductions''), (N''HRMSalarySheetDetail'', N''ArrearsAmount''),
+        (N''HRMSalarySheetDetail'', N''BasicSalary''), (N''HRMSalarySheetDetail'', N''BranchId''), (N''HRMSalarySheetDetail'', N''EOBI''), (N''HRMSalarySheetDetail'', N''EmployeeId''),
+        (N''HRMSalarySheetDetail'', N''HRMSalarySheetId''), (N''HRMSalarySheetDetail'', N''IncomeTax''), (N''HRMSalarySheetDetail'', N''MonthlyAllowances''), (N''HRMSalarySheetDetail'', N''MonthlyDeductions''),
+        (N''HRMSalarySheetDetail'', N''OverTimeAmt''), (N''HRMSalarySheetDetail'', N''ProvidentFund''), (N''HRMSalarySheetDetail'', N''RecurringAllowances''), (N''HRMSalarySheetDetail'', N''RecurringDeductions''),
+        (N''HRMSalarySheetDetail'', N''SpecialAllowances''), (N''HRMSalarySheetDetail'', N''TotalAllowances''), (N''HRMSalarySheetDetail'', N''TotalLoans''), (N''HRMSalaryStructure'', N''BasicSalary''),
+        (N''HRMSalaryStructure'', N''CompanyId''), (N''HRMSalaryStructure'', N''EffectiveDate''), (N''HRMSalaryStructure'', N''EmployeeId''), (N''HRMSalaryStructure'', N''GrossSalary''),
+        (N''HRMSalaryStructure'', N''Id''), (N''HRMSalaryStructure'', N''RatePerDay''), (N''HRMSalaryStructure'', N''SpecialAllowance''), (N''HRMSalaryStructure'', N''Status''),
+        (N''HRMSalaryStructure'', N''TotalAllowance''), (N''ProgramType'', N''Description''), (N''ProgramType'', N''Id''), (N''UNIAcademicCalender'', N''BranchId''),
+        (N''UNIAcademicCalender'', N''CalenderName''), (N''UNIAcademicCalender'', N''CompanyId''), (N''UNIAcademicCalender'', N''Id''), (N''UNIAcademicYearSemesterDetails'', N''AcademicCalenderId''),
+        (N''UNIAcademicYearSemesterDetails'', N''Code''), (N''UNIAcademicYearSemesterDetails'', N''EndDate''), (N''UNIAcademicYearSemesterDetails'', N''Id''), (N''UNIAcademicYearSemesterDetails'', N''IsAdmissionOpen''),
+        (N''UNIAcademicYearSemesterDetails'', N''OrderId''), (N''UNIAcademicYearSemesterDetails'', N''StartDate''), (N''UNIAdmissionAnnouncement'', N''BranchId''), (N''UNIAdmissionAnnouncement'', N''CompanyId''),
+        (N''UNIAdmissionAnnouncement'', N''Id''), (N''UNIAdmissionAnnouncement'', N''Status''), (N''UNIAdmissionAnnouncementDetails'', N''AdmissionAnnouncementId''), (N''UNIAdmissionAnnouncementDetails'', N''AvailableSeats''),
+        (N''UNIAdmissionAnnouncementDetails'', N''DegreeId''), (N''UNIAdmissionAnnouncementDetails'', N''FeeAmount''), (N''UNIAdmissionAnnouncementDetails'', N''ProgramTypeId''), (N''UNIAdmissionAnnouncementDetails'', N''SemesterSessionId''),
+        (N''UNIBankReceipts'', N''BankReceiptStatus''), (N''UNIBankReceipts'', N''BranchId''), (N''UNIBankReceipts'', N''Id''), (N''UNIBankReceipts'', N''Status''),
+        (N''UNIBankReceipts'', N''UploadedDate''), (N''UNIBankReceiptsDetail'', N''Amount''), (N''UNIBankReceiptsDetail'', N''BankReceiptId''), (N''UNIBankReceiptsDetail'', N''ChallanNo''),
+        (N''UNIBankReceiptsDetail'', N''DegreeId''), (N''UNIBankReceiptsDetail'', N''DocStatus''), (N''UNIBankReceiptsDetail'', N''StudentId''), (N''UNIChallanTypes'', N''ChallanType''),
+        (N''UNIChallanTypes'', N''Id''), (N''UNIDegree'', N''BranchId''), (N''UNIDegree'', N''CompanyId''), (N''UNIDegree'', N''DegreeCode''),
+        (N''UNIDegree'', N''DegreeLevel''), (N''UNIDegree'', N''DegreeName''), (N''UNIDegree'', N''DepartmentId''), (N''UNIDegree'', N''Id''),
+        (N''UNIDegree'', N''Status''), (N''UNIDegreeLevels'', N''DegreeLevelName''), (N''UNIDegreeLevels'', N''Id''), (N''UNIDiscountCatagory'', N''Description''),
+        (N''UNIDiscountCatagory'', N''Id''), (N''UNIDiscountsTypes'', N''Description''), (N''UNIDiscountsTypes'', N''Id''), (N''UNIFeeDiscount'', N''AppliedSemesterId''),
+        (N''UNIFeeDiscount'', N''BranchId''), (N''UNIFeeDiscount'', N''CompanyId''), (N''UNIFeeDiscount'', N''DiscountCatagoryId''), (N''UNIFeeDiscount'', N''DiscountStatus''),
+        (N''UNIFeeDiscount'', N''Id''), (N''UNIFeeDiscount'', N''StartDate''), (N''UNIFeeDiscount'', N''Status''), (N''UNIFeeDiscountDetails'', N''DegreeId''),
+        (N''UNIFeeDiscountDetails'', N''DiscountedAmount''), (N''UNIFeeDiscountDetails'', N''DiscountsTypeId''), (N''UNIFeeDiscountDetails'', N''FeedDiscountId''), (N''UNIFeeDiscountDetails'', N''FeeTypeId''),
+        (N''UNIFeeDiscountDetails'', N''Status''), (N''UNIFeeDiscountDetails'', N''StudentId''), (N''UNIFeeInstallments'', N''BranchId''), (N''UNIFeeInstallments'', N''CompanyId''),
+        (N''UNIFeeInstallments'', N''Id''), (N''UNIFeeInstallments'', N''InstallmentStatus''), (N''UNIFeeInstallments'', N''SemesterId''), (N''UNIFeeInstallments'', N''Status''),
+        (N''UNIFeeInstallments'', N''StudentId''), (N''UNIFeeInstallmentsDetail'', N''Amount''), (N''UNIFeeInstallmentsDetail'', N''ChallanGUID''), (N''UNIFeeInstallmentsDetail'', N''FeeInstallmentId''),
+        (N''UNIFeeInstallmentsDetail'', N''InstallmentStatus''), (N''UNIFeeInstallmentsDetail'', N''Month''), (N''UNIFeeInstallmentsDetail'', N''Status''), (N''UNIFeeInstallmentsDetail'', N''ValidityDate''),
+        (N''UNIFeeTypes'', N''Description''), (N''UNIFeeTypes'', N''Id''), (N''UNIStudentAnnounceDetails'', N''DegreeId''), (N''UNIStudentAnnounceDetails'', N''SemesterSessionId''),
+        (N''UNIStudentAnnounceDetails'', N''Status''), (N''UNIStudentAnnounceDetails'', N''StudentsId''), (N''UNIStudents'', N''AdmissionNumber''), (N''UNIStudents'', N''BranchId''),
+        (N''UNIStudents'', N''DegreeId''), (N''UNIStudents'', N''Id''), (N''UNIStudents'', N''IsDegreeCompleted''), (N''UNIStudents'', N''ShiftId''),
+        (N''UNIStudents'', N''Status''), (N''UNIStudents'', N''StudentFullName''), (N''UNIStudentsChallan'', N''BranchId''), (N''UNIStudentsChallan'', N''ChallanDescription''),
+        (N''UNIStudentsChallan'', N''ChallanNo''), (N''UNIStudentsChallan'', N''ChallanStatus''), (N''UNIStudentsChallan'', N''ChallanTypeId''), (N''UNIStudentsChallan'', N''CompanyId''),
+        (N''UNIStudentsChallan'', N''DegreeId''), (N''UNIStudentsChallan'', N''DueDate''), (N''UNIStudentsChallan'', N''FineAmount''), (N''UNIStudentsChallan'', N''GovtFeeDiscountAmt''),
+        (N''UNIStudentsChallan'', N''Id''), (N''UNIStudentsChallan'', N''NetChallanAmt''), (N''UNIStudentsChallan'', N''ParentIdGuid''), (N''UNIStudentsChallan'', N''RegisterInId''),
+        (N''UNIStudentsChallan'', N''SemesterSessionId''), (N''UNIStudentsChallan'', N''Status''), (N''UNIStudentsChallan'', N''StudentId''), (N''UNIStudentsChallan'', N''TotalAmount''),
+        (N''UNIStudentsChallan'', N''TotalDiscountAmt''), (N''UNIStudentsChallan'', N''TransDate''), (N''UNIStudentsChallan'', N''ValidityDate''), (N''UNIStudentsRegistrations'', N''BranchId''),
+        (N''UNIStudentsRegistrations'', N''CompanyId''), (N''UNIStudentsRegistrations'', N''DegreeId''), (N''UNIStudentsRegistrations'', N''RegisterInId''), (N''UNIStudentsRegistrations'', N''SemesterNo''),
+        (N''UNIStudentsRegistrations'', N''SemesterSessionId''), (N''UNIStudentsRegistrations'', N''Status''), (N''UNIStudentsRegistrations'', N''StudentsId'')
      ) R(Obj, Col)
 WHERE COL_LENGTH(N''dbo.'' + R.Obj, R.Col) IS NULL;
 IF @Missing <> N''''
@@ -68,12 +83,12 @@ DROP PROCEDURE IF EXISTS dbo.Dashboard_MyUni_DegreeList;
 DROP PROCEDURE IF EXISTS dbo.Dashboard_MyUni_SemesterList;
 
 -- 01. Dashboard_MyUni_Filters: the filter lists shown above every tab, and the semester strip. One call per list.
--- @Section = Companies | Branches | Faculties | Departments | Degrees | Semesters
+-- @Section = Companies | Branches | Faculties | Departments | Degrees | Semesters | EmployeeDepartments
 DROP PROCEDURE IF EXISTS dbo.Dashboard_MyUni_Filters;
 EXEC (N'CREATE PROCEDURE dbo.Dashboard_MyUni_Filters
-    @Section      VARCHAR(30),               -- which list: Companies, Branches, Faculties, Departments, Degrees, Semesters
+    @Section      VARCHAR(30),               -- which list: Companies, Branches, Faculties, Departments, Degrees, Semesters, EmployeeDepartments
     @CompanyId    INT              = NULL,   -- every list except Companies: the chosen company
-    @BranchId     INT              = NULL,   -- Degrees, Semesters: NULL or 0 = all
+    @BranchId     INT              = NULL,   -- Degrees, Semesters, EmployeeDepartments: NULL or 0 = all
     @FacultyId    UNIQUEIDENTIFIER = NULL,   -- Departments, Degrees: NULL = all
     @DepartmentId INT              = NULL    -- Degrees: NULL or 0 = all
 AS
@@ -154,6 +169,18 @@ BEGIN
         WHERE AC.CompanyId = @CompanyId
           AND (ISNULL(@BranchId, 0) = 0 OR AC.BranchId = @BranchId)
         ORDER BY SEM.StartDate, SEM.OrderId;
+        RETURN;
+    END
+    -- 7. EmployeeDepartments: departments that have active employees (the Department filter of the HR tabs).
+    IF @Section = ''EmployeeDepartments''
+    BEGIN
+        SELECT D.Id, D.[Description], COUNT(*) AS Employees
+        FROM Employees E WITH (NOLOCK)
+        JOIN Departments D WITH (NOLOCK) ON D.Id = E.DepartmentId
+        WHERE E.CompanyId = @CompanyId AND E.Status = 1
+          AND (ISNULL(@BranchId, 0) = 0 OR E.BranchId = @BranchId)
+        GROUP BY D.Id, D.[Description]
+        ORDER BY D.[Description];
         RETURN;
     END
 END');
@@ -759,4 +786,192 @@ BEGIN
              G.Id, G.DegreeCode, G.DegreeName, G.Department, G.Faculty,
              CASE WHEN H.DiscountStatus = 2 THEN ''Approved'' ELSE ''Pending'' END
     ORDER BY SUM(ISNULL(D.DiscountedAmount, 0)) DESC;
+END');
+
+-- 10. Dashboard_MyUni_Employees: the staff of the company, one row per employee (Employees tab).
+-- Every employee that is active, or that has left (so leavers can be counted). IsActive = active and not discontinued.
+-- No personal details (CNIC, phone, address) are returned. @StartDate / @EndDate are not used: the page counts
+-- joiners and leavers in the chosen dates from HiringDate and DiscontinuationDate.
+DROP PROCEDURE IF EXISTS dbo.Dashboard_MyUni_Employees;
+EXEC (N'CREATE PROCEDURE dbo.Dashboard_MyUni_Employees
+    @CompanyId    INT              = NULL,
+    @BranchId     INT              = NULL,   -- NULL or 0 = all
+    @FacultyId    UNIQUEIDENTIFIER = NULL,   -- not used by the HR tabs
+    @DepartmentId INT              = NULL,   -- the employee''s department (Employees.DepartmentId); NULL or 0 = all
+    @DegreeId     UNIQUEIDENTIFIER = NULL,   -- not used by the HR tabs
+    @SemesterId   UNIQUEIDENTIFIER = NULL,   -- not used by the HR tabs
+    @StartDate    DATE             = NULL,   -- NULL = no limit
+    @EndDate      DATE             = NULL    -- not used here
+AS
+BEGIN
+    SET NOCOUNT ON;
+    SELECT E.Id AS EmployeeId, E.Code, E.[Name],
+           NULLIF(LTRIM(RTRIM(E.Designation)), '''') AS Designation,
+           D.[Description]  AS Department,
+           ET.[Description] AS EmployeeType,
+           NULLIF(LTRIM(RTRIM(E.EmployeesStatus)), '''') AS EmploymentStatus,   -- Permanent, Contract, Daily Wages ...
+           NULLIF(LTRIM(RTRIM(E.Gender)), '''') AS Gender,
+           B.[Description]  AS Branch,
+           E.HiringDate, E.DiscontinuationDate,
+           CAST(CASE WHEN E.Status = 1 AND E.DiscontinuationDate IS NULL THEN 1 ELSE 0 END AS BIT) AS IsActive
+    FROM Employees E WITH (NOLOCK)
+    LEFT JOIN Departments D    WITH (NOLOCK) ON D.Id  = E.DepartmentId
+    LEFT JOIN EmployeeTypes ET WITH (NOLOCK) ON ET.Id = E.TypeId
+    LEFT JOIN Branches B       WITH (NOLOCK) ON B.Id  = E.BranchId
+    WHERE E.CompanyId = @CompanyId
+      AND (E.Status = 1 OR E.DiscontinuationDate IS NOT NULL)
+      AND (ISNULL(@BranchId, 0) = 0 OR E.BranchId = @BranchId)
+      AND (ISNULL(@DepartmentId, 0) = 0 OR E.DepartmentId = @DepartmentId)
+    ORDER BY E.[Name];
+END');
+
+-- 11. Dashboard_MyUni_SalaryStructure: the current salary structure of each active employee, one row per employee (Salary structure tab).
+-- The current structure is the active row of HRMSalaryStructure (Status = 1); when an employee has more than one,
+-- the latest by effective date is used. Expired structures are left out. @StartDate / @EndDate are not used.
+DROP PROCEDURE IF EXISTS dbo.Dashboard_MyUni_SalaryStructure;
+EXEC (N'CREATE PROCEDURE dbo.Dashboard_MyUni_SalaryStructure
+    @CompanyId    INT              = NULL,
+    @BranchId     INT              = NULL,   -- NULL or 0 = all
+    @FacultyId    UNIQUEIDENTIFIER = NULL,   -- not used by the HR tabs
+    @DepartmentId INT              = NULL,   -- the employee''s department (Employees.DepartmentId); NULL or 0 = all
+    @DegreeId     UNIQUEIDENTIFIER = NULL,   -- not used by the HR tabs
+    @SemesterId   UNIQUEIDENTIFIER = NULL,   -- not used by the HR tabs
+    @StartDate    DATE             = NULL,   -- NULL = no limit
+    @EndDate      DATE             = NULL    -- not used here
+AS
+BEGIN
+    SET NOCOUNT ON;
+    ;WITH Cur AS (
+        SELECT S.EmployeeId, S.BasicSalary, S.SpecialAllowance, S.TotalAllowance, S.GrossSalary, S.RatePerDay, S.EffectiveDate,
+               ROW_NUMBER() OVER (PARTITION BY S.EmployeeId ORDER BY S.EffectiveDate DESC, S.Id DESC) AS Rn
+        FROM HRMSalaryStructure S WITH (NOLOCK)
+        WHERE S.CompanyId = @CompanyId AND S.Status = 1
+    )
+    SELECT E.Id AS EmployeeId, E.Code, E.[Name],
+           NULLIF(LTRIM(RTRIM(E.Designation)), '''') AS Designation,
+           D.[Description] AS Department,
+           NULLIF(LTRIM(RTRIM(E.EmployeesStatus)), '''') AS EmploymentStatus,
+           B.[Description] AS Branch,
+           ISNULL(C.BasicSalary, 0)      AS BasicSalary,
+           ISNULL(C.SpecialAllowance, 0) AS SpecialAllowance,
+           ISNULL(C.TotalAllowance, 0)   AS TotalAllowance,
+           ISNULL(C.GrossSalary, 0)      AS GrossSalary,
+           ISNULL(C.RatePerDay, 0)       AS RatePerDay,
+           C.EffectiveDate
+    FROM Cur C
+    JOIN Employees E WITH (NOLOCK) ON E.Id = C.EmployeeId AND E.Status = 1 AND E.DiscontinuationDate IS NULL
+    LEFT JOIN Departments D WITH (NOLOCK) ON D.Id = E.DepartmentId
+    LEFT JOIN Branches B    WITH (NOLOCK) ON B.Id = E.BranchId
+    WHERE C.Rn = 1
+      AND (ISNULL(@BranchId, 0) = 0 OR E.BranchId = @BranchId)
+      AND (ISNULL(@DepartmentId, 0) = 0 OR E.DepartmentId = @DepartmentId)
+    ORDER BY ISNULL(C.GrossSalary, 0) DESC, E.[Name];
+END');
+
+-- 12. Dashboard_MyUni_SalarySheet: payroll per month, department and branch (Salary sheet tab).
+-- From the salary sheets (HRMSalarySheet, active rows) and their lines. The date range is on the sheet month.
+-- Gross  = basic + special + total + monthly + recurring allowances.
+-- NetPay = the formula of the ERP report HRMSalarySheet_Rp_GetByMonth, which adds up to the sheet's own NetAmount:
+--          gross - (monthly and recurring deductions + absent deductions + loans + EOBI + income tax + provident fund).
+-- The line columns GrossSalary and NetSalaryPayable are not used: they are empty or do not match the sheet total.
+-- Sheets are counted whatever their approval status (SalarySheetStatus).
+DROP PROCEDURE IF EXISTS dbo.Dashboard_MyUni_SalarySheet;
+EXEC (N'CREATE PROCEDURE dbo.Dashboard_MyUni_SalarySheet
+    @CompanyId    INT              = NULL,
+    @BranchId     INT              = NULL,   -- NULL or 0 = all
+    @FacultyId    UNIQUEIDENTIFIER = NULL,   -- not used by the HR tabs
+    @DepartmentId INT              = NULL,   -- the employee''s department (Employees.DepartmentId); NULL or 0 = all
+    @DegreeId     UNIQUEIDENTIFIER = NULL,   -- not used by the HR tabs
+    @SemesterId   UNIQUEIDENTIFIER = NULL,   -- not used by the HR tabs
+    @StartDate    DATE             = NULL,   -- NULL = no limit
+    @EndDate      DATE             = NULL    -- whole day included; NULL = no limit
+AS
+BEGIN
+    SET NOCOUNT ON;
+    DECLARE @From DATE = ISNULL(@StartDate, ''19000101'');
+    DECLARE @To   DATE = DATEADD(DAY, 1, ISNULL(@EndDate, ''99991230''));
+    ;WITH L AS (
+        SELECT DATEFROMPARTS(YEAR(S.[Month]), MONTH(S.[Month]), 1) AS [Month],
+               S.Id AS SheetId, E.DepartmentId, ISNULL(D.BranchId, S.BranchId) AS BranchId, D.EmployeeId,
+               ISNULL(D.BasicSalary, 0) AS Basic,
+               ISNULL(D.SpecialAllowances, 0) + ISNULL(D.TotalAllowances, 0) + ISNULL(D.MonthlyAllowances, 0) + ISNULL(D.RecurringAllowances, 0) AS Allowances,
+               ISNULL(D.OverTimeAmt, 0)   AS OverTime,
+               ISNULL(D.ArrearsAmount, 0) AS Arrears,
+               ISNULL(D.MonthlyDeductions, 0) + ISNULL(D.RecurringDeductions, 0) + ISNULL(D.AbsentDeductions, 0) AS Deductions,
+               ISNULL(D.TotalLoans, 0)    AS Loans,
+               ISNULL(D.IncomeTax, 0)     AS IncomeTax,
+               ISNULL(D.EOBI, 0)          AS EOBI,
+               ISNULL(D.ProvidentFund, 0) AS ProvidentFund
+        FROM HRMSalarySheet S WITH (NOLOCK)
+        JOIN HRMSalarySheetDetail D WITH (NOLOCK) ON D.HRMSalarySheetId = S.Id
+        JOIN Employees E WITH (NOLOCK) ON E.Id = D.EmployeeId
+        WHERE S.CompanyId = @CompanyId
+          AND S.Status = 1
+          AND S.[Month] >= @From AND S.[Month] < @To
+          AND (ISNULL(@BranchId, 0) = 0 OR ISNULL(D.BranchId, S.BranchId) = @BranchId)
+          AND (ISNULL(@DepartmentId, 0) = 0 OR E.DepartmentId = @DepartmentId)
+    )
+    SELECT L.[Month], DP.[Description] AS Department, B.[Description] AS Branch,
+           COUNT(DISTINCT L.SheetId)    AS Sheets,
+           COUNT(DISTINCT L.EmployeeId) AS Employees,
+           SUM(L.Basic)         AS BasicSalary,
+           SUM(L.Allowances)    AS Allowances,
+           SUM(L.OverTime)      AS OverTime,
+           SUM(L.Arrears)       AS Arrears,
+           SUM(L.Basic + L.Allowances) AS GrossSalary,
+           SUM(L.Deductions)    AS Deductions,
+           SUM(L.Loans)         AS Loans,
+           SUM(L.IncomeTax)     AS IncomeTax,
+           SUM(L.EOBI)          AS EOBI,
+           SUM(L.ProvidentFund) AS ProvidentFund,
+           SUM((L.Basic + L.Allowances) - (L.Deductions + L.Loans + L.EOBI + L.IncomeTax + L.ProvidentFund)) AS NetPay
+    FROM L
+    LEFT JOIN Departments DP WITH (NOLOCK) ON DP.Id = L.DepartmentId
+    LEFT JOIN Branches B     WITH (NOLOCK) ON B.Id  = L.BranchId
+    GROUP BY L.[Month], DP.[Description], B.[Description]
+    ORDER BY L.[Month], DP.[Description];
+END');
+
+-- 13. Dashboard_MyUni_Attendance: monthly attendance per month, department and branch (Attendance tab).
+-- From the monthly attendance submissions payroll uses (HRMAttendenceApproval, active rows, and their employee lines):
+-- days worked, absences, leaves, late arrivals and overtime per employee and month. The date range is on the month.
+-- Submissions are counted whatever their approval status (AttendanceStatus).
+DROP PROCEDURE IF EXISTS dbo.Dashboard_MyUni_Attendance;
+EXEC (N'CREATE PROCEDURE dbo.Dashboard_MyUni_Attendance
+    @CompanyId    INT              = NULL,
+    @BranchId     INT              = NULL,   -- NULL or 0 = all
+    @FacultyId    UNIQUEIDENTIFIER = NULL,   -- not used by the HR tabs
+    @DepartmentId INT              = NULL,   -- the employee''s department (Employees.DepartmentId); NULL or 0 = all
+    @DegreeId     UNIQUEIDENTIFIER = NULL,   -- not used by the HR tabs
+    @SemesterId   UNIQUEIDENTIFIER = NULL,   -- not used by the HR tabs
+    @StartDate    DATE             = NULL,   -- NULL = no limit
+    @EndDate      DATE             = NULL    -- whole day included; NULL = no limit
+AS
+BEGIN
+    SET NOCOUNT ON;
+    DECLARE @From DATE = ISNULL(@StartDate, ''19000101'');
+    DECLARE @To   DATE = DATEADD(DAY, 1, ISNULL(@EndDate, ''99991230''));
+    SELECT DATEFROMPARTS(YEAR(A.[Month]), MONTH(A.[Month]), 1) AS [Month],
+           DP.[Description] AS Department, B.[Description] AS Branch,
+           COUNT(DISTINCT D.EmployeeId)       AS Employees,
+           SUM(ISNULL(D.NoOfDays, 0))         AS DaysWorked,
+           SUM(ISNULL(D.Absenties, 0))        AS Absences,
+           SUM(ISNULL(D.Leaves, 0))           AS Leaves,
+           SUM(ISNULL(D.NoOfLateIn, 0))       AS LateArrivals,
+           SUM(ISNULL(D.NoOfLateOut, 0))      AS EarlyDepartures,
+           SUM(ISNULL(D.InMintLate, 0))       AS LateMinutes,
+           SUM(ISNULL(D.OverTimeAmount, 0))   AS OverTimeAmount,
+           SUM(ISNULL(D.DeductionAmount, 0))  AS DeductionAmount
+    FROM HRMAttendenceApproval A WITH (NOLOCK)
+    JOIN HRMAttendenceApprovalDetail D WITH (NOLOCK) ON D.AttendanceApprovalId = A.Id
+    JOIN Employees E WITH (NOLOCK) ON E.Id = D.EmployeeId
+    LEFT JOIN Departments DP WITH (NOLOCK) ON DP.Id = E.DepartmentId
+    LEFT JOIN Branches B     WITH (NOLOCK) ON B.Id  = A.BranchId
+    WHERE A.CompanyId = @CompanyId
+      AND A.Status = 1
+      AND A.[Month] >= @From AND A.[Month] < @To
+      AND (ISNULL(@BranchId, 0) = 0 OR A.BranchId = @BranchId)
+      AND (ISNULL(@DepartmentId, 0) = 0 OR E.DepartmentId = @DepartmentId)
+    GROUP BY DATEFROMPARTS(YEAR(A.[Month]), MONTH(A.[Month]), 1), DP.[Description], B.[Description]
+    ORDER BY 1, DP.[Description];
 END');

@@ -7,6 +7,8 @@ import type {
   AdmissionRow, Branch, CollectionRow, Company, DefaulterRow, Degree, Department, DiscountRow, Faculty,
   InstallmentRow, ReceivableRow, RegistrationRow, Semester, SummaryRow,
 } from './api'
+import { sampleEmployeeDepartments, sampleEmployees, sampleSalaryStructure } from './sampleStaff'
+import { sampleAttendance, sampleSalarySheet } from './samplePayroll'
 
 // ---- seeded random -------------------------------------------------------------------------------------------------
 let seed = 20261119
@@ -381,6 +383,11 @@ export function sampleResponse(url: string): unknown {
     case 'dashboard/defaulters': return defaulters(q)
     case 'dashboard/installments': return installments(q)
     case 'dashboard/discounts': return discounts(q)
+    case 'filters/employee-departments': return sampleEmployeeDepartments(p)
+    case 'dashboard/employees': return sampleEmployees(p)
+    case 'dashboard/salaryStructure': return sampleSalaryStructure(p)
+    case 'dashboard/salarySheet': return sampleSalarySheet(p)
+    case 'dashboard/attendance': return sampleAttendance(p)
     default: return []
   }
 }

@@ -26,6 +26,7 @@ public sealed class DashboardDb(IConfiguration config)
         ["Departments"] = new(FiltersProcedure, ["CompanyId", "FacultyId"], SendsSection: true),
         ["Degrees"] = new(FiltersProcedure, ["CompanyId", "BranchId", "FacultyId", "DepartmentId"], SendsSection: true),
         ["Semesters"] = new(FiltersProcedure, ["CompanyId", "BranchId"], SendsSection: true),
+        ["EmployeeDepartments"] = new(FiltersProcedure, ["CompanyId", "BranchId"], SendsSection: true),
 
         // Data portions
         ["Summary"] = new("dbo.Dashboard_MyUni_StudentSummary", Common, SendsRequireApproved: true),
@@ -36,6 +37,12 @@ public sealed class DashboardDb(IConfiguration config)
         ["Defaulters"] = new("dbo.Dashboard_MyUni_Defaulters", Common),
         ["Installments"] = new("dbo.Dashboard_MyUni_Installments", Common),
         ["Discounts"] = new("dbo.Dashboard_MyUni_Discounts", Common),
+
+        // HR portions: only CompanyId, BranchId, DepartmentId and the dates matter to them
+        ["Employees"] = new("dbo.Dashboard_MyUni_Employees", Common),
+        ["SalaryStructure"] = new("dbo.Dashboard_MyUni_SalaryStructure", Common),
+        ["SalarySheet"] = new("dbo.Dashboard_MyUni_SalarySheet", Common),
+        ["Attendance"] = new("dbo.Dashboard_MyUni_Attendance", Common),
     };
 
     private readonly string _connectionString = config.GetConnectionString("DefaultConnection")

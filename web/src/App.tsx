@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useMemo, useState, type ComponentType } from 'react'
-import { AlarmClock, BadgePercent, CalendarClock, FlaskConical, GraduationCap, LayoutDashboard, ReceiptText, Scale, UserPlus } from 'lucide-react'
-import { SAMPLE_MODE, urls, type Branch, type Company, type Degree, type Department, type Faculty, type Query, type Semester } from './api'
+import { AlarmClock, BadgePercent, Banknote, CalendarCheck, CalendarClock, FlaskConical, GraduationCap, IdCard, LayoutDashboard, ReceiptText, Scale, UserPlus, WalletCards } from 'lucide-react'
+import { SAMPLE_MODE, urls, type Branch, type Company, type Degree, type Department, type EmployeeDepartment, type Faculty, type Query, type Semester } from './api'
 import { useData } from './useData'
 import { Rail, type NavItem } from './components/Rail'
 import { SemesterStrip } from './components/SemesterStrip'
@@ -16,6 +16,10 @@ import { Receivables } from './sections/Receivables'
 import { Defaulters } from './sections/Defaulters'
 import { Installments } from './sections/Installments'
 import { Discounts } from './sections/Discounts'
+import { Employees } from './sections/Employees'
+import { SalaryStructure } from './sections/SalaryStructure'
+import { SalarySheet } from './sections/SalarySheet'
+import { Attendance } from './sections/Attendance'
 
 interface SectionDef extends NavItem { title: string; blurb: string; view: ComponentType<SectionProps> }
 
@@ -28,11 +32,18 @@ const SECTIONS: SectionDef[] = [
   { id: 'defaulters', label: 'Defaulters', icon: AlarmClock, view: Defaulters, title: 'Defaulters', blurb: 'Students whose fee is unpaid past its due date.' },
   { id: 'installments', label: 'Installments', icon: CalendarClock, view: Installments, title: 'Installments', blurb: 'Fee paid in parts: what is paid, late and still to come.' },
   { id: 'discounts', label: 'Discounts', icon: BadgePercent, view: Discounts, title: 'Discounts', blurb: 'Scholarships and fee discounts given to students.' },
+  { id: 'employees', label: 'Employees', icon: IdCard, view: Employees, title: 'Employees', blurb: 'Who works here: head count by department, role and type of employment.' },
+  { id: 'salary-structure', label: 'Salary structure', icon: WalletCards, view: SalaryStructure, title: 'Salary structure', blurb: 'What each employee is set to earn: basic pay, allowances and gross.' },
+  { id: 'salary-sheet', label: 'Salary sheet', icon: Banknote, view: SalarySheet, title: 'Salary sheet', blurb: 'Payroll actually run each month: gross, deductions and net pay.' },
+  { id: 'attendance', label: 'Attendance', icon: CalendarCheck, view: Attendance, title: 'Attendance', blurb: 'Days worked, absences, leave and late arrivals each month.' },
 ]
+
+/** The HR pages. They use the company, campus, employee department and dates only: no semester, faculty or degree. */
+const HR_SECTIONS = new Set(['employees', 'salary-structure', 'salary-sheet', 'attendance'])
 
 const sectionFromHash = () => SECTIONS.find((s) => `#${s.id}` === location.hash)?.id ?? 'overview'
 
-const EMPTY: Selection = { companyId: null, branchId: null, facultyId: null, departmentId: null, degreeId: null, semesterId: null, startDate: '', endDate: '' }
+const EMPTY: Selection = { companyId: null, branchId: null, facultyId: null, departmentId: null, hrDepartmentId: null, degreeId: null, semesterId: null, startDate: '', endDate: '' }
 
 /**
  * A chosen id only counts while it is still in its list, so changing a parent filter drops a child it no longer offers.
@@ -71,30 +82,44 @@ export default function App() {
   const degreeId = still(sel.degreeId, degrees)
   const semesters = useData<Semester[]>(companyId ? urls.semesters(companyId, branchId) : null, reload)
   const semesterId = still(sel.semesterId, semesters)
+  // The HR pages have their own department list (the employees' departments) and their own choice from it.
+  const hr = HR_SECTIONS.has(section)
+  const hrDepartments = useData<EmployeeDepartment[]>(hr && companyId ? urls.employeeDepartments(companyId, branchId) : null, reload)
+  const hrDepartmentId = still(sel.hrDepartmentId, hrDepartments)
 
   // A half-typed date (year 0002, or five digits) is not sent to the server.
   const startDate = validDate(sel.startDate), endDate = validDate(sel.endDate)
-  const q = useMemo<Query | null>(() => (companyId === null ? null : {
-    companyId, branchId, facultyId, departmentId, degreeId, semesterId, startDate, endDate,
-  }), [companyId, branchId, facultyId, departmentId, degreeId, semesterId, startDate, endDate])
+  const q = useMemo<Query | null>(() => (companyId === null ? null : hr
+    ? { companyId, branchId, facultyId: null, departmentId: hrDepartmentId, degreeId: null, semesterId: null, startDate, endDate }
+    : { companyId, branchId, facultyId, departmentId, degreeId, semesterId, startDate, endDate }
+  ), [hr, companyId, branchId, facultyId, departmentId, hrDepartmentId, degreeId, semesterId, startDate, endDate])
 
   const change = useCallback((patch: Partial<Selection>) => setSel((s) => ({ ...s, ...patch })), [])
   const refresh = useCallback(() => setReload((n) => n + 1), [])
 
+  // Only the filters that apply on the current page can be narrowing it, and only those are cleared.
   const actions = useMemo<DashActions>(() => {
     const narrowed: string[] = []
+    if (hr) {
+      if (startDate || endDate) narrowed.push('the dates')
+      if (branchId) narrowed.push('the campus')
+      if (hrDepartmentId) narrowed.push('the department')
+      return { retry: refresh, narrowed, clearFilters: () => setSel((s) => ({ ...s, branchId: null, hrDepartmentId: null, startDate: '', endDate: '' })) }
+    }
     if (semesterId) narrowed.push(`the semester (${semesters.data?.find((s) => s.id === semesterId)?.code ?? 'chosen'})`)
     if (startDate || endDate) narrowed.push('the dates')
     if (branchId) narrowed.push('the campus')
     if (degreeId) narrowed.push('the degree')
     else if (departmentId) narrowed.push('the department')
     else if (facultyId) narrowed.push('the faculty')
-    return { retry: refresh, narrowed, clearFilters: () => setSel((s) => ({ ...EMPTY, companyId: s.companyId })) }
-  }, [semesterId, semesters.data, startDate, endDate, branchId, degreeId, departmentId, facultyId, refresh])
+    return { retry: refresh, narrowed, clearFilters: () => setSel((s) => ({ ...EMPTY, companyId: s.companyId, hrDepartmentId: s.hrDepartmentId })) }
+  }, [hr, hrDepartmentId, semesterId, semesters.data, startDate, endDate, branchId, degreeId, departmentId, facultyId, refresh])
 
   const current = SECTIONS.find((s) => s.id === section) ?? SECTIONS[0]
   const View = current.view
-  const listsBusy = companies.loading || branches.loading || faculties.loading || departments.loading || degrees.loading || semesters.loading
+  const listsBusy = companies.loading || branches.loading || (hr
+    ? hrDepartments.loading
+    : faculties.loading || departments.loading || degrees.loading || semesters.loading)
 
   return (
     <DashContext.Provider value={actions}>
@@ -118,9 +143,9 @@ export default function App() {
             </div>
           ) : (
             <>
-              <SemesterStrip state={semesters} selected={semesterId} onSelect={(id) => change({ semesterId: id })} onRetry={refresh} />
-              <FilterBar sel={{ ...sel, companyId, branchId, facultyId, departmentId, degreeId, semesterId }} change={change} busy={listsBusy} onRefresh={refresh}
-                lists={{ companies: companies.data, branches: branches.data, faculties: faculties.data, departments: departments.data, degrees: degrees.data }} />
+              {!hr && <SemesterStrip state={semesters} selected={semesterId} onSelect={(id) => change({ semesterId: id })} onRetry={refresh} />}
+              <FilterBar hr={hr} sel={{ ...sel, companyId, branchId, facultyId, departmentId, hrDepartmentId, degreeId, semesterId }} change={change} busy={listsBusy} onRefresh={refresh}
+                lists={{ companies: companies.data, branches: branches.data, faculties: faculties.data, departments: hr ? hrDepartments.data : departments.data, degrees: degrees.data }} />
               <main id="content" className="space-y-4 pt-2">
                 <header>
                   <h1 className="text-[28px] leading-tight font-semibold text-ink sm:text-[32px]">{current.title}</h1>

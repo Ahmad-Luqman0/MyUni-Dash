@@ -45,4 +45,9 @@ public sealed class FiltersController(DashboardDb db) : ControllerBase
     [HttpGet("semesters")]
     public Task<IReadOnlyList<Dictionary<string, object?>>> Semesters([FromQuery] int companyId, [FromQuery] int branchId, CancellationToken ct) =>
         db.SectionRowsAsync("Semesters", new { CompanyId = companyId, BranchId = branchId }, ct);
+
+    /// <summary>Departments that have active employees: the Department filter of the HR tabs. branchId 0 or missing = all.</summary>
+    [HttpGet("employee-departments")]
+    public Task<IReadOnlyList<Dictionary<string, object?>>> EmployeeDepartments([FromQuery] int companyId, [FromQuery] int branchId, CancellationToken ct) =>
+        db.SectionRowsAsync("EmployeeDepartments", new { CompanyId = companyId, BranchId = branchId }, ct);
 }

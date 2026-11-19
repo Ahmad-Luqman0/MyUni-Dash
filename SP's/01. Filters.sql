@@ -1,5 +1,5 @@
 -- 01. Dashboard_MyUni_Filters: the filter lists shown above every tab, and the semester strip. One call per list.
--- @Section = Companies | Branches | Faculties | Departments | Degrees | Semesters
+-- @Section = Companies | Branches | Faculties | Departments | Degrees | Semesters | EmployeeDepartments
 -- Check the USE line names the right database. Run the whole script (SSMS: F5; DBeaver: Execute script, Alt+X).
 
 USE SAC400;
@@ -8,9 +8,9 @@ GO
 DROP PROCEDURE IF EXISTS dbo.Dashboard_MyUni_Filters;
 GO
 CREATE PROCEDURE dbo.Dashboard_MyUni_Filters
-    @Section      VARCHAR(30),               -- which list: Companies, Branches, Faculties, Departments, Degrees, Semesters
+    @Section      VARCHAR(30),               -- which list: Companies, Branches, Faculties, Departments, Degrees, Semesters, EmployeeDepartments
     @CompanyId    INT              = NULL,   -- every list except Companies: the chosen company
-    @BranchId     INT              = NULL,   -- Degrees, Semesters: NULL or 0 = all
+    @BranchId     INT              = NULL,   -- Degrees, Semesters, EmployeeDepartments: NULL or 0 = all
     @FacultyId    UNIQUEIDENTIFIER = NULL,   -- Departments, Degrees: NULL = all
     @DepartmentId INT              = NULL    -- Degrees: NULL or 0 = all
 AS
@@ -102,6 +102,20 @@ BEGIN
         WHERE AC.CompanyId = @CompanyId
           AND (ISNULL(@BranchId, 0) = 0 OR AC.BranchId = @BranchId)
         ORDER BY SEM.StartDate, SEM.OrderId;
+
+        RETURN;
+    END
+
+    -- 7. EmployeeDepartments: departments that have active employees (the Department filter of the HR tabs).
+    IF @Section = 'EmployeeDepartments'
+    BEGIN
+        SELECT D.Id, D.[Description], COUNT(*) AS Employees
+        FROM Employees E WITH (NOLOCK)
+        JOIN Departments D WITH (NOLOCK) ON D.Id = E.DepartmentId
+        WHERE E.CompanyId = @CompanyId AND E.Status = 1
+          AND (ISNULL(@BranchId, 0) = 0 OR E.BranchId = @BranchId)
+        GROUP BY D.Id, D.[Description]
+        ORDER BY D.[Description];
 
         RETURN;
     END
