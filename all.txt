@@ -14,61 +14,60 @@ GO
 DECLARE @Missing NVARCHAR(MAX) = N'';
 SELECT @Missing = @Missing + N', ' + R.Obj + N'.' + R.Col
 FROM (VALUES
-        (N'AEOFeeReceipts', N'BranchId'), (N'AEOFeeReceipts', N'CompanyId'), (N'AEOFeeReceipts', N'FeeStatus'), (N'AEOFeeReceipts', N'Id'),
-        (N'AEOFeeReceipts', N'Status'), (N'AEOFeeReceipts', N'TotalAmount'), (N'AEOFeeReceipts', N'TransDate'), (N'AEOFeeReceipts', N'UNIChallanId'),
-        (N'AEOFeeReceipts', N'UNIStudentId'), (N'AEOFeeReceiptsDetail', N'Amount'), (N'AEOFeeReceiptsDetail', N'FeeReceiptId'), (N'Branches', N'CityId'),
-        (N'Branches', N'Code'), (N'Branches', N'CompanyId'), (N'Branches', N'Description'), (N'Branches', N'Id'),
-        (N'Branches', N'Status'), (N'City', N'Description'), (N'City', N'Id'), (N'Company', N'CompanyName'),
-        (N'Company', N'Id'), (N'Company', N'Status'), (N'Departments', N'Description'), (N'Departments', N'Id'),
-        (N'EmployeeTypes', N'Description'), (N'EmployeeTypes', N'Id'), (N'Employees', N'BranchId'), (N'Employees', N'Code'),
-        (N'Employees', N'CompanyId'), (N'Employees', N'DepartmentId'), (N'Employees', N'Designation'), (N'Employees', N'DiscontinuationDate'),
-        (N'Employees', N'EmployeesStatus'), (N'Employees', N'Gender'), (N'Employees', N'HiringDate'), (N'Employees', N'Id'),
-        (N'Employees', N'Name'), (N'Employees', N'Status'), (N'Employees', N'TypeId'), (N'Faculty', N'Code'),
-        (N'Faculty', N'CompanyId'), (N'Faculty', N'Description'), (N'Faculty', N'FacultyGUID'), (N'Faculty', N'Status'),
-        (N'FacultyDetails', N'DepartmentId'), (N'FacultyDetails', N'FacultyGUID'), (N'HRMAttendenceApproval', N'BranchId'), (N'HRMAttendenceApproval', N'CompanyId'),
-        (N'HRMAttendenceApproval', N'Id'), (N'HRMAttendenceApproval', N'Month'), (N'HRMAttendenceApproval', N'Status'), (N'HRMAttendenceApprovalDetail', N'Absenties'),
-        (N'HRMAttendenceApprovalDetail', N'AttendanceApprovalId'), (N'HRMAttendenceApprovalDetail', N'DeductionAmount'), (N'HRMAttendenceApprovalDetail', N'EmployeeId'), (N'HRMAttendenceApprovalDetail', N'InMintLate'),
-        (N'HRMAttendenceApprovalDetail', N'Leaves'), (N'HRMAttendenceApprovalDetail', N'NoOfDays'), (N'HRMAttendenceApprovalDetail', N'NoOfLateIn'), (N'HRMAttendenceApprovalDetail', N'NoOfLateOut'),
-        (N'HRMAttendenceApprovalDetail', N'OverTimeAmount'), (N'HRMSalarySheet', N'BranchId'), (N'HRMSalarySheet', N'CompanyId'), (N'HRMSalarySheet', N'Id'),
-        (N'HRMSalarySheet', N'Month'), (N'HRMSalarySheet', N'Status'), (N'HRMSalarySheetDetail', N'AbsentDeductions'), (N'HRMSalarySheetDetail', N'ArrearsAmount'),
-        (N'HRMSalarySheetDetail', N'BasicSalary'), (N'HRMSalarySheetDetail', N'BranchId'), (N'HRMSalarySheetDetail', N'EOBI'), (N'HRMSalarySheetDetail', N'EmployeeId'),
-        (N'HRMSalarySheetDetail', N'HRMSalarySheetId'), (N'HRMSalarySheetDetail', N'IncomeTax'), (N'HRMSalarySheetDetail', N'MonthlyAllowances'), (N'HRMSalarySheetDetail', N'MonthlyDeductions'),
-        (N'HRMSalarySheetDetail', N'OverTimeAmt'), (N'HRMSalarySheetDetail', N'ProvidentFund'), (N'HRMSalarySheetDetail', N'RecurringAllowances'), (N'HRMSalarySheetDetail', N'RecurringDeductions'),
-        (N'HRMSalarySheetDetail', N'SpecialAllowances'), (N'HRMSalarySheetDetail', N'TotalAllowances'), (N'HRMSalarySheetDetail', N'TotalLoans'), (N'HRMSalaryStructure', N'BasicSalary'),
-        (N'HRMSalaryStructure', N'CompanyId'), (N'HRMSalaryStructure', N'EffectiveDate'), (N'HRMSalaryStructure', N'EmployeeId'), (N'HRMSalaryStructure', N'ExpiryDate'),
-        (N'HRMSalaryStructure', N'GrossSalary'), (N'HRMSalaryStructure', N'Id'), (N'HRMSalaryStructure', N'RatePerDay'), (N'HRMSalaryStructure', N'SpecialAllowance'),
-        (N'HRMSalaryStructure', N'Status'), (N'HRMSalaryStructure', N'TotalAllowance'), (N'ProgramType', N'Description'), (N'ProgramType', N'Id'),
-        (N'UNIAcademicCalender', N'BranchId'), (N'UNIAcademicCalender', N'CalenderName'), (N'UNIAcademicCalender', N'CompanyId'), (N'UNIAcademicCalender', N'Id'),
-        (N'UNIAcademicYearSemesterDetails', N'AcademicCalenderId'), (N'UNIAcademicYearSemesterDetails', N'Code'), (N'UNIAcademicYearSemesterDetails', N'EndDate'), (N'UNIAcademicYearSemesterDetails', N'Id'),
-        (N'UNIAcademicYearSemesterDetails', N'IsAdmissionOpen'), (N'UNIAcademicYearSemesterDetails', N'OrderId'), (N'UNIAcademicYearSemesterDetails', N'StartDate'), (N'UNIAdmissionAnnouncement', N'BranchId'),
-        (N'UNIAdmissionAnnouncement', N'CompanyId'), (N'UNIAdmissionAnnouncement', N'Id'), (N'UNIAdmissionAnnouncement', N'Status'), (N'UNIAdmissionAnnouncementDetails', N'AdmissionAnnouncementId'),
-        (N'UNIAdmissionAnnouncementDetails', N'AvailableSeats'), (N'UNIAdmissionAnnouncementDetails', N'DegreeId'), (N'UNIAdmissionAnnouncementDetails', N'FeeAmount'), (N'UNIAdmissionAnnouncementDetails', N'ProgramTypeId'),
-        (N'UNIAdmissionAnnouncementDetails', N'SemesterSessionId'), (N'UNIBankReceipts', N'BankReceiptStatus'), (N'UNIBankReceipts', N'BranchId'), (N'UNIBankReceipts', N'Id'),
-        (N'UNIBankReceipts', N'Status'), (N'UNIBankReceipts', N'UploadedDate'), (N'UNIBankReceiptsDetail', N'Amount'), (N'UNIBankReceiptsDetail', N'BankReceiptId'),
-        (N'UNIBankReceiptsDetail', N'ChallanNo'), (N'UNIBankReceiptsDetail', N'DegreeId'), (N'UNIBankReceiptsDetail', N'DocStatus'), (N'UNIBankReceiptsDetail', N'StudentId'),
-        (N'UNIChallanTypes', N'ChallanType'), (N'UNIChallanTypes', N'Id'), (N'UNIDegree', N'BranchId'), (N'UNIDegree', N'CompanyId'),
-        (N'UNIDegree', N'DegreeCode'), (N'UNIDegree', N'DegreeLevel'), (N'UNIDegree', N'DegreeName'), (N'UNIDegree', N'DepartmentId'),
-        (N'UNIDegree', N'Id'), (N'UNIDegree', N'Status'), (N'UNIDegreeLevels', N'DegreeLevelName'), (N'UNIDegreeLevels', N'Id'),
-        (N'UNIDiscountCatagory', N'Description'), (N'UNIDiscountCatagory', N'Id'), (N'UNIDiscountsTypes', N'Description'), (N'UNIDiscountsTypes', N'Id'),
-        (N'UNIFeeDiscount', N'AppliedSemesterId'), (N'UNIFeeDiscount', N'BranchId'), (N'UNIFeeDiscount', N'CompanyId'), (N'UNIFeeDiscount', N'DiscountCatagoryId'),
-        (N'UNIFeeDiscount', N'DiscountStatus'), (N'UNIFeeDiscount', N'Id'), (N'UNIFeeDiscount', N'StartDate'), (N'UNIFeeDiscount', N'Status'),
-        (N'UNIFeeDiscountDetails', N'DegreeId'), (N'UNIFeeDiscountDetails', N'DiscountedAmount'), (N'UNIFeeDiscountDetails', N'DiscountsTypeId'), (N'UNIFeeDiscountDetails', N'FeedDiscountId'),
-        (N'UNIFeeDiscountDetails', N'FeeTypeId'), (N'UNIFeeDiscountDetails', N'Status'), (N'UNIFeeDiscountDetails', N'StudentId'), (N'UNIFeeInstallments', N'BranchId'),
-        (N'UNIFeeInstallments', N'CompanyId'), (N'UNIFeeInstallments', N'Id'), (N'UNIFeeInstallments', N'InstallmentStatus'), (N'UNIFeeInstallments', N'SemesterId'),
-        (N'UNIFeeInstallments', N'Status'), (N'UNIFeeInstallments', N'StudentId'), (N'UNIFeeInstallmentsDetail', N'Amount'), (N'UNIFeeInstallmentsDetail', N'ChallanGUID'),
-        (N'UNIFeeInstallmentsDetail', N'FeeInstallmentId'), (N'UNIFeeInstallmentsDetail', N'InstallmentStatus'), (N'UNIFeeInstallmentsDetail', N'Month'), (N'UNIFeeInstallmentsDetail', N'Status'),
-        (N'UNIFeeInstallmentsDetail', N'ValidityDate'), (N'UNIFeeTypes', N'Description'), (N'UNIFeeTypes', N'Id'), (N'UNIStudentAnnounceDetails', N'DegreeId'),
-        (N'UNIStudentAnnounceDetails', N'SemesterSessionId'), (N'UNIStudentAnnounceDetails', N'Status'), (N'UNIStudentAnnounceDetails', N'StudentsId'), (N'UNIStudents', N'AdmissionNumber'),
-        (N'UNIStudents', N'BranchId'), (N'UNIStudents', N'CompletionDate'), (N'UNIStudents', N'DegreeId'), (N'UNIStudents', N'Id'),
-        (N'UNIStudents', N'IsDegreeCompleted'), (N'UNIStudents', N'ShiftId'), (N'UNIStudents', N'Status'), (N'UNIStudents', N'StudentFullName'),
-        (N'UNIStudentsChallan', N'BranchId'), (N'UNIStudentsChallan', N'ChallanDescription'), (N'UNIStudentsChallan', N'ChallanNo'), (N'UNIStudentsChallan', N'ChallanStatus'),
-        (N'UNIStudentsChallan', N'ChallanTypeId'), (N'UNIStudentsChallan', N'CompanyId'), (N'UNIStudentsChallan', N'DegreeId'), (N'UNIStudentsChallan', N'DueDate'),
-        (N'UNIStudentsChallan', N'FineAmount'), (N'UNIStudentsChallan', N'GovtFeeDiscountAmt'), (N'UNIStudentsChallan', N'Id'), (N'UNIStudentsChallan', N'NetChallanAmt'),
-        (N'UNIStudentsChallan', N'ParentIdGuid'), (N'UNIStudentsChallan', N'RegisterInId'), (N'UNIStudentsChallan', N'SemesterSessionId'), (N'UNIStudentsChallan', N'Status'),
-        (N'UNIStudentsChallan', N'StudentId'), (N'UNIStudentsChallan', N'TotalAmount'), (N'UNIStudentsChallan', N'TotalDiscountAmt'), (N'UNIStudentsChallan', N'TransDate'),
-        (N'UNIStudentsChallan', N'ValidityDate'), (N'UNIStudentsRegistrations', N'BranchId'), (N'UNIStudentsRegistrations', N'CompanyId'), (N'UNIStudentsRegistrations', N'DegreeId'),
-        (N'UNIStudentsRegistrations', N'RegisterInId'), (N'UNIStudentsRegistrations', N'SemesterNo'), (N'UNIStudentsRegistrations', N'SemesterSessionId'), (N'UNIStudentsRegistrations', N'Status'),
-        (N'UNIStudentsRegistrations', N'StudentsId')
+        (N'AEOFeeReceipts', N'BranchId'), (N'AEOFeeReceipts', N'CompanyId'), (N'AEOFeeReceipts', N'FeeAmount'), (N'AEOFeeReceipts', N'FeeStatus'),
+        (N'AEOFeeReceipts', N'Id'), (N'AEOFeeReceipts', N'Status'), (N'AEOFeeReceipts', N'TotalAmount'), (N'AEOFeeReceipts', N'TransDate'),
+        (N'AEOFeeReceipts', N'UNIChallanId'), (N'AEOFeeReceipts', N'UNIStudentId'), (N'Branches', N'CityId'), (N'Branches', N'Code'),
+        (N'Branches', N'CompanyId'), (N'Branches', N'Description'), (N'Branches', N'Id'), (N'Branches', N'Status'),
+        (N'City', N'Description'), (N'City', N'Id'), (N'Company', N'CompanyName'), (N'Company', N'Id'),
+        (N'Company', N'Status'), (N'Departments', N'Description'), (N'Departments', N'Id'), (N'EmployeeTypes', N'Description'),
+        (N'EmployeeTypes', N'Id'), (N'Employees', N'BranchId'), (N'Employees', N'Code'), (N'Employees', N'CompanyId'),
+        (N'Employees', N'DepartmentId'), (N'Employees', N'Designation'), (N'Employees', N'DiscontinuationDate'), (N'Employees', N'EmployeesStatus'),
+        (N'Employees', N'Gender'), (N'Employees', N'HiringDate'), (N'Employees', N'Id'), (N'Employees', N'Name'),
+        (N'Employees', N'Status'), (N'Employees', N'TypeId'), (N'Faculty', N'Code'), (N'Faculty', N'CompanyId'),
+        (N'Faculty', N'Description'), (N'Faculty', N'FacultyGUID'), (N'Faculty', N'Status'), (N'FacultyDetails', N'DepartmentId'),
+        (N'FacultyDetails', N'FacultyGUID'), (N'HRMAttendenceApproval', N'BranchId'), (N'HRMAttendenceApproval', N'CompanyId'), (N'HRMAttendenceApproval', N'Id'),
+        (N'HRMAttendenceApproval', N'Month'), (N'HRMAttendenceApproval', N'Status'), (N'HRMAttendenceApprovalDetail', N'Absenties'), (N'HRMAttendenceApprovalDetail', N'AttendanceApprovalId'),
+        (N'HRMAttendenceApprovalDetail', N'DeductionAmount'), (N'HRMAttendenceApprovalDetail', N'EmployeeId'), (N'HRMAttendenceApprovalDetail', N'InMintLate'), (N'HRMAttendenceApprovalDetail', N'Leaves'),
+        (N'HRMAttendenceApprovalDetail', N'NoOfDays'), (N'HRMAttendenceApprovalDetail', N'NoOfLateIn'), (N'HRMAttendenceApprovalDetail', N'NoOfLateOut'), (N'HRMAttendenceApprovalDetail', N'OverTimeAmount'),
+        (N'HRMSalarySheet', N'BranchId'), (N'HRMSalarySheet', N'CompanyId'), (N'HRMSalarySheet', N'Id'), (N'HRMSalarySheet', N'Month'),
+        (N'HRMSalarySheet', N'Status'), (N'HRMSalarySheetDetail', N'AbsentDeductions'), (N'HRMSalarySheetDetail', N'ArrearsAmount'), (N'HRMSalarySheetDetail', N'BasicSalary'),
+        (N'HRMSalarySheetDetail', N'BranchId'), (N'HRMSalarySheetDetail', N'EOBI'), (N'HRMSalarySheetDetail', N'EmployeeId'), (N'HRMSalarySheetDetail', N'HRMSalarySheetId'),
+        (N'HRMSalarySheetDetail', N'IncomeTax'), (N'HRMSalarySheetDetail', N'MonthlyAllowances'), (N'HRMSalarySheetDetail', N'MonthlyDeductions'), (N'HRMSalarySheetDetail', N'OverTimeAmt'),
+        (N'HRMSalarySheetDetail', N'ProvidentFund'), (N'HRMSalarySheetDetail', N'RecurringAllowances'), (N'HRMSalarySheetDetail', N'RecurringDeductions'), (N'HRMSalarySheetDetail', N'SpecialAllowances'),
+        (N'HRMSalarySheetDetail', N'TotalAllowances'), (N'HRMSalarySheetDetail', N'TotalLoans'), (N'HRMSalaryStructure', N'BasicSalary'), (N'HRMSalaryStructure', N'CompanyId'),
+        (N'HRMSalaryStructure', N'EffectiveDate'), (N'HRMSalaryStructure', N'EmployeeId'), (N'HRMSalaryStructure', N'ExpiryDate'), (N'HRMSalaryStructure', N'GrossSalary'),
+        (N'HRMSalaryStructure', N'Id'), (N'HRMSalaryStructure', N'RatePerDay'), (N'HRMSalaryStructure', N'SpecialAllowance'), (N'HRMSalaryStructure', N'Status'),
+        (N'HRMSalaryStructure', N'TotalAllowance'), (N'ProgramType', N'Description'), (N'ProgramType', N'Id'), (N'UNIAcademicCalender', N'BranchId'),
+        (N'UNIAcademicCalender', N'CalenderName'), (N'UNIAcademicCalender', N'CompanyId'), (N'UNIAcademicCalender', N'Id'), (N'UNIAcademicYearSemesterDetails', N'AcademicCalenderId'),
+        (N'UNIAcademicYearSemesterDetails', N'Code'), (N'UNIAcademicYearSemesterDetails', N'EndDate'), (N'UNIAcademicYearSemesterDetails', N'Id'), (N'UNIAcademicYearSemesterDetails', N'IsAdmissionOpen'),
+        (N'UNIAcademicYearSemesterDetails', N'OrderId'), (N'UNIAcademicYearSemesterDetails', N'StartDate'), (N'UNIAdmissionAnnouncement', N'BranchId'), (N'UNIAdmissionAnnouncement', N'CompanyId'),
+        (N'UNIAdmissionAnnouncement', N'Id'), (N'UNIAdmissionAnnouncement', N'Status'), (N'UNIAdmissionAnnouncementDetails', N'AdmissionAnnouncementId'), (N'UNIAdmissionAnnouncementDetails', N'AvailableSeats'),
+        (N'UNIAdmissionAnnouncementDetails', N'DegreeId'), (N'UNIAdmissionAnnouncementDetails', N'FeeAmount'), (N'UNIAdmissionAnnouncementDetails', N'ProgramTypeId'), (N'UNIAdmissionAnnouncementDetails', N'SemesterSessionId'),
+        (N'UNIBankReceipts', N'BankReceiptStatus'), (N'UNIBankReceipts', N'BranchId'), (N'UNIBankReceipts', N'Id'), (N'UNIBankReceipts', N'Status'),
+        (N'UNIBankReceipts', N'UploadedDate'), (N'UNIBankReceiptsDetail', N'Amount'), (N'UNIBankReceiptsDetail', N'BankReceiptId'), (N'UNIBankReceiptsDetail', N'ChallanNo'),
+        (N'UNIBankReceiptsDetail', N'DegreeId'), (N'UNIBankReceiptsDetail', N'DocStatus'), (N'UNIBankReceiptsDetail', N'StudentId'), (N'UNIChallanTypes', N'ChallanType'),
+        (N'UNIChallanTypes', N'Id'), (N'UNIDegree', N'BranchId'), (N'UNIDegree', N'CompanyId'), (N'UNIDegree', N'DegreeCode'),
+        (N'UNIDegree', N'DegreeLevel'), (N'UNIDegree', N'DegreeName'), (N'UNIDegree', N'DepartmentId'), (N'UNIDegree', N'Id'),
+        (N'UNIDegree', N'Status'), (N'UNIDegreeLevels', N'DegreeLevelName'), (N'UNIDegreeLevels', N'Id'), (N'UNIDiscountCatagory', N'Description'),
+        (N'UNIDiscountCatagory', N'Id'), (N'UNIDiscountsTypes', N'Description'), (N'UNIDiscountsTypes', N'Id'), (N'UNIFeeDiscount', N'AppliedSemesterId'),
+        (N'UNIFeeDiscount', N'BranchId'), (N'UNIFeeDiscount', N'CompanyId'), (N'UNIFeeDiscount', N'DiscountCatagoryId'), (N'UNIFeeDiscount', N'DiscountStatus'),
+        (N'UNIFeeDiscount', N'Id'), (N'UNIFeeDiscount', N'StartDate'), (N'UNIFeeDiscount', N'Status'), (N'UNIFeeDiscountDetails', N'DegreeId'),
+        (N'UNIFeeDiscountDetails', N'DiscountedAmount'), (N'UNIFeeDiscountDetails', N'DiscountsTypeId'), (N'UNIFeeDiscountDetails', N'FeedDiscountId'), (N'UNIFeeDiscountDetails', N'FeeTypeId'),
+        (N'UNIFeeDiscountDetails', N'Status'), (N'UNIFeeDiscountDetails', N'StudentId'), (N'UNIFeeInstallments', N'BranchId'), (N'UNIFeeInstallments', N'CompanyId'),
+        (N'UNIFeeInstallments', N'Id'), (N'UNIFeeInstallments', N'InstallmentStatus'), (N'UNIFeeInstallments', N'SemesterId'), (N'UNIFeeInstallments', N'Status'),
+        (N'UNIFeeInstallments', N'StudentId'), (N'UNIFeeInstallmentsDetail', N'Amount'), (N'UNIFeeInstallmentsDetail', N'ChallanGUID'), (N'UNIFeeInstallmentsDetail', N'FeeInstallmentId'),
+        (N'UNIFeeInstallmentsDetail', N'InstallmentStatus'), (N'UNIFeeInstallmentsDetail', N'Month'), (N'UNIFeeInstallmentsDetail', N'Status'), (N'UNIFeeInstallmentsDetail', N'ValidityDate'),
+        (N'UNIFeeTypes', N'Description'), (N'UNIFeeTypes', N'Id'), (N'UNIStudentAnnounceDetails', N'DegreeId'), (N'UNIStudentAnnounceDetails', N'SemesterSessionId'),
+        (N'UNIStudentAnnounceDetails', N'Status'), (N'UNIStudentAnnounceDetails', N'StudentsId'), (N'UNIStudents', N'AdmissionNumber'), (N'UNIStudents', N'BranchId'),
+        (N'UNIStudents', N'CompletionDate'), (N'UNIStudents', N'DegreeId'), (N'UNIStudents', N'Id'), (N'UNIStudents', N'IsDegreeCompleted'),
+        (N'UNIStudents', N'ShiftId'), (N'UNIStudents', N'Status'), (N'UNIStudents', N'StudentFullName'), (N'UNIStudentsChallan', N'BranchId'),
+        (N'UNIStudentsChallan', N'ChallanDescription'), (N'UNIStudentsChallan', N'ChallanNo'), (N'UNIStudentsChallan', N'ChallanStatus'), (N'UNIStudentsChallan', N'ChallanTypeId'),
+        (N'UNIStudentsChallan', N'CompanyId'), (N'UNIStudentsChallan', N'DegreeId'), (N'UNIStudentsChallan', N'DueDate'), (N'UNIStudentsChallan', N'FineAmount'),
+        (N'UNIStudentsChallan', N'GovtFeeDiscountAmt'), (N'UNIStudentsChallan', N'Id'), (N'UNIStudentsChallan', N'NetChallanAmt'), (N'UNIStudentsChallan', N'ParentIdGuid'),
+        (N'UNIStudentsChallan', N'RegisterInId'), (N'UNIStudentsChallan', N'SemesterSessionId'), (N'UNIStudentsChallan', N'Status'), (N'UNIStudentsChallan', N'StudentId'),
+        (N'UNIStudentsChallan', N'TotalAmount'), (N'UNIStudentsChallan', N'TotalDiscountAmt'), (N'UNIStudentsChallan', N'TransDate'), (N'UNIStudentsChallan', N'ValidityDate'),
+        (N'UNIStudentsRegistrations', N'BranchId'), (N'UNIStudentsRegistrations', N'CompanyId'), (N'UNIStudentsRegistrations', N'DegreeId'), (N'UNIStudentsRegistrations', N'RegisterInId'),
+        (N'UNIStudentsRegistrations', N'SemesterNo'), (N'UNIStudentsRegistrations', N'SemesterSessionId'), (N'UNIStudentsRegistrations', N'Status'), (N'UNIStudentsRegistrations', N'StudentsId')
      ) R(Obj, Col)
 WHERE COL_LENGTH(N'dbo.' + R.Obj, R.Col) IS NULL;
 IF @Missing <> N''
@@ -312,12 +311,10 @@ BEGIN
         HAVING SUM(C.IsBilled * C.Net) - SUM(C.IsPaid * C.Net) > 0 AND SUM(C.IsOverdue) > 0
     ),
     Rec AS (
-        SELECT ISNULL(SC.DegreeId, S.DegreeId) AS DegreeId, ISNULL(DT.Amount, ISNULL(FR.TotalAmount, 0)) AS Amount
+        SELECT ISNULL(SC.DegreeId, S.DegreeId) AS DegreeId, ISNULL(FR.FeeAmount, ISNULL(FR.TotalAmount, 0)) AS Amount
         FROM AEOFeeReceipts FR WITH (NOLOCK)
         JOIN UNIStudents S WITH (NOLOCK) ON S.Id = FR.UNIStudentId AND S.Status = 1
         LEFT JOIN UNIStudentsChallan SC WITH (NOLOCK) ON SC.Id = FR.UNIChallanId
-        OUTER APPLY (SELECT SUM(ISNULL(FRD.Amount, 0)) AS Amount
-                     FROM AEOFeeReceiptsDetail FRD WITH (NOLOCK) WHERE FRD.FeeReceiptId = FR.Id) DT
         WHERE FR.CompanyId = @CompanyId
           AND FR.Status = 1
           AND FR.FeeStatus IN (4, 19)                       -- 4 = received (set when the receipt is saved), 19 = approved
@@ -556,6 +553,8 @@ GO
 --                      and marks its challan paid at once (UNIFeeRecipts_Insertion), so 4 is money received.
 --                      Left out: receipts against a cancelled challan, as in the ERP's list AEOFeeReceipts_GetListForUNI,
 --                      and receipts whose challan already has a verified bank receipt (so nothing is counted twice).
+--                      Amount = the receipt's FeeAmount (the same figure the ERP writes on the receipt's line).
+--                      The receipt lines are not read: looking them up per receipt took minutes on a full database.
 --   Bank receipt     = UNIBankReceiptsDetail verified (DocStatus 35) on an approved / posted upload (BankReceiptStatus 2, 34), dated by UploadedDate
 -- @RequireApproved is no longer used (kept so the API's call still works).
 DROP PROCEDURE IF EXISTS dbo.Dashboard_MyUni_Collections;
@@ -606,12 +605,10 @@ BEGIN
     Rec AS (
         SELECT CAST(FR.TransDate AS DATE) AS ReceiptDate, CAST('Cash Fee Receipt' AS VARCHAR(20)) AS Source,
                ISNULL(SC.DegreeId, S.DegreeId) AS DegreeId, SC.ChallanTypeId,
-               ISNULL(DT.Amount, ISNULL(FR.TotalAmount, 0)) AS Amount
+               ISNULL(FR.FeeAmount, ISNULL(FR.TotalAmount, 0)) AS Amount   -- the fee itself, as on the receipt's own line
         FROM AEOFeeReceipts FR WITH (NOLOCK)
         JOIN UNIStudents S WITH (NOLOCK) ON S.Id = FR.UNIStudentId AND S.Status = 1
         LEFT JOIN UNIStudentsChallan SC WITH (NOLOCK) ON SC.Id = FR.UNIChallanId
-        OUTER APPLY (SELECT SUM(ISNULL(FRD.Amount, 0)) AS Amount
-                     FROM AEOFeeReceiptsDetail FRD WITH (NOLOCK) WHERE FRD.FeeReceiptId = FR.Id) DT
         WHERE FR.CompanyId = @CompanyId
           AND FR.Status = 1
           AND FR.FeeStatus IN (4, 19)                       -- 4 = received (set when the receipt is saved), 19 = approved

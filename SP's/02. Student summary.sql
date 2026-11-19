@@ -108,12 +108,10 @@ BEGIN
         HAVING SUM(C.IsBilled * C.Net) - SUM(C.IsPaid * C.Net) > 0 AND SUM(C.IsOverdue) > 0
     ),
     Rec AS (
-        SELECT ISNULL(SC.DegreeId, S.DegreeId) AS DegreeId, ISNULL(DT.Amount, ISNULL(FR.TotalAmount, 0)) AS Amount
+        SELECT ISNULL(SC.DegreeId, S.DegreeId) AS DegreeId, ISNULL(FR.FeeAmount, ISNULL(FR.TotalAmount, 0)) AS Amount
         FROM AEOFeeReceipts FR WITH (NOLOCK)
         JOIN UNIStudents S WITH (NOLOCK) ON S.Id = FR.UNIStudentId AND S.Status = 1
         LEFT JOIN UNIStudentsChallan SC WITH (NOLOCK) ON SC.Id = FR.UNIChallanId
-        OUTER APPLY (SELECT SUM(ISNULL(FRD.Amount, 0)) AS Amount
-                     FROM AEOFeeReceiptsDetail FRD WITH (NOLOCK) WHERE FRD.FeeReceiptId = FR.Id) DT
         WHERE FR.CompanyId = @CompanyId
           AND FR.Status = 1
           AND FR.FeeStatus IN (4, 19)                       -- 4 = received (set when the receipt is saved), 19 = approved

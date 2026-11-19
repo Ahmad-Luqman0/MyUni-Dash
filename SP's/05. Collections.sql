@@ -5,6 +5,8 @@
 --                      and marks its challan paid at once (UNIFeeRecipts_Insertion), so 4 is money received.
 --                      Left out: receipts against a cancelled challan, as in the ERP's list AEOFeeReceipts_GetListForUNI,
 --                      and receipts whose challan already has a verified bank receipt (so nothing is counted twice).
+--                      Amount = the receipt's FeeAmount (the same figure the ERP writes on the receipt's line).
+--                      The receipt lines are not read: looking them up per receipt took minutes on a full database.
 --   Bank receipt     = UNIBankReceiptsDetail verified (DocStatus 35) on an approved / posted upload (BankReceiptStatus 2, 34), dated by UploadedDate
 -- @RequireApproved is no longer used (kept so the API's call still works).
 -- Check the USE line names the right database. Run the whole script (SSMS: F5; DBeaver: Execute script, Alt+X).
@@ -60,12 +62,10 @@ BEGIN
     Rec AS (
         SELECT CAST(FR.TransDate AS DATE) AS ReceiptDate, CAST('Cash Fee Receipt' AS VARCHAR(20)) AS Source,
                ISNULL(SC.DegreeId, S.DegreeId) AS DegreeId, SC.ChallanTypeId,
-               ISNULL(DT.Amount, ISNULL(FR.TotalAmount, 0)) AS Amount
+               ISNULL(FR.FeeAmount, ISNULL(FR.TotalAmount, 0)) AS Amount   -- the fee itself, as on the receipt's own line
         FROM AEOFeeReceipts FR WITH (NOLOCK)
         JOIN UNIStudents S WITH (NOLOCK) ON S.Id = FR.UNIStudentId AND S.Status = 1
         LEFT JOIN UNIStudentsChallan SC WITH (NOLOCK) ON SC.Id = FR.UNIChallanId
-        OUTER APPLY (SELECT SUM(ISNULL(FRD.Amount, 0)) AS Amount
-                     FROM AEOFeeReceiptsDetail FRD WITH (NOLOCK) WHERE FRD.FeeReceiptId = FR.Id) DT
         WHERE FR.CompanyId = @CompanyId
           AND FR.Status = 1
           AND FR.FeeStatus IN (4, 19)                       -- 4 = received (set when the receipt is saved), 19 = approved

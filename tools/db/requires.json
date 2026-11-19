@@ -1,6 +1,5 @@
 {
- "AEOFeeReceipts": ["BranchId", "CompanyId", "FeeStatus", "Id", "Status", "TotalAmount", "TransDate", "UNIChallanId", "UNIStudentId"],
- "AEOFeeReceiptsDetail": ["Amount", "FeeReceiptId"],
+ "AEOFeeReceipts": ["BranchId", "CompanyId", "FeeAmount", "FeeStatus", "Id", "Status", "TotalAmount", "TransDate", "UNIChallanId", "UNIStudentId"],
  "Branches": ["CityId", "Code", "CompanyId", "Description", "Id", "Status"],
  "City": ["Description", "Id"],
  "Company": ["CompanyName", "Id", "Status"],
