@@ -1,4 +1,4 @@
--- 08. Dashboard_MyUni_Registrations: registered students per semester, degree, semester number and shift (Students tab).
+-- 03. Dashboard_MyUni_Registrations: registered students per semester, degree, semester number and shift (Students tab).
 -- A registration counts when it is active, its student is active, and it falls in the semester
 -- (RegisterInId; the first semester, SemesterSessionId, when RegisterInId is empty). @StartDate / @EndDate are not used.
 -- Check the USE line names the right database. Run the whole script (SSMS: F5; DBeaver: Execute script, Alt+X).

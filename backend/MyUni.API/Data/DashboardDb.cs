@@ -11,19 +11,21 @@ namespace MyUni.API.Data;
 public sealed class DashboardDb(IConfiguration config)
 {
     /// <summary>Where a list or portion lives: its procedure, the parameters it takes, and whether it also takes @RequireApproved.</summary>
-    private sealed record Target(string Procedure, string[] Parameters, bool SendsRequireApproved = false);
+    private sealed record Target(string Procedure, string[] Parameters, bool SendsRequireApproved = false, bool SendsSection = false);
+
+    private const string FiltersProcedure = "dbo.Dashboard_MyUni_Filters";
 
     private static readonly string[] Common = ["CompanyId", "BranchId", "FacultyId", "DepartmentId", "DegreeId", "SemesterId", "StartDate", "EndDate"];
 
     private static readonly Dictionary<string, Target> Targets = new(StringComparer.OrdinalIgnoreCase)
     {
-        // Filter lists
-        ["Companies"] = new("dbo.Dashboard_MyUni_CompanyList", []),
-        ["Branches"] = new("dbo.Dashboard_MyUni_BranchList", ["CompanyId"]),
-        ["Faculties"] = new("dbo.Dashboard_MyUni_FacultyList", ["CompanyId"]),
-        ["Departments"] = new("dbo.Dashboard_MyUni_DepartmentList", ["CompanyId", "FacultyId"]),
-        ["Degrees"] = new("dbo.Dashboard_MyUni_DegreeList", ["CompanyId", "BranchId", "FacultyId", "DepartmentId"]),
-        ["Semesters"] = new("dbo.Dashboard_MyUni_SemesterList", ["CompanyId", "BranchId"]),
+        // Filter lists: one procedure, the list picked by @Section
+        ["Companies"] = new(FiltersProcedure, [], SendsSection: true),
+        ["Branches"] = new(FiltersProcedure, ["CompanyId"], SendsSection: true),
+        ["Faculties"] = new(FiltersProcedure, ["CompanyId"], SendsSection: true),
+        ["Departments"] = new(FiltersProcedure, ["CompanyId", "FacultyId"], SendsSection: true),
+        ["Degrees"] = new(FiltersProcedure, ["CompanyId", "BranchId", "FacultyId", "DepartmentId"], SendsSection: true),
+        ["Semesters"] = new(FiltersProcedure, ["CompanyId", "BranchId"], SendsSection: true),
 
         // Data portions
         ["Summary"] = new("dbo.Dashboard_MyUni_StudentSummary", Common, SendsRequireApproved: true),
@@ -72,6 +74,7 @@ public sealed class DashboardDb(IConfiguration config)
                 parameters.Add(property.Name, property.GetValue(args), dbType);
             }
         }
+        if (target.SendsSection) parameters.Add("Section", section, DbType.AnsiString, size: 30);
         if (target.SendsRequireApproved) parameters.Add("RequireApproved", _requireApproved, DbType.Boolean);
 
         await using var connection = new SqlConnection(_connectionString);

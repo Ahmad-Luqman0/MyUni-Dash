@@ -1,135 +1,183 @@
--- MYUNI DASHBOARD: 14 procedures, one per portion of the dashboard (dbo.Dashboard_MyUni_*).
+-- MYUNI DASHBOARD: 9 procedures, one for the filter lists and one per tab of the dashboard (dbo.Dashboard_MyUni_*).
 -- They only read the ERP tables: they call no other procedure and change no table.
+-- Safe to run again: it drops and re-creates only these procedures.
 -- Check the USE line names the right database. Run the whole script (SSMS: F5; DBeaver on Mac: use mac.txt).
 -- Generated from the SP's folder by tools/db/make_scripts.mjs; edit the files there, not this one.
 
 USE SAC400;
 GO
 
--- 01. Dashboard_MyUni_CompanyList: every active company (filter list).
+-- Pre-check: the tables, views and columns the procedures read must all exist in this database.
+-- If one is missing, an error names it and the rest of the script is skipped, so nothing is changed.
+SET NOEXEC OFF;
+GO
+DECLARE @Missing NVARCHAR(MAX) = N'';
+SELECT @Missing = @Missing + N', ' + R.Obj + N'.' + R.Col
+FROM (VALUES
+        (N'AEOFeeReceipts', N'BranchId'), (N'AEOFeeReceipts', N'CompanyId'), (N'AEOFeeReceipts', N'FeeStatus'), (N'AEOFeeReceipts', N'Id'),
+        (N'AEOFeeReceipts', N'Status'), (N'AEOFeeReceipts', N'TotalAmount'), (N'AEOFeeReceipts', N'TransDate'), (N'AEOFeeReceipts', N'UNIChallanId'),
+        (N'AEOFeeReceipts', N'UNIStudentId'), (N'AEOFeeReceiptsDetail', N'Amount'), (N'AEOFeeReceiptsDetail', N'FeeReceiptId'), (N'Branches', N'CityId'),
+        (N'Branches', N'Code'), (N'Branches', N'CompanyId'), (N'Branches', N'Description'), (N'Branches', N'Id'),
+        (N'Branches', N'Status'), (N'City', N'Description'), (N'City', N'Id'), (N'Company', N'CompanyName'),
+        (N'Company', N'Id'), (N'Company', N'Status'), (N'Departments', N'Description'), (N'Departments', N'Id'),
+        (N'Faculty', N'Code'), (N'Faculty', N'CompanyId'), (N'Faculty', N'Description'), (N'Faculty', N'FacultyGUID'),
+        (N'Faculty', N'Status'), (N'FacultyDetails', N'DepartmentId'), (N'FacultyDetails', N'FacultyGUID'), (N'ProgramType', N'Description'),
+        (N'ProgramType', N'Id'), (N'UNIAcademicCalender', N'BranchId'), (N'UNIAcademicCalender', N'CalenderName'), (N'UNIAcademicCalender', N'CompanyId'),
+        (N'UNIAcademicCalender', N'Id'), (N'UNIAcademicYearSemesterDetails', N'AcademicCalenderId'), (N'UNIAcademicYearSemesterDetails', N'Code'), (N'UNIAcademicYearSemesterDetails', N'EndDate'),
+        (N'UNIAcademicYearSemesterDetails', N'Id'), (N'UNIAcademicYearSemesterDetails', N'IsAdmissionOpen'), (N'UNIAcademicYearSemesterDetails', N'OrderId'), (N'UNIAcademicYearSemesterDetails', N'StartDate'),
+        (N'UNIAdmissionAnnouncement', N'BranchId'), (N'UNIAdmissionAnnouncement', N'CompanyId'), (N'UNIAdmissionAnnouncement', N'Id'), (N'UNIAdmissionAnnouncement', N'Status'),
+        (N'UNIAdmissionAnnouncementDetails', N'AdmissionAnnouncementId'), (N'UNIAdmissionAnnouncementDetails', N'AvailableSeats'), (N'UNIAdmissionAnnouncementDetails', N'DegreeId'), (N'UNIAdmissionAnnouncementDetails', N'FeeAmount'),
+        (N'UNIAdmissionAnnouncementDetails', N'ProgramTypeId'), (N'UNIAdmissionAnnouncementDetails', N'SemesterSessionId'), (N'UNIBankReceipts', N'BankReceiptStatus'), (N'UNIBankReceipts', N'BranchId'),
+        (N'UNIBankReceipts', N'Id'), (N'UNIBankReceipts', N'Status'), (N'UNIBankReceipts', N'UploadedDate'), (N'UNIBankReceiptsDetail', N'Amount'),
+        (N'UNIBankReceiptsDetail', N'BankReceiptId'), (N'UNIBankReceiptsDetail', N'ChallanNo'), (N'UNIBankReceiptsDetail', N'DegreeId'), (N'UNIBankReceiptsDetail', N'DocStatus'),
+        (N'UNIBankReceiptsDetail', N'StudentId'), (N'UNIChallanTypes', N'ChallanType'), (N'UNIChallanTypes', N'Id'), (N'UNIDegree', N'BranchId'),
+        (N'UNIDegree', N'CompanyId'), (N'UNIDegree', N'DegreeCode'), (N'UNIDegree', N'DegreeLevel'), (N'UNIDegree', N'DegreeName'),
+        (N'UNIDegree', N'DepartmentId'), (N'UNIDegree', N'Id'), (N'UNIDegree', N'Status'), (N'UNIDegreeLevels', N'DegreeLevelName'),
+        (N'UNIDegreeLevels', N'Id'), (N'UNIDiscountCatagory', N'Description'), (N'UNIDiscountCatagory', N'Id'), (N'UNIDiscountsTypes', N'Description'),
+        (N'UNIDiscountsTypes', N'Id'), (N'UNIFeeDiscount', N'AppliedSemesterId'), (N'UNIFeeDiscount', N'BranchId'), (N'UNIFeeDiscount', N'CompanyId'),
+        (N'UNIFeeDiscount', N'DiscountCatagoryId'), (N'UNIFeeDiscount', N'DiscountStatus'), (N'UNIFeeDiscount', N'Id'), (N'UNIFeeDiscount', N'StartDate'),
+        (N'UNIFeeDiscount', N'Status'), (N'UNIFeeDiscountDetails', N'DegreeId'), (N'UNIFeeDiscountDetails', N'DiscountedAmount'), (N'UNIFeeDiscountDetails', N'DiscountsTypeId'),
+        (N'UNIFeeDiscountDetails', N'FeedDiscountId'), (N'UNIFeeDiscountDetails', N'FeeTypeId'), (N'UNIFeeDiscountDetails', N'Status'), (N'UNIFeeDiscountDetails', N'StudentId'),
+        (N'UNIFeeInstallments', N'BranchId'), (N'UNIFeeInstallments', N'CompanyId'), (N'UNIFeeInstallments', N'Id'), (N'UNIFeeInstallments', N'InstallmentStatus'),
+        (N'UNIFeeInstallments', N'SemesterId'), (N'UNIFeeInstallments', N'Status'), (N'UNIFeeInstallments', N'StudentId'), (N'UNIFeeInstallmentsDetail', N'Amount'),
+        (N'UNIFeeInstallmentsDetail', N'ChallanGUID'), (N'UNIFeeInstallmentsDetail', N'FeeInstallmentId'), (N'UNIFeeInstallmentsDetail', N'InstallmentStatus'), (N'UNIFeeInstallmentsDetail', N'Month'),
+        (N'UNIFeeInstallmentsDetail', N'Status'), (N'UNIFeeInstallmentsDetail', N'ValidityDate'), (N'UNIFeeTypes', N'Description'), (N'UNIFeeTypes', N'Id'),
+        (N'UNIStudentAnnounceDetails', N'DegreeId'), (N'UNIStudentAnnounceDetails', N'SemesterSessionId'), (N'UNIStudentAnnounceDetails', N'Status'), (N'UNIStudentAnnounceDetails', N'StudentsId'),
+        (N'UNIStudents', N'AdmissionNumber'), (N'UNIStudents', N'BranchId'), (N'UNIStudents', N'DegreeId'), (N'UNIStudents', N'Id'),
+        (N'UNIStudents', N'IsDegreeCompleted'), (N'UNIStudents', N'ShiftId'), (N'UNIStudents', N'Status'), (N'UNIStudents', N'StudentFullName'),
+        (N'UNIStudentsChallan', N'BranchId'), (N'UNIStudentsChallan', N'ChallanDescription'), (N'UNIStudentsChallan', N'ChallanNo'), (N'UNIStudentsChallan', N'ChallanStatus'),
+        (N'UNIStudentsChallan', N'ChallanTypeId'), (N'UNIStudentsChallan', N'CompanyId'), (N'UNIStudentsChallan', N'DegreeId'), (N'UNIStudentsChallan', N'DueDate'),
+        (N'UNIStudentsChallan', N'FineAmount'), (N'UNIStudentsChallan', N'GovtFeeDiscountAmt'), (N'UNIStudentsChallan', N'Id'), (N'UNIStudentsChallan', N'NetChallanAmt'),
+        (N'UNIStudentsChallan', N'ParentIdGuid'), (N'UNIStudentsChallan', N'RegisterInId'), (N'UNIStudentsChallan', N'SemesterSessionId'), (N'UNIStudentsChallan', N'Status'),
+        (N'UNIStudentsChallan', N'StudentId'), (N'UNIStudentsChallan', N'TotalAmount'), (N'UNIStudentsChallan', N'TotalDiscountAmt'), (N'UNIStudentsChallan', N'TransDate'),
+        (N'UNIStudentsChallan', N'ValidityDate'), (N'UNIStudentsRegistrations', N'BranchId'), (N'UNIStudentsRegistrations', N'CompanyId'), (N'UNIStudentsRegistrations', N'DegreeId'),
+        (N'UNIStudentsRegistrations', N'RegisterInId'), (N'UNIStudentsRegistrations', N'SemesterNo'), (N'UNIStudentsRegistrations', N'SemesterSessionId'), (N'UNIStudentsRegistrations', N'Status'),
+        (N'UNIStudentsRegistrations', N'StudentsId')
+     ) R(Obj, Col)
+WHERE COL_LENGTH(N'dbo.' + R.Obj, R.Col) IS NULL;
+IF @Missing <> N''
+BEGIN
+    SET @Missing = STUFF(@Missing, 1, 2, N'');
+    RAISERROR(N'MyUni dashboard: this database is missing %s', 16, 1, @Missing);
+    SET NOEXEC ON;
+END
+GO
+
+-- Retired: the six filter-list procedures, replaced by dbo.Dashboard_MyUni_Filters.
 DROP PROCEDURE IF EXISTS dbo.Dashboard_MyUni_CompanyList;
-GO
-CREATE PROCEDURE dbo.Dashboard_MyUni_CompanyList
-AS
-BEGIN
-    SET NOCOUNT ON;
-
-    SELECT C.Id, C.CompanyName
-    FROM Company C WITH (NOLOCK)
-    WHERE C.Status = 1
-    ORDER BY C.Id;
-END
-GO
-
--- 02. Dashboard_MyUni_BranchList: active branches (campuses) of the company (filter list).
 DROP PROCEDURE IF EXISTS dbo.Dashboard_MyUni_BranchList;
-GO
-CREATE PROCEDURE dbo.Dashboard_MyUni_BranchList
-    @CompanyId INT = NULL
-AS
-BEGIN
-    SET NOCOUNT ON;
-
-    -- Students: active students of the branch, so the web can put the campuses that are in use first.
-    SELECT B.Id, B.[Description], B.Code,
-           CT.[Description] AS City,
-           (SELECT COUNT(*) FROM UNIStudents S WITH (NOLOCK) WHERE S.BranchId = B.Id AND S.Status = 1) AS Students
-    FROM Branches B WITH (NOLOCK)
-    LEFT JOIN City CT WITH (NOLOCK) ON CT.Id = B.CityId
-    WHERE B.Status = 1 AND B.CompanyId = @CompanyId
-    ORDER BY B.Id;
-END
-GO
-
--- 03. Dashboard_MyUni_FacultyList: active faculties of the company (filter list).
 DROP PROCEDURE IF EXISTS dbo.Dashboard_MyUni_FacultyList;
-GO
-CREATE PROCEDURE dbo.Dashboard_MyUni_FacultyList
-    @CompanyId INT = NULL
-AS
-BEGIN
-    SET NOCOUNT ON;
-
-    SELECT F.FacultyGUID AS Id, F.[Description], F.Code
-    FROM Faculty F WITH (NOLOCK)
-    WHERE F.Status = 1 AND F.CompanyId = @CompanyId
-    ORDER BY F.[Description];
-END
-GO
-
--- 04. Dashboard_MyUni_DepartmentList: departments that belong to a faculty of the company (filter list).
 DROP PROCEDURE IF EXISTS dbo.Dashboard_MyUni_DepartmentList;
-GO
-CREATE PROCEDURE dbo.Dashboard_MyUni_DepartmentList
-    @CompanyId INT              = NULL,
-    @FacultyId UNIQUEIDENTIFIER = NULL   -- NULL = every faculty
-AS
-BEGIN
-    SET NOCOUNT ON;
-
-    SELECT DISTINCT D.Id, D.[Description], F.FacultyGUID AS FacultyId, F.[Description] AS Faculty
-    FROM FacultyDetails FD WITH (NOLOCK)
-    JOIN Faculty F     WITH (NOLOCK) ON F.FacultyGUID = FD.FacultyGUID
-    JOIN Departments D WITH (NOLOCK) ON D.Id = FD.DepartmentId
-    WHERE F.Status = 1 AND F.CompanyId = @CompanyId
-      AND (@FacultyId IS NULL OR FD.FacultyGUID = @FacultyId)
-    ORDER BY D.[Description];
-END
-GO
-
--- 05. Dashboard_MyUni_DegreeList: active degree programs (filter list).
 DROP PROCEDURE IF EXISTS dbo.Dashboard_MyUni_DegreeList;
-GO
-CREATE PROCEDURE dbo.Dashboard_MyUni_DegreeList
-    @CompanyId    INT              = NULL,
-    @BranchId     INT              = NULL,   -- NULL or 0 = all
-    @FacultyId    UNIQUEIDENTIFIER = NULL,   -- NULL = all
-    @DepartmentId INT              = NULL    -- NULL or 0 = all
-AS
-BEGIN
-    SET NOCOUNT ON;
-
-    SELECT UD.Id, UD.DegreeCode, UD.DegreeName, UD.DepartmentId,
-           DL.DegreeLevelName AS DegreeLevel
-    FROM UNIDegree UD WITH (NOLOCK)
-    LEFT JOIN UNIDegreeLevels DL ON DL.Id = UD.DegreeLevel
-    WHERE UD.Status = 1 AND UD.CompanyId = @CompanyId
-      AND (ISNULL(@BranchId, 0) = 0 OR UD.BranchId = @BranchId)
-      AND (ISNULL(@DepartmentId, 0) = 0 OR UD.DepartmentId = @DepartmentId)
-      AND (@FacultyId IS NULL OR EXISTS (SELECT 1 FROM FacultyDetails FD WITH (NOLOCK)
-                                         WHERE FD.DepartmentId = UD.DepartmentId AND FD.FacultyGUID = @FacultyId))
-    ORDER BY UD.DegreeName;
-END
-GO
-
--- 06. Dashboard_MyUni_SemesterList: semesters of the company's academic calendars (filter list and the semester strip).
 DROP PROCEDURE IF EXISTS dbo.Dashboard_MyUni_SemesterList;
 GO
-CREATE PROCEDURE dbo.Dashboard_MyUni_SemesterList
-    @CompanyId INT = NULL,
-    @BranchId  INT = NULL   -- NULL or 0 = all
+
+-- 01. Dashboard_MyUni_Filters: the filter lists shown above every tab, and the semester strip. One call per list.
+-- @Section = Companies | Branches | Faculties | Departments | Degrees | Semesters
+DROP PROCEDURE IF EXISTS dbo.Dashboard_MyUni_Filters;
+GO
+CREATE PROCEDURE dbo.Dashboard_MyUni_Filters
+    @Section      VARCHAR(30),               -- which list: Companies, Branches, Faculties, Departments, Degrees, Semesters
+    @CompanyId    INT              = NULL,   -- every list except Companies: the chosen company
+    @BranchId     INT              = NULL,   -- Degrees, Semesters: NULL or 0 = all
+    @FacultyId    UNIQUEIDENTIFIER = NULL,   -- Departments, Degrees: NULL = all
+    @DepartmentId INT              = NULL    -- Degrees: NULL or 0 = all
 AS
 BEGIN
     SET NOCOUNT ON;
 
-    -- Students: active students registered in the semester (RegisterInId, or the first semester when RegisterInId is empty).
-    SELECT SEM.Id, SEM.Code, AC.CalenderName AS Calendar, SEM.StartDate, SEM.EndDate,
-           ISNULL(SEM.IsAdmissionOpen, 0) AS IsAdmissionOpen,
-           (SELECT COUNT(DISTINCT R.StudentsId)
-            FROM UNIStudentsRegistrations R WITH (NOLOCK)
-            JOIN UNIStudents S WITH (NOLOCK) ON S.Id = R.StudentsId AND S.Status = 1
-            WHERE ISNULL(R.RegisterInId, R.SemesterSessionId) = SEM.Id
-              AND R.Status = 1 AND R.CompanyId = @CompanyId
-              AND (ISNULL(@BranchId, 0) = 0 OR R.BranchId = @BranchId)) AS Students
-    FROM UNIAcademicYearSemesterDetails SEM WITH (NOLOCK)
-    JOIN UNIAcademicCalender AC WITH (NOLOCK) ON AC.Id = SEM.AcademicCalenderId
-    WHERE AC.CompanyId = @CompanyId
-      AND (ISNULL(@BranchId, 0) = 0 OR AC.BranchId = @BranchId)
-    ORDER BY SEM.StartDate, SEM.OrderId;
+    -- 1. Companies: every active company
+    IF @Section = 'Companies'
+    BEGIN
+        SELECT C.Id, C.CompanyName
+        FROM Company C WITH (NOLOCK)
+        WHERE C.Status = 1
+        ORDER BY C.Id;
+
+        RETURN;
+    END
+
+    -- 2. Branches: active branches (campuses) of the company.
+    --    Students = active students of the branch, so the web can tell which campuses are in use.
+    IF @Section = 'Branches'
+    BEGIN
+        SELECT B.Id, B.[Description], B.Code,
+               CT.[Description] AS City,
+               (SELECT COUNT(*) FROM UNIStudents S WITH (NOLOCK) WHERE S.BranchId = B.Id AND S.Status = 1) AS Students
+        FROM Branches B WITH (NOLOCK)
+        LEFT JOIN City CT WITH (NOLOCK) ON CT.Id = B.CityId
+        WHERE B.Status = 1 AND B.CompanyId = @CompanyId
+        ORDER BY B.Id;
+
+        RETURN;
+    END
+
+    -- 3. Faculties: active faculties of the company
+    IF @Section = 'Faculties'
+    BEGIN
+        SELECT F.FacultyGUID AS Id, F.[Description], F.Code
+        FROM Faculty F WITH (NOLOCK)
+        WHERE F.Status = 1 AND F.CompanyId = @CompanyId
+        ORDER BY F.[Description];
+
+        RETURN;
+    END
+
+    -- 4. Departments: departments that belong to a faculty of the company
+    IF @Section = 'Departments'
+    BEGIN
+        SELECT DISTINCT D.Id, D.[Description], F.FacultyGUID AS FacultyId, F.[Description] AS Faculty
+        FROM FacultyDetails FD WITH (NOLOCK)
+        JOIN Faculty F     WITH (NOLOCK) ON F.FacultyGUID = FD.FacultyGUID
+        JOIN Departments D WITH (NOLOCK) ON D.Id = FD.DepartmentId
+        WHERE F.Status = 1 AND F.CompanyId = @CompanyId
+          AND (@FacultyId IS NULL OR FD.FacultyGUID = @FacultyId)
+        ORDER BY D.[Description];
+
+        RETURN;
+    END
+
+    -- 5. Degrees: active degree programs
+    IF @Section = 'Degrees'
+    BEGIN
+        SELECT UD.Id, UD.DegreeCode, UD.DegreeName, UD.DepartmentId,
+               DL.DegreeLevelName AS DegreeLevel
+        FROM UNIDegree UD WITH (NOLOCK)
+        LEFT JOIN UNIDegreeLevels DL ON DL.Id = UD.DegreeLevel
+        WHERE UD.Status = 1 AND UD.CompanyId = @CompanyId
+          AND (ISNULL(@BranchId, 0) = 0 OR UD.BranchId = @BranchId)
+          AND (ISNULL(@DepartmentId, 0) = 0 OR UD.DepartmentId = @DepartmentId)
+          AND (@FacultyId IS NULL OR EXISTS (SELECT 1 FROM FacultyDetails FD WITH (NOLOCK)
+                                             WHERE FD.DepartmentId = UD.DepartmentId AND FD.FacultyGUID = @FacultyId))
+        ORDER BY UD.DegreeName;
+
+        RETURN;
+    END
+
+    -- 6. Semesters: semesters of the company's academic calendars.
+    --    Students = active students registered in the semester (RegisterInId, or the first semester when RegisterInId is empty).
+    IF @Section = 'Semesters'
+    BEGIN
+        SELECT SEM.Id, SEM.Code, AC.CalenderName AS Calendar, SEM.StartDate, SEM.EndDate,
+               ISNULL(SEM.IsAdmissionOpen, 0) AS IsAdmissionOpen,
+               (SELECT COUNT(DISTINCT R.StudentsId)
+                FROM UNIStudentsRegistrations R WITH (NOLOCK)
+                JOIN UNIStudents S WITH (NOLOCK) ON S.Id = R.StudentsId AND S.Status = 1
+                WHERE ISNULL(R.RegisterInId, R.SemesterSessionId) = SEM.Id
+                  AND R.Status = 1 AND R.CompanyId = @CompanyId
+                  AND (ISNULL(@BranchId, 0) = 0 OR R.BranchId = @BranchId)) AS Students
+        FROM UNIAcademicYearSemesterDetails SEM WITH (NOLOCK)
+        JOIN UNIAcademicCalender AC WITH (NOLOCK) ON AC.Id = SEM.AcademicCalenderId
+        WHERE AC.CompanyId = @CompanyId
+          AND (ISNULL(@BranchId, 0) = 0 OR AC.BranchId = @BranchId)
+        ORDER BY SEM.StartDate, SEM.OrderId;
+
+        RETURN;
+    END
 END
 GO
 
--- 07. Dashboard_MyUni_StudentSummary: the headline numbers of the Overview tab, one row.
+-- 02. Dashboard_MyUni_StudentSummary: the headline numbers of the Overview tab, one row.
 -- Students / DegreeCompleted: active students in the allowed degrees (the semester filter does not apply).
 -- RegisteredStudents, NewAdmissions: for the chosen semester, or all semesters.
 -- Billed, Received, Outstanding, Discounts: challans dated in the range (rules of Dashboard_MyUni_Receivables).
@@ -267,7 +315,7 @@ BEGIN
 END
 GO
 
--- 08. Dashboard_MyUni_Registrations: registered students per semester, degree, semester number and shift (Students tab).
+-- 03. Dashboard_MyUni_Registrations: registered students per semester, degree, semester number and shift (Students tab).
 -- A registration counts when it is active, its student is active, and it falls in the semester
 -- (RegisterInId; the first semester, SemesterSessionId, when RegisterInId is empty). @StartDate / @EndDate are not used.
 DROP PROCEDURE IF EXISTS dbo.Dashboard_MyUni_Registrations;
@@ -320,7 +368,7 @@ BEGIN
 END
 GO
 
--- 09. Dashboard_MyUni_Admissions: seats announced and students admitted per semester, degree and shift (Admissions tab).
+-- 04. Dashboard_MyUni_Admissions: seats announced and students admitted per semester, degree and shift (Admissions tab).
 -- Seats come from the active admission announcements. Admitted = active students admitted to that degree in that
 -- semester (UNIStudentAnnounceDetails), on the same shift. @StartDate / @EndDate are not used.
 DROP PROCEDURE IF EXISTS dbo.Dashboard_MyUni_Admissions;
@@ -383,7 +431,7 @@ BEGIN
 END
 GO
 
--- 10. Dashboard_MyUni_Collections: money received per day, source, degree and challan type (Collections tab).
+-- 05. Dashboard_MyUni_Collections: money received per day, source, degree and challan type (Collections tab).
 -- Same two sources as the ERP report UNIStudents_Rp_GetFeeCollection:
 --   Fee receipt  = AEOFeeReceipts of a university student, approved (FeeStatus 19), dated by TransDate
 --   Bank receipt = UNIBankReceiptsDetail verified (DocStatus 35) on an approved / posted upload (BankReceiptStatus 2, 34), dated by UploadedDate
@@ -471,7 +519,7 @@ BEGIN
 END
 GO
 
--- 11. Dashboard_MyUni_Receivables: fee billed, received and overdue per semester, degree and challan type (Receivables tab).
+-- 06. Dashboard_MyUni_Receivables: fee billed, received and overdue per semester, degree and challan type (Receivables tab).
 -- Same rules as the ERP report UNIStudents_Rp_GetDefaulterData:
 --   Billed   = NetChallanAmt of main challans (ParentIdGuid empty) that are not expired / cancelled (ChallanStatus 3, 40)
 --   Received = NetChallanAmt of paid challans (ChallanStatus 1, 62)
@@ -549,7 +597,7 @@ BEGIN
 END
 GO
 
--- 12. Dashboard_MyUni_Defaulters: students with an overdue fee balance, one row per student and degree (Defaulters tab).
+-- 07. Dashboard_MyUni_Defaulters: students with an overdue fee balance, one row per student and degree (Defaulters tab).
 -- Rules of the ERP report UNIStudents_Rp_GetDefaulterData:
 --   TotalFee = NetChallanAmt of main challans (ParentIdGuid empty) not expired / cancelled (ChallanStatus 3, 40)
 --   Received = NetChallanAmt of paid challans (ChallanStatus 1, 62);  Balance = TotalFee - Received, must be above 0
@@ -638,7 +686,7 @@ BEGIN
 END
 GO
 
--- 13. Dashboard_MyUni_Installments: installment plans per month, degree, plan status and state (Installments tab).
+-- 08. Dashboard_MyUni_Installments: installment plans per month, degree, plan status and state (Installments tab).
 -- One row of UNIFeeInstallmentsDetail is one installment. PlanStatus: Approved when the plan's InstallmentStatus = 2, else Pending.
 -- State: Paid when its challan is paid (ChallanStatus 1, 62) or the installment itself is marked 1 / 62;
 --        Overdue when its validity date (else its month) has passed; otherwise Upcoming.
@@ -708,7 +756,7 @@ BEGIN
 END
 GO
 
--- 14. Dashboard_MyUni_Discounts: fee discounts and scholarships per type, category, fee type, degree and status (Discounts tab).
+-- 09. Dashboard_MyUni_Discounts: fee discounts and scholarships per type, category, fee type, degree and status (Discounts tab).
 -- One row of UNIFeeDiscountDetails is one discount given to a student on a fee type.
 -- StatusText: Approved when the discount's DiscountStatus = 2, else Pending. The date range is on the discount start date.
 DROP PROCEDURE IF EXISTS dbo.Dashboard_MyUni_Discounts;
@@ -769,4 +817,7 @@ BEGIN
              CASE WHEN H.DiscountStatus = 2 THEN 'Approved' ELSE 'Pending' END
     ORDER BY SUM(ISNULL(D.DiscountedAmount, 0)) DESC;
 END
+GO
+
+SET NOEXEC OFF;
 GO

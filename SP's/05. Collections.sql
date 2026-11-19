@@ -1,4 +1,4 @@
--- 10. Dashboard_MyUni_Collections: money received per day, source, degree and challan type (Collections tab).
+-- 05. Dashboard_MyUni_Collections: money received per day, source, degree and challan type (Collections tab).
 -- Same two sources as the ERP report UNIStudents_Rp_GetFeeCollection:
 --   Fee receipt  = AEOFeeReceipts of a university student, approved (FeeStatus 19), dated by TransDate
 --   Bank receipt = UNIBankReceiptsDetail verified (DocStatus 35) on an approved / posted upload (BankReceiptStatus 2, 34), dated by UploadedDate

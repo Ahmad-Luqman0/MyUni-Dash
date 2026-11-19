@@ -1,4 +1,4 @@
--- 11. Dashboard_MyUni_Receivables: fee billed, received and overdue per semester, degree and challan type (Receivables tab).
+-- 06. Dashboard_MyUni_Receivables: fee billed, received and overdue per semester, degree and challan type (Receivables tab).
 -- Same rules as the ERP report UNIStudents_Rp_GetDefaulterData:
 --   Billed   = NetChallanAmt of main challans (ParentIdGuid empty) that are not expired / cancelled (ChallanStatus 3, 40)
 --   Received = NetChallanAmt of paid challans (ChallanStatus 1, 62)

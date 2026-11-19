@@ -1,4 +1,4 @@
--- 14. Dashboard_MyUni_Discounts: fee discounts and scholarships per type, category, fee type, degree and status (Discounts tab).
+-- 09. Dashboard_MyUni_Discounts: fee discounts and scholarships per type, category, fee type, degree and status (Discounts tab).
 -- One row of UNIFeeDiscountDetails is one discount given to a student on a fee type.
 -- StatusText: Approved when the discount's DiscountStatus = 2, else Pending. The date range is on the discount start date.
 -- Check the USE line names the right database. Run the whole script (SSMS: F5; DBeaver: Execute script, Alt+X).

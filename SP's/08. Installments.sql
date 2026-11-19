@@ -1,4 +1,4 @@
--- 13. Dashboard_MyUni_Installments: installment plans per month, degree, plan status and state (Installments tab).
+-- 08. Dashboard_MyUni_Installments: installment plans per month, degree, plan status and state (Installments tab).
 -- One row of UNIFeeInstallmentsDetail is one installment. PlanStatus: Approved when the plan's InstallmentStatus = 2, else Pending.
 -- State: Paid when its challan is paid (ChallanStatus 1, 62) or the installment itself is marked 1 / 62;
 --        Overdue when its validity date (else its month) has passed; otherwise Upcoming.

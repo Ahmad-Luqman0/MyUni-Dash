@@ -1,4 +1,4 @@
--- 07. Dashboard_MyUni_StudentSummary: the headline numbers of the Overview tab, one row.
+-- 02. Dashboard_MyUni_StudentSummary: the headline numbers of the Overview tab, one row.
 -- Students / DegreeCompleted: active students in the allowed degrees (the semester filter does not apply).
 -- RegisteredStudents, NewAdmissions: for the chosen semester, or all semesters.
 -- Billed, Received, Outstanding, Discounts: challans dated in the range (rules of Dashboard_MyUni_Receivables).

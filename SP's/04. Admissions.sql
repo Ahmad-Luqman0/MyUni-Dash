@@ -1,4 +1,4 @@
--- 09. Dashboard_MyUni_Admissions: seats announced and students admitted per semester, degree and shift (Admissions tab).
+-- 04. Dashboard_MyUni_Admissions: seats announced and students admitted per semester, degree and shift (Admissions tab).
 -- Seats come from the active admission announcements. Admitted = active students admitted to that degree in that
 -- semester (UNIStudentAnnounceDetails), on the same shift. @StartDate / @EndDate are not used.
 -- Check the USE line names the right database. Run the whole script (SSMS: F5; DBeaver: Execute script, Alt+X).
