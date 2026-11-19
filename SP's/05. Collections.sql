@@ -43,6 +43,18 @@ BEGIN
     WHERE BH.Status = 1 AND BD.DocStatus = 35 AND BH.BankReceiptStatus IN (2, 34)
       AND BD.StudentId IS NOT NULL AND BD.ChallanNo IS NOT NULL;
 
+    -- Every challan by student and challan number (Seq 1 = the latest), keyed so each bank receipt line finds its
+    -- challan with one index seek. Looking the challan up in UNIStudentsChallan once per bank line took minutes.
+    DECLARE @Chal TABLE (StudentId UNIQUEIDENTIFIER NOT NULL, ChallanNo NVARCHAR(200) NOT NULL, Seq INT NOT NULL,
+                         ChallanTypeId INT NULL, RegisterInId UNIQUEIDENTIFIER NULL,
+                         PRIMARY KEY (StudentId, ChallanNo, Seq));
+    INSERT INTO @Chal (StudentId, ChallanNo, Seq, ChallanTypeId, RegisterInId)
+    SELECT C.StudentId, CAST(C.ChallanNo AS NVARCHAR(200)),
+           ROW_NUMBER() OVER (PARTITION BY C.StudentId, C.ChallanNo ORDER BY C.TransDate DESC, C.Id),
+           C.ChallanTypeId, C.RegisterInId
+    FROM UNIStudentsChallan C WITH (NOLOCK)
+    WHERE C.StudentId IS NOT NULL AND C.ChallanNo IS NOT NULL;
+
     -- Deg: the degree programs the filters allow, with their department and faculty names.
     ;WITH Deg AS (
         SELECT UD.Id, UD.DegreeCode, UD.DegreeName, UD.Status, D.[Description] AS Department, FA.Faculty
@@ -84,10 +96,7 @@ BEGIN
         FROM UNIBankReceiptsDetail BRD WITH (NOLOCK)
         JOIN UNIBankReceipts BR WITH (NOLOCK) ON BR.Id = BRD.BankReceiptId
         JOIN UNIStudents S WITH (NOLOCK) ON S.Id = BRD.StudentId AND S.Status = 1
-        OUTER APPLY (SELECT TOP 1 C.ChallanTypeId, C.RegisterInId
-                     FROM UNIStudentsChallan C WITH (NOLOCK)
-                     WHERE C.StudentId = BRD.StudentId AND C.ChallanNo = BRD.ChallanNo
-                     ORDER BY C.TransDate DESC) SC
+        LEFT JOIN @Chal SC ON SC.StudentId = BRD.StudentId AND SC.ChallanNo = BRD.ChallanNo AND SC.Seq = 1
         WHERE BR.Status = 1
           AND BRD.DocStatus = 35
           AND BR.BankReceiptStatus IN (2, 34)
@@ -104,6 +113,7 @@ BEGIN
     JOIN Deg G ON G.Id = R.DegreeId
     LEFT JOIN UNIChallanTypes CT ON CT.Id = R.ChallanTypeId
     GROUP BY R.ReceiptDate, R.Source, G.Id, G.DegreeCode, G.DegreeName, G.Department, G.Faculty, CT.ChallanType
-    ORDER BY R.ReceiptDate, R.Source, G.DegreeName;
+    ORDER BY R.ReceiptDate, R.Source, G.DegreeName
+    OPTION (RECOMPILE);   -- plan for the dates actually asked for, and for the real size of the two lists above
 END
 GO
