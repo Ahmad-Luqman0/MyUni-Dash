@@ -74,7 +74,7 @@ export function FilterBar({ sel, change, lists, busy, onRefresh }: {
           {lists.degrees?.map((d) => <option key={d.id} value={d.id}>{nice(d.degreeName)}</option>)}
         </Select>
       </Field>
-      <Field label="Period">
+      <Field label="Period" className="col-span-2 sm:col-span-1">
         <Select value={period} onChange={(v) => { if (v !== 'custom') { const [s, e] = periodRange(v as PeriodKey); change({ startDate: s, endDate: e }) } }}>
           {PERIODS.map(([k, text]) => <option key={k} value={k}>{text}</option>)}
           {period === 'custom' && <option value="custom">Custom dates</option>}

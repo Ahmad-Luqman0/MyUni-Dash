@@ -41,7 +41,7 @@ export function TrendArea({ data, name, color = C.s1, format, axisFormat, height
         <AreaChart data={data} margin={{ top: 8, right: 12, left: 0, bottom: 0 }}>
           <CartesianGrid vertical={false} stroke="var(--grid)" />
           <XAxis dataKey="label" tickLine={false} axisLine={{ stroke: 'var(--border)' }} tick={AXIS_TICK} minTickGap={28} tickMargin={6} />
-          <YAxis tickLine={false} axisLine={false} tick={AXIS_TICK} tickFormatter={(v: number) => axisFormat(v).replace(/ /g, '\u00a0')} width={66} />
+          <YAxis allowDecimals={false} tickLine={false} axisLine={false} tick={AXIS_TICK} tickFormatter={(v: number) => axisFormat(v).replace(/ /g, '\u00a0')} width={66} />
           <Tooltip cursor={{ stroke: 'var(--ink-3)', strokeWidth: 1 }} isAnimationActive={false}
             content={({ active, payload }) => {
               const d = payload?.[0]?.payload as Datum | undefined
@@ -80,7 +80,7 @@ export function Columns({ data, series, stacked, format, axisFormat, height = 26
           <BarChart data={data} margin={{ top: 8, right: 12, left: 0, bottom: 0 }} barCategoryGap="24%" barGap={2}>
             <CartesianGrid vertical={false} stroke="var(--grid)" />
             <XAxis dataKey="label" tickLine={false} axisLine={{ stroke: 'var(--border)' }} tick={AXIS_TICK} minTickGap={12} tickMargin={6} />
-            <YAxis tickLine={false} axisLine={false} tick={AXIS_TICK} tickFormatter={(v: number) => axisFormat(v).replace(/ /g, '\u00a0')} width={66} />
+            <YAxis allowDecimals={false} tickLine={false} axisLine={false} tick={AXIS_TICK} tickFormatter={(v: number) => axisFormat(v).replace(/ /g, '\u00a0')} width={66} />
             <Tooltip cursor={{ fill: 'var(--bg)' }} isAnimationActive={false}
               content={({ active, payload }) => {
                 const d = payload?.[0]?.payload as Datum | undefined
@@ -187,8 +187,8 @@ export function Ledger({ children, cols }: { children: ReactNode; cols: 3 | 4 })
 export function Tile({ label, value, full, note, alert }: { label: string; value: string; full?: string; note?: ReactNode; alert?: boolean }) {
   return (
     <div className="min-w-0 bg-surface px-4 py-3.5 sm:px-5 sm:py-4">
-      <div className="flex items-center gap-1.5 text-[13px] text-ink-2">
-        {alert && <span aria-hidden className="size-1.5 rounded-full bg-bad" />}
+      <div className="flex items-start gap-1.5 text-[13px] text-ink-2">
+        {alert && <span aria-hidden className="mt-[7px] size-1.5 shrink-0 rounded-full bg-bad" />}
         {label}
       </div>
       <div className="figure mt-1 truncate text-[22px] leading-tight font-semibold text-ink sm:text-[26px]" title={full}>{value}</div>

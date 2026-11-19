@@ -1,3 +1,4 @@
+import { useEffect, useRef } from 'react'
 import type { Semester } from '../api'
 import type { Loaded } from '../useData'
 import { count, dateLabel, dayLabel, isoDate } from '../format'
@@ -13,6 +14,15 @@ const BAR_MAX = 52 // px, the tallest bar
 export function SemesterStrip({ state, selected, onSelect, onRetry }: {
   state: Loaded<Semester[]>; selected: string | null; onSelect: (id: string | null) => void; onRetry: () => void
 }) {
+  // On a narrow screen the strip scrolls sideways; keep the chosen semester in sight.
+  const scroller = useRef<HTMLDivElement>(null)
+  useEffect(() => {
+    const box = scroller.current, el = box?.querySelector<HTMLElement>('[data-on="true"]')
+    if (box && el && (el.offsetLeft < box.scrollLeft || el.offsetLeft + el.offsetWidth > box.scrollLeft + box.clientWidth)) {
+      box.scrollTo({ left: Math.max(0, el.offsetLeft - (box.clientWidth - el.offsetWidth) / 2) })
+    }
+  }, [selected])
+
   if (state.error) {
     return (
       <section aria-label="Semesters" className="flex flex-wrap items-center justify-between gap-3 rounded-lg border border-line bg-surface px-4 py-4 text-sm sm:px-5">
@@ -44,7 +54,7 @@ export function SemesterStrip({ state, selected, onSelect, onRetry }: {
   const top = Math.max(1, ...semesters.map((s) => s.students))
   return (
     <section aria-label="Semesters" className={`rounded-lg border border-line bg-surface transition-opacity ${state.loading ? 'opacity-55' : ''}`}>
-      <div className="no-scrollbar flex overflow-x-auto" role="group" aria-label="Choose a semester">
+      <div ref={scroller} className="no-scrollbar relative flex overflow-x-auto" role="group" aria-label="Choose a semester">
         <button type="button" aria-pressed={selected === null} onClick={() => onSelect(null)}
           className={`group flex w-[124px] shrink-0 flex-col justify-end rounded-l-lg border-r border-line px-4 pt-3 pb-3 text-left transition-colors sm:w-[148px] sm:px-5 ${selected === null ? 'bg-chalk-soft' : 'hover:bg-bg'}`}>
           <span className="font-display text-base leading-tight font-semibold text-ink">All semesters</span>
@@ -56,7 +66,7 @@ export function SemesterStrip({ state, selected, onSelect, onRetry }: {
           const inSession = s.startDate && s.endDate && s.startDate.slice(0, 10) <= TODAY && TODAY <= s.endDate.slice(0, 10)
           const h = Math.max(s.students > 0 ? 3 : 0, Math.round((s.students / top) * BAR_MAX))
           return (
-            <button key={s.id} type="button" aria-pressed={on} onClick={() => onSelect(on ? null : s.id)}
+            <button key={s.id} type="button" aria-pressed={on} data-on={on} onClick={() => onSelect(on ? null : s.id)}
               title={on ? 'Click again to show all semesters' : `Show only ${s.code}`}
               className={`group relative min-w-[136px] flex-1 px-3 pt-3 pb-3 text-left transition-colors last:rounded-r-lg sm:px-4 ${on ? 'bg-chalk-soft' : 'hover:bg-bg'}`}>
               <span className="flex h-14 items-end gap-2">

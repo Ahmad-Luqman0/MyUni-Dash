@@ -24,7 +24,7 @@ They only read the ERP tables: they call no other procedure and change no table.
 
 | # | Procedure | Used by | Returns |
 |---|---|---|---|
-| 01 | `Dashboard_MyUni_CompanyList` | Company filter | Companies that have degree programs |
+| 01 | `Dashboard_MyUni_CompanyList` | Company filter | Every active company |
 | 02 | `Dashboard_MyUni_BranchList` | Campus filter | Active branches of the company |
 | 03 | `Dashboard_MyUni_FacultyList` | Faculty filter | Active faculties |
 | 04 | `Dashboard_MyUni_DepartmentList` | Department filter | Departments that belong to a faculty |
