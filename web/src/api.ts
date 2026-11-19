@@ -58,6 +58,11 @@ function qs(values: Record<string, string | number | null | undefined>) {
   return s ? `?${s}` : ''
 }
 
+/** Where the API lives. Empty (the default) means the same site: `/api/...`, which the Vite dev server proxies.
+ *  On a host without that proxy (Vercel), set VITE_API_URL to the API's address without the trailing `/api`,
+ *  e.g. https://example.com/MyUni; requests then go to https://example.com/MyUni/api/... */
+export const API_BASE = ((import.meta.env.VITE_API_URL as string | undefined) ?? '').trim().replace(/\/+$/, '')
+
 export const urls = {
   companies: () => '/api/filters/companies',
   branches: (companyId: number) => `/api/filters/branches${qs({ companyId })}`,
@@ -83,7 +88,7 @@ export async function getJson<T>(url: string, signal: AbortSignal): Promise<T> {
   }
   let res: Response
   try {
-    res = await fetch(url, { signal })
+    res = await fetch(API_BASE + url, { signal })
   } catch (e) {
     if (signal.aborted) throw e
     throw new ApiError('The server could not be reached. Check that the MyUni API is running and that you are on the university network.')
