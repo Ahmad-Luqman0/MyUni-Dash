@@ -64,7 +64,7 @@ export function Receivables({ q, reload }: SectionProps) {
             </div>
 
             <Card title="Receivables" subtitle="One row per semester, degree and challan type">
-              <DataTable caption="Receivables" columns={columns} rows={rows} rowKey={(_, i) => String(i)} initialSort={{ key: 'balance', dir: 'desc' }}
+              <DataTable caption="Receivables" columns={columns} rows={rows} rowKey={(_, i) => String(i)} initialSort={{ key: 'semester', dir: 'desc' }}
                 search={(r) => `${r.semester} ${r.degree} ${r.degreeCode} ${challanLabel(r.challanType)}`} searchLabel="Search by degree, semester or challan type" />
             </Card>
           </div>

@@ -73,7 +73,7 @@ export function Students({ q, reload }: SectionProps) {
             </div>
 
             <Card title="Registrations" subtitle="One row per semester, degree, semester number and shift">
-              <DataTable caption="Registrations" columns={columns} rows={rows} rowKey={(_, i) => String(i)} initialSort={{ key: 'students', dir: 'desc' }}
+              <DataTable caption="Registrations" columns={columns} rows={rows} rowKey={(_, i) => String(i)} initialSort={{ key: 'semester', dir: 'desc' }}
                 search={(r) => `${r.semester} ${r.degree} ${r.degreeCode} ${r.department} ${r.faculty} ${r.programType}`} searchLabel="Search by degree, faculty or semester" />
             </Card>
           </div>

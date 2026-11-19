@@ -14,8 +14,9 @@ export interface Column<T> {
   nowrap?: boolean
 }
 
-/** How many rows a page can hold; the reader picks one under the table. */
+/** How many rows a page can hold; the reader picks one above the table. 0 stands for "All". */
 const PAGE_SIZES = [10, 25, 50, 100]
+const ALL = 0
 
 /** A table that sorts, searches and pages in the browser, and scrolls sideways inside its own frame on narrow screens. */
 export function DataTable<T>({ columns, rows, rowKey, initialSort, search, searchLabel, pageSize: firstPageSize = 10, caption }: {
@@ -46,9 +47,11 @@ export function DataTable<T>({ columns, rows, rowKey, initialSort, search, searc
     return out
   }, [rows, columns, sortBy, term, search])
 
-  const pages = Math.max(1, Math.ceil(sorted.length / pageSize))
+  // "All" puts every row on one page.
+  const perPage = pageSize === ALL ? Math.max(1, sorted.length) : pageSize
+  const pages = Math.max(1, Math.ceil(sorted.length / perPage))
   const current = Math.min(page, pages - 1)
-  const visible = sorted.slice(current * pageSize, current * pageSize + pageSize)
+  const visible = sorted.slice(current * perPage, current * perPage + perPage)
 
   function toggle(c: Column<T>) {
     setPage(0)
@@ -57,13 +60,29 @@ export function DataTable<T>({ columns, rows, rowKey, initialSort, search, searc
 
   return (
     <div>
-      {search && (
-        <label className="relative mb-3 block max-w-sm">
-          <span className="sr-only">{searchLabel ?? 'Search the table'}</span>
-          <Search aria-hidden className="pointer-events-none absolute top-1/2 left-3 size-4 -translate-y-1/2 text-ink-3" />
-          <input type="search" value={term} onChange={(e) => { setTerm(e.target.value); setPage(0) }} placeholder={searchLabel ?? 'Search the table'}
-            className="h-10 w-full rounded-md border border-line bg-surface pr-3 pl-9 text-sm text-ink placeholder:text-ink-3 hover:border-ink-3 focus-visible:border-accent focus-visible:outline-2 focus-visible:outline-offset-0 focus-visible:outline-accent" />
-        </label>
+      {(search || rows.length > sizes[0]) && (
+      <div className="mb-3 flex flex-wrap items-center justify-between gap-x-4 gap-y-2">
+        {search && (
+          <label className="relative block w-full max-w-sm">
+            <span className="sr-only">{searchLabel ?? 'Search the table'}</span>
+            <Search aria-hidden className="pointer-events-none absolute top-1/2 left-3 size-4 -translate-y-1/2 text-ink-3" />
+            <input type="search" value={term} onChange={(e) => { setTerm(e.target.value); setPage(0) }} placeholder={searchLabel ?? 'Search the table'}
+              className="h-10 w-full rounded-md border border-line bg-surface pr-3 pl-9 text-sm text-ink placeholder:text-ink-3 hover:border-ink-3 focus-visible:border-accent focus-visible:outline-2 focus-visible:outline-offset-0 focus-visible:outline-accent" />
+          </label>
+        )}
+        {rows.length > sizes[0] && (
+          <label className="ml-auto flex items-center gap-2 text-[13px] text-ink-2">
+            Rows per page
+            <span className="select-wrap block">
+              <select value={pageSize} onChange={(e) => { setPageSize(Number(e.target.value)); setPage(0) }}
+                className="h-10 rounded-md border border-line bg-surface pr-8 pl-3 text-sm text-ink hover:border-ink-3 focus-visible:border-accent focus-visible:outline-2 focus-visible:outline-offset-0 focus-visible:outline-accent">
+                {sizes.map((n) => <option key={n} value={n}>{n}</option>)}
+                <option value={ALL}>All</option>
+              </select>
+            </span>
+          </label>
+        )}
+      </div>
       )}
       <div className="-mx-4 overflow-x-auto sm:-mx-5" tabIndex={0} role="region" aria-label={caption}>
         <table className="w-full min-w-max border-collapse text-sm">
@@ -91,7 +110,7 @@ export function DataTable<T>({ columns, rows, rowKey, initialSort, search, searc
           </thead>
           <tbody>
             {visible.map((r, i) => (
-              <tr key={rowKey(r, current * pageSize + i)} className="border-b border-line/70 hover:bg-bg/50">
+              <tr key={rowKey(r, current * perPage + i)} className="border-b border-line/70 hover:bg-bg/50">
                 {columns.map((c) => (
                   <td key={c.key} className={`px-3 py-2.5 align-top text-ink first:pl-4 last:pr-4 sm:first:pl-5 sm:last:pr-5 ${c.align === 'right' ? 'text-right whitespace-nowrap' : ''} ${c.nowrap ? 'whitespace-nowrap' : ''}`}>
                     {c.cell(r)}
@@ -106,21 +125,8 @@ export function DataTable<T>({ columns, rows, rowKey, initialSort, search, searc
         </table>
       </div>
       <div className="mt-3 flex flex-wrap items-center justify-between gap-x-4 gap-y-2 text-[13px] text-ink-2">
-        <span className="flex flex-wrap items-center gap-x-4 gap-y-2">
-          <span aria-live="polite">
-            {sorted.length === 0 ? 'No rows' : `Rows ${count(current * pageSize + 1)} to ${count(Math.min(sorted.length, (current + 1) * pageSize))} of ${count(sorted.length)}`}
-          </span>
-          {rows.length > sizes[0] && (
-            <label className="flex items-center gap-2">
-              Rows per page
-              <span className="select-wrap block">
-                <select value={pageSize} onChange={(e) => { setPageSize(Number(e.target.value)); setPage(0) }}
-                  className="h-9 rounded-md border border-line bg-surface pr-8 pl-2.5 text-[13px] text-ink hover:border-ink-3 focus-visible:border-accent focus-visible:outline-2 focus-visible:outline-offset-0 focus-visible:outline-accent">
-                  {sizes.map((n) => <option key={n} value={n}>{n}</option>)}
-                </select>
-              </span>
-            </label>
-          )}
+        <span aria-live="polite">
+          {sorted.length === 0 ? 'No rows' : `Rows ${count(current * perPage + 1)} to ${count(Math.min(sorted.length, (current + 1) * perPage))} of ${count(sorted.length)}`}
         </span>
         {pages > 1 && (
           <span className="flex items-center gap-1">
