@@ -45,8 +45,13 @@ public sealed class DashboardDb(IConfiguration config)
         ["Attendance"] = new("dbo.Dashboard_MyUni_Attendance", Common),
     };
 
-    private readonly string _connectionString = config.GetConnectionString("DefaultConnection")
-        ?? throw new InvalidOperationException("ConnectionStrings:DefaultConnection is missing (copy appsettings.example.json to appsettings.json).");
+    // Read once at start-up. A missing value is reported when a request needs it (and by DiagnoseAsync), not at
+    // start-up, so the health addresses still answer.
+    private readonly string? _configuredConnection = config.GetConnectionString("DefaultConnection");
+
+    private string ConnectionString => string.IsNullOrWhiteSpace(_configuredConnection)
+        ? throw new InvalidOperationException("ConnectionStrings:DefaultConnection is missing (copy appsettings.example.json to appsettings.json).")
+        : _configuredConnection;
 
     private readonly int _timeoutSeconds = config.GetValue("Database:CommandTimeoutSeconds", 120);
 
@@ -84,7 +89,7 @@ public sealed class DashboardDb(IConfiguration config)
         if (target.SendsSection) parameters.Add("Section", section, DbType.AnsiString, size: 30);
         if (target.SendsRequireApproved) parameters.Add("RequireApproved", _requireApproved, DbType.Boolean);
 
-        await using var connection = new SqlConnection(_connectionString);
+        await using var connection = new SqlConnection(ConnectionString);
         var rows = (await connection.QueryAsync(new CommandDefinition(
             target.Procedure, parameters, commandType: CommandType.StoredProcedure,
             commandTimeout: _timeoutSeconds, cancellationToken: ct))).AsList();
@@ -102,4 +107,51 @@ public sealed class DashboardDb(IConfiguration config)
 
     /// <summary>A guid from the query string; empty or malformed counts as missing (= all).</summary>
     public static Guid? ParseGuid(string? value) => Guid.TryParse(value, out var id) ? id : null;
+
+    /// <summary>
+    /// Says why the database part is or is not working, for /api/health/db. It gives the kind of problem only:
+    /// no server name, login, password or error text leaves the server.
+    /// </summary>
+    public async Task<object> DiagnoseAsync(CancellationToken ct = default)
+    {
+        if (string.IsNullOrWhiteSpace(_configuredConnection))
+            return new { database = "not configured", detail = "ConnectionStrings:DefaultConnection is missing or empty in appsettings.json (check the file is in the site folder and is valid JSON)." };
+
+        var expected = Targets.Values.Select(t => t.Procedure.Replace("dbo.", "")).Distinct(StringComparer.OrdinalIgnoreCase).OrderBy(n => n).ToArray();
+        try
+        {
+            await using var connection = new SqlConnection(_configuredConnection);
+            await connection.OpenAsync(ct);
+            var found = (await connection.QueryAsync<string>(new CommandDefinition(
+                "SELECT name FROM sys.procedures WHERE schema_id = SCHEMA_ID('dbo') AND name IN @names",
+                new { names = expected }, commandTimeout: 15, cancellationToken: ct))).ToHashSet(StringComparer.OrdinalIgnoreCase);
+            var missing = expected.Where(n => !found.Contains(n)).ToArray();
+            return new
+            {
+                database = "connected",
+                procedures = $"{found.Count} of {expected.Length} found",
+                detail = missing.Length == 0
+                    ? "Everything the dashboard needs is in place."
+                    : "Some procedures are missing from this database, or this login may not run them. Run all.txt on the database the connection string names.",
+                missing,
+            };
+        }
+        catch (SqlException e)
+        {
+            var kind = e.Number switch
+            {
+                18456 => "login failed: the user name or password in the connection string is wrong",
+                4060 => "the login worked but the database named in the connection string cannot be opened",
+                229 or 230 or 297 => "this login is not permitted to read what the check needs",
+                233 => "the SQL Server accepted the connection and then dropped it during login: usually the server takes Windows logins only (SQL Server authentication is off), the Server value points at a different instance than intended, or the login's default database is unavailable. The SQL Server error log has the exact reason",
+                -2 or -1 or 0 or 2 or 53 or 258 or 1225 or 10053 or 10054 or 10060 or 10061 or 11001 => "the SQL Server cannot be reached: check the server name, port and firewall in the connection string",
+                _ => "the SQL Server answered with an error",
+            };
+            return new { database = "failed", detail = kind, sqlErrorNumber = e.Number };
+        }
+        catch (Exception e) when (e is ArgumentException or FormatException or InvalidOperationException)
+        {
+            return new { database = "failed", detail = "the connection string in appsettings.json is not written correctly (a keyword or value in it is not understood)." };
+        }
+    }
 }

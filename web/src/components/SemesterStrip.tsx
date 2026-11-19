@@ -5,10 +5,11 @@ import { count, dateLabel, dayLabel, isoDate } from '../format'
 import { Skeleton } from './ui'
 
 const TODAY = isoDate(new Date())
+const RECENT = 6 // how many semesters the strip shows
 const BAR_MAX = 52 // px, the tallest bar
 
 /**
- * The semesters as a timeline, in date order. Each one carries a bar whose height is its registered students.
+ * The most recent semesters that have students, newest first. Each one carries a bar whose height is its registered students.
  * Choosing a semester filters the whole dashboard; "All semesters" clears it.
  */
 export function SemesterStrip({ state, selected, onSelect, onRetry }: {
@@ -43,7 +44,13 @@ export function SemesterStrip({ state, selected, onSelect, onRetry }: {
       </section>
     )
   }
-  const semesters = [...state.data].sort((a, b) => (a.startDate ?? '').localeCompare(b.startDate ?? ''))
+  // Only the recent semesters, newest first. Semesters nobody is registered in (old calendars, ones set up for the
+  // future) are left out, unless there would be nothing left to show. A chosen semester always stays visible.
+  const newestFirst = [...state.data].sort((a, b) => (b.startDate ?? '').localeCompare(a.startDate ?? '') || b.students - a.students)
+  const withStudents = newestFirst.filter((s) => s.students > 0)
+  const recent = (withStudents.length > 0 ? withStudents : newestFirst).slice(0, RECENT)
+  const chosen = selected ? newestFirst.find((s) => s.id === selected) : undefined
+  const semesters = chosen && !recent.includes(chosen) ? [...recent, chosen] : recent
   if (semesters.length === 0) {
     return (
       <section aria-label="Semesters" className="rounded-lg border border-line bg-surface px-5 py-4 text-sm text-ink-2">
@@ -68,7 +75,7 @@ export function SemesterStrip({ state, selected, onSelect, onRetry }: {
           return (
             <button key={s.id} type="button" aria-pressed={on} data-on={on} onClick={() => onSelect(on ? null : s.id)}
               title={on ? 'Click again to show all semesters' : `Show only ${s.code}`}
-              className={`group relative min-w-[136px] flex-1 px-3 pt-3 pb-3 text-left transition-colors last:rounded-r-lg sm:px-4 ${on ? 'bg-chalk-soft' : 'hover:bg-bg'}`}>
+              className={`group relative flex min-w-[152px] flex-1 flex-col justify-start px-3 pt-3 pb-3 text-left transition-colors last:rounded-r-lg sm:px-4 ${on ? 'bg-chalk-soft' : 'hover:bg-bg'}`}>
               <span className="flex h-14 items-end gap-2">
                 <span aria-hidden className="rise block w-7 rounded-t-[4px] transition-colors"
                   style={{ height: h, animationDelay: `${i * 45}ms`, background: on ? 'var(--accent)' : selected === null ? 'var(--s1)' : 'var(--s1-soft)' }} />
@@ -77,7 +84,7 @@ export function SemesterStrip({ state, selected, onSelect, onRetry }: {
               {/* the timeline: one continuous rule with a tick at each semester's start */}
               <span aria-hidden className={`absolute inset-x-0 top-[68px] h-px ${on ? 'bg-transparent' : 'bg-line'}`} />
               <span aria-hidden className={`absolute top-[67px] h-[3px] rounded-full ${on ? 'inset-x-0 bg-chalk' : 'left-3 w-7 bg-transparent sm:left-4'}`} />
-              <span className="mt-3 block font-display text-base leading-tight font-semibold text-ink">{s.code}</span>
+              <span className="mt-3 block font-display text-base leading-tight font-semibold whitespace-nowrap text-ink">{s.code}</span>
               <span className="mt-0.5 block text-xs whitespace-nowrap text-ink-2">
                 {s.startDate && s.endDate ? `${dayLabel(s.startDate)} to ${dateLabel(s.endDate)}` : 'Dates not set'}
               </span>
