@@ -1,0 +1,19 @@
+.DS_Store
+node_modules/
+.env*
+!.env.example
+.vercel
+
+# .NET build output
+bin/
+obj/
+backend/publish/
+.vs/
+*.user
+
+# .NET settings with database credentials: keep local only (see appsettings.example.json)
+backend/**/appsettings*.json
+!backend/**/appsettings.example.json
+
+# Front end build output
+web/dist/

@@ -1,0 +1,89 @@
+@import "tailwindcss";
+
+/* Palette. Collegiate green rail, cool paper canvas, chalk yellow used only to mark "you are here".
+   Series colours s1-s5 pass the dataviz palette validator on a white surface (adjacent pairs). */
+:root {
+  --bg: #f1f4f2;
+  --surface: #ffffff;
+  --border: #dde3df;
+  --ink: #15231d;
+  --ink-2: #4c5a53;
+  --ink-3: #6b7871;
+  --grid: #e8ece9;
+  --rail: #12382b;
+  --rail-2: #1c4a3a;
+  --rail-ink: #eef3ee;
+  --rail-ink-2: #a9c2b5;
+  --chalk: #f0cc4e;
+  --chalk-soft: #fbf4d3;
+  --accent: #17694b;
+  --accent-soft: #e4efe9;
+  --s1: #12855c; /* green  */
+  --s2: #c27c0e; /* ochre  */
+  --s3: #3d74b8; /* blue   */
+  --s4: #b84a7a; /* plum   */
+  --s5: #6f5fd0; /* violet */
+  --s1-soft: #a9cdbd; /* resting bars on the semester strip */
+  --bad: #d1442e;  /* overdue */
+  --bad-ink: #a5301d;
+}
+
+@theme inline {
+  --color-bg: var(--bg);
+  --color-surface: var(--surface);
+  --color-line: var(--border);
+  --color-ink: var(--ink);
+  --color-ink-2: var(--ink-2);
+  --color-ink-3: var(--ink-3);
+  --color-grid: var(--grid);
+  --color-rail: var(--rail);
+  --color-rail-2: var(--rail-2);
+  --color-rail-ink: var(--rail-ink);
+  --color-rail-ink-2: var(--rail-ink-2);
+  --color-chalk: var(--chalk);
+  --color-chalk-soft: var(--chalk-soft);
+  --color-accent: var(--accent);
+  --color-accent-soft: var(--accent-soft);
+  --color-bad: var(--bad);
+  --color-bad-ink: var(--bad-ink);
+  --font-sans: "Schibsted Grotesk", ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-display: "Source Serif 4", "Iowan Old Style", Georgia, serif;
+}
+
+html, body { background: var(--bg); color: var(--ink); }
+body { -webkit-font-smoothing: antialiased; overflow-x: hidden; }
+/* Schibsted Grotesk's digits already share one width; its tabular feature also widens commas and full stops,
+   which reads badly in "Rs 1,234,567", so the feature is left off and columns are simply right-aligned. */
+h1, h2, h3, .font-display { font-family: var(--font-display); letter-spacing: -0.005em; }
+.figure { letter-spacing: -0.015em; }
+
+:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; border-radius: 4px; }
+.on-rail :focus-visible { outline-color: var(--chalk); }
+
+select, input[type="date"] { appearance: none; -webkit-appearance: none; }
+.select-wrap { position: relative; }
+.select-wrap::after {
+  content: ""; position: absolute; right: 12px; top: 50%; width: 7px; height: 7px; margin-top: -5px;
+  border-right: 1.5px solid var(--ink-2); border-bottom: 1.5px solid var(--ink-2);
+  transform: rotate(45deg); pointer-events: none;
+}
+
+.no-scrollbar { scrollbar-width: none; }
+.no-scrollbar::-webkit-scrollbar { display: none; }
+
+@keyframes shimmer { 0% { background-position: -400px 0 } 100% { background-position: 400px 0 } }
+.skeleton {
+  background: linear-gradient(90deg, #e4e9e6 0%, #f1f4f2 50%, #e4e9e6 100%);
+  background-size: 800px 100%; animation: shimmer 1.4s linear infinite; border-radius: 6px;
+}
+
+/* The one orchestrated moment: semester bars rise from the timeline when the strip first loads. */
+@keyframes rise { from { transform: scaleY(0) } to { transform: scaleY(1) } }
+.rise { transform-origin: center bottom; animation: rise 600ms cubic-bezier(.2,.7,.2,1) both; }
+
+@media (prefers-reduced-motion: reduce) {
+  .skeleton, .rise { animation: none; }
+  * { transition-duration: 0.01ms !important; scroll-behavior: auto !important; }
+}
+
+.recharts-wrapper:focus, .recharts-surface:focus { outline: none; }

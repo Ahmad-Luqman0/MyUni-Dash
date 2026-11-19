@@ -1,0 +1,11 @@
+{
+  "name": "myuni-dashboard",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "db": "node tools/db/query.mjs"
+  },
+  "devDependencies": {
+    "mssql": "^11.0.1"
+  }
+}
