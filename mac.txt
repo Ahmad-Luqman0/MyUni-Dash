@@ -160,9 +160,10 @@ BEGIN
     END
     -- 6. Semesters: semesters of the company''s academic calendars.
     --    Students = active students registered in the semester (RegisterInId, or the first semester when RegisterInId is empty).
+    --    Newest first, by the order the ERP gives them (OrderId, the semester''s own number); the dates of a semester can be wrong.
     IF @Section = ''Semesters''
     BEGIN
-        SELECT SEM.Id, SEM.Code, AC.CalenderName AS Calendar, SEM.StartDate, SEM.EndDate,
+        SELECT SEM.Id, SEM.OrderId, SEM.Code, AC.CalenderName AS Calendar, SEM.StartDate, SEM.EndDate,
                ISNULL(SEM.IsAdmissionOpen, 0) AS IsAdmissionOpen,
                ISNULL(RC.Students, 0) AS Students
         FROM UNIAcademicYearSemesterDetails SEM WITH (NOLOCK)
@@ -176,7 +177,7 @@ BEGIN
                    GROUP BY ISNULL(R.RegisterInId, R.SemesterSessionId)) RC ON RC.SemesterId = SEM.Id
         WHERE AC.CompanyId = @CompanyId
           AND (ISNULL(@BranchId, 0) = 0 OR AC.BranchId = @BranchId)
-        ORDER BY SEM.StartDate, SEM.OrderId
+        ORDER BY SEM.OrderId DESC, SEM.StartDate DESC
         OPTION (RECOMPILE);   -- plan for the filters actually chosen
         RETURN;
     END

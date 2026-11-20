@@ -60,9 +60,11 @@ export function SemesterStrip({ state, selected, onSelect, onRetry }: {
       </section>
     )
   }
-  // Only the recent semesters, newest first. Semesters nobody is registered in (old calendars, ones set up for the
-  // future) are left out, unless there would be nothing left to show. A chosen semester always stays visible.
-  const newestFirst = [...state.data].sort((a, b) => (b.startDate ?? '').localeCompare(a.startDate ?? '') || b.students - a.students)
+  // Only the recent semesters, newest first: by the semester's own order number (its dates can be wrong), then by
+  // start date. Semesters nobody is registered in (old calendars, ones set up for the future) are left out, unless
+  // there would be nothing left to show. A chosen semester always stays visible.
+  const newestFirst = [...state.data].sort((a, b) => (b.orderId ?? -1) - (a.orderId ?? -1)
+    || (b.startDate ?? '').localeCompare(a.startDate ?? '') || b.students - a.students)
   const withStudents = newestFirst.filter((s) => s.students > 0)
   const recent = (withStudents.length > 0 ? withStudents : newestFirst).slice(0, RECENT)
   const chosen = selected ? newestFirst.find((s) => s.id === selected) : undefined

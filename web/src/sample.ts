@@ -372,7 +372,7 @@ export function sampleResponse(url: string): unknown {
         .map(({ d, i }): Degree => ({ id: degId(i), degreeCode: d.code, degreeName: d.name, departmentId: d.dept, degreeLevel: d.level }))
     case 'filters/semesters':
       return SEMESTERS.map((s, i): Semester => ({
-        id: semId(i), code: s.code, calendar: s.calendar, startDate: `${s.start}T00:00:00`, endDate: `${s.end}T00:00:00`, isAdmissionOpen: i === LAST_SEM,
+        id: semId(i), orderId: i + 1, code: s.code, calendar: s.calendar, startDate: `${s.start}T00:00:00`, endDate: `${s.end}T00:00:00`, isAdmissionOpen: i === LAST_SEM,
         students: regs.filter((r) => r.sem === i && (!q.branchId || r.branch === q.branchId)).reduce((a, r) => a + r.students, 0),
       }))
     case 'dashboard/summary': return summary(q)

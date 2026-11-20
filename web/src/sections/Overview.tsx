@@ -22,8 +22,11 @@ export function Overview({ q, reload }: SectionProps) {
           const s = rows[0]
           return (
             <Ledger cols={4}>
-              <Tile label="Active students" value={count(s.students)} note={`${count(s.programs)} degree programs`} />
-              <Tile label="Registered" value={count(s.registeredStudents)} note={`${count(s.degreeCompleted)} have completed their degree`} />
+              {/* one box, two figures: registered in the semester, then every active student */}
+              <div className="col-span-2 grid grid-cols-2 bg-surface">
+                <Tile label="Registered" value={count(s.registeredStudents)} note={`${count(s.degreeCompleted)} have completed their degree`} />
+                <Tile label="Active students" value={count(s.students)} note={`${count(s.programs)} degree programs`} />
+              </div>
               <Tile label="New admissions" value={count(s.newAdmissions)} note="Students admitted" />
               <Tile label="Total challan" value={rsShort(s.billed)} full={rs(s.billed)} note={`${rsShort(s.discounts)} given in discounts`} />
               <Tile label="Paid" value={rsShort(s.received)} full={rs(s.received)} note={`${pct(s.received, s.billed)} of total challan`} />

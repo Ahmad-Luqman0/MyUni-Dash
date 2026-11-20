@@ -6,7 +6,7 @@ export interface Faculty { id: string; description: string; code: string | null 
 export interface Department { id: number; description: string; facultyId: string | null; faculty: string | null }
 export interface Degree { id: string; degreeCode: string | null; degreeName: string; departmentId: number | null; degreeLevel: string | null }
 export interface Semester {
-  id: string; code: string; calendar: string | null; startDate: string | null; endDate: string | null
+  id: string; orderId: number | null; code: string; calendar: string | null; startDate: string | null; endDate: string | null
   isAdmissionOpen: boolean | null; students: number
 }
 
