@@ -3,7 +3,8 @@ import { useData, type Loaded } from '../useData'
 import { nice } from '../format'
 import { C } from '../palette'
 
-export interface SectionProps { q: Query | null; reload: number }
+/** semester: the code of the semester chosen on the strip (e.g. SUMMER-2026); null when all semesters are in view. */
+export interface SectionProps { q: Query | null; reload: number; semester?: string | null }
 
 /** One portion of the dashboard for the current filters. */
 export function usePortion<T>(portion: Portion, q: Query | null, reload: number): Loaded<T[]> {

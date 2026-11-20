@@ -7,7 +7,7 @@ import { Loadable } from '../components/ui'
 import { Block, LedgerSkeleton } from './shared'
 import { degreeKey, degreeName, latestSemester, monthKey, usePortion, type SectionProps } from './helpers'
 
-export function Overview({ q, reload }: SectionProps) {
+export function Overview({ q, reload, semester }: SectionProps) {
   const summary = usePortion<SummaryRow>('summary', q, reload)
   const regs = usePortion<RegistrationRow>('registrations', q, reload)
   const cols = usePortion<CollectionRow>('collections', q, reload)
@@ -24,7 +24,7 @@ export function Overview({ q, reload }: SectionProps) {
             <Ledger cols={4}>
               {/* one box, two figures: registered in the semester, then every active student */}
               <div className="col-span-2 grid grid-cols-2 bg-surface">
-                <Tile label="Registered" value={count(s.registeredStudents)} note={`${count(s.degreeCompleted)} have completed their degree`} />
+                <Tile label={semester ? `Registered ${semester}` : 'Registered'} value={count(s.registeredStudents)} note={`${count(s.degreeCompleted)} have completed their degree`} />
                 <Tile label="Active students" value={count(s.students)} note={`${count(s.programs)} degree programs`} />
               </div>
               <Tile label="New admissions" value={count(s.newAdmissions)} note="Students admitted" />

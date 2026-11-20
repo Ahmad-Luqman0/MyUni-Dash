@@ -157,7 +157,7 @@ export default function App() {
                   <h1 className="text-[28px] leading-tight font-semibold text-ink sm:text-[32px]">{current.title}</h1>
                   <p className="mt-1 text-[15px] text-ink-2">{current.blurb}</p>
                 </header>
-                <View key={current.id} q={q} reload={reload} />
+                <View key={current.id} q={q} reload={reload} semester={hr || !semesterId ? null : semesters.data?.find((s) => s.id === semesterId)?.code ?? null} />
               </main>
             </>
           )}
