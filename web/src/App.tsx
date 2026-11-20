@@ -28,7 +28,7 @@ const SECTIONS: SectionDef[] = [
   { id: 'students', label: 'Students', icon: GraduationCap, view: Students, title: 'Students', blurb: 'Who is registered, in which degree, semester and shift.' },
   { id: 'admissions', label: 'Admissions', icon: UserPlus, view: Admissions, title: 'Admissions', blurb: 'Seats announced and how many of them were filled.' },
   { id: 'collections', label: 'Collections', icon: ReceiptText, view: Collections, title: 'Collections', blurb: 'Money actually received, by day, source and degree.' },
-  { id: 'receivables', label: 'Receivables', icon: Scale, view: Receivables, title: 'Receivables', blurb: 'Fee billed on challans, what has been paid and what is still owed.' },
+  { id: 'receivables', label: 'Receivables', icon: Scale, view: Receivables, title: 'Receivables', blurb: 'Total challan amount, what has been paid and what is still unpaid.' },
   { id: 'defaulters', label: 'Defaulters', icon: AlarmClock, view: Defaulters, title: 'Defaulters', blurb: 'Students whose fee is unpaid past its due date.' },
   { id: 'installments', label: 'Installments', icon: CalendarClock, view: Installments, title: 'Installments', blurb: 'Fee paid in parts: what is paid, late and still to come.' },
   { id: 'discounts', label: 'Discounts', icon: BadgePercent, view: Discounts, title: 'Discounts', blurb: 'Scholarships and fee discounts given to students.' },

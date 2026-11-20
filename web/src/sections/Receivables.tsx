@@ -13,9 +13,9 @@ const columns: Column<ReceivableRow>[] = [
   { key: 'degree', header: 'Degree', cell: (r) => <DegreeCell row={r} />, sort: degreeName },
   { key: 'type', header: 'Challan type', cell: (r) => challanLabel(r.challanType), sort: (r) => challanLabel(r.challanType), nowrap: true },
   { key: 'challans', header: 'Challans', cell: (r) => count(r.challans), sort: (r) => r.challans, align: 'right' },
-  { key: 'billed', header: 'Billed', cell: (r) => rs(r.billed), sort: (r) => r.billed, align: 'right' },
-  { key: 'received', header: 'Received', cell: (r) => rs(r.received), sort: (r) => r.received, align: 'right' },
-  { key: 'balance', header: 'Balance', cell: (r) => rs(r.billed - r.received), sort: (r) => r.billed - r.received, align: 'right' },
+  { key: 'billed', header: 'Total challan', cell: (r) => rs(r.billed), sort: (r) => r.billed, align: 'right' },
+  { key: 'received', header: 'Paid', cell: (r) => rs(r.received), sort: (r) => r.received, align: 'right' },
+  { key: 'balance', header: 'Unpaid', cell: (r) => rs(r.billed - r.received), sort: (r) => r.billed - r.received, align: 'right' },
   { key: 'overdue', header: 'Overdue', cell: (r) => rs(r.overdue), sort: (r) => r.overdue, align: 'right' },
   { key: 'discount', header: 'Discount', cell: (r) => rs(r.discount), sort: (r) => r.discount, align: 'right' },
   { key: 'fine', header: 'Fine', cell: (r) => rs(r.fine), sort: (r) => r.fine, align: 'right' },
@@ -33,20 +33,20 @@ export function Receivables({ q, reload }: SectionProps) {
         return (
           <div className="space-y-4">
             <Ledger cols={3}>
-              <Tile label="Fee billed" value={rsShort(billed)} full={rs(billed)} note={`${count(sum(rows, (r) => r.challans))} challans`} />
-              <Tile label="Received" value={rsShort(received)} full={rs(received)} note={`${pct(received, billed)} of billed`} />
-              <Tile label="Balance" value={rsShort(billed - received)} full={rs(billed - received)} note="Billed and not yet paid" />
+              <Tile label="Total challan" value={rsShort(billed)} full={rs(billed)} note={`${count(sum(rows, (r) => r.challans))} challans`} />
+              <Tile label="Paid" value={rsShort(received)} full={rs(received)} note={`${pct(received, billed)} of total challan`} />
+              <Tile label="Unpaid" value={rsShort(billed - received)} full={rs(billed - received)} note="Open challans, not yet paid" />
               <Tile alert={overdue > 0} label="Overdue" value={rsShort(overdue)} full={rs(overdue)} note={`${count(sum(rows, (r) => r.overdueChallans))} challans past the due date`} />
-              <Tile label="Discount given" value={rsShort(sum(rows, (r) => r.discount))} full={rs(sum(rows, (r) => r.discount))} note={`${pct(sum(rows, (r) => r.discount), billed)} of billed`} />
+              <Tile label="Discount given" value={rsShort(sum(rows, (r) => r.discount))} full={rs(sum(rows, (r) => r.discount))} note={`${pct(sum(rows, (r) => r.discount), billed)} of total challan`} />
               <Tile label="Fine charged" value={rsShort(sum(rows, (r) => r.fine))} full={rs(sum(rows, (r) => r.fine))} note="Late payment fines" />
             </Ledger>
 
             <div className="grid gap-4 xl:grid-cols-2">
               <div className="grid content-start gap-4">
-                <Card title="Received and balance by semester" subtitle="The two together are the fee billed">
+                <Card title="Paid and unpaid by semester" subtitle="The two together are the total challan">
                   {semesters.length > 1
-                    ? <Columns stacked name="Received and balance by semester" format={rs} axisFormat={rsShort}
-                        series={[{ key: 'received', label: 'Received', color: C.s3 }, { key: 'balance', label: 'Balance', color: C.s2 }]}
+                    ? <Columns stacked name="Paid and unpaid by semester" format={rs} axisFormat={rsShort}
+                        series={[{ key: 'received', label: 'Paid', color: C.s3 }, { key: 'balance', label: 'Unpaid', color: C.s2 }]}
                         data={semesters.map((s) => ({ label: s.first.semester ?? '–', received: s.received, balance: Math.max(0, s.billed - s.received) }))} />
                     : <Quiet>Only {semesters[0]?.first.semester ?? 'one semester'} is in view. Choose “All semesters” on the strip above to compare semesters.</Quiet>}
                 </Card>
@@ -57,9 +57,9 @@ export function Receivables({ q, reload }: SectionProps) {
                     : <Quiet>Nothing is overdue in this view.</Quiet>}
                 </Card>
               </div>
-              <Card title="Billed and received by degree" subtitle="Fee billed on challans, and how much of it has been paid">
-                <BarList format={rsShort} max={12} series={[{ label: 'Billed', color: C.s1 }, { label: 'Received', color: C.s3 }]}
-                  rows={degrees.map((g) => ({ key: g.key, label: degreeName(g.first), values: [g.billed, g.received], note: `Balance ${rsShort(g.billed - g.received)}` }))} />
+              <Card title="Total challan and paid by degree" subtitle="Challan amount raised, and how much of it has been paid">
+                <BarList format={rsShort} max={12} series={[{ label: 'Total challan', color: C.s1 }, { label: 'Paid', color: C.s3 }]}
+                  rows={degrees.map((g) => ({ key: g.key, label: degreeName(g.first), values: [g.billed, g.received], note: `Unpaid ${rsShort(g.billed - g.received)}` }))} />
               </Card>
             </div>
 

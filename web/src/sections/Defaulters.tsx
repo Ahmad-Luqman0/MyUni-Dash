@@ -20,7 +20,7 @@ const columns: Column<DefaulterRow>[] = [
   { key: 'student', header: 'Student', cell: (r) => <span className="font-medium">{nice(r.student)}</span>, sort: (r) => nice(r.student), nowrap: true },
   { key: 'degree', header: 'Degree', cell: (r) => <DegreeCell row={{ ...r, department: r.programType }} />, sort: degreeName },
   { key: 'totalFee', header: 'Total fee', cell: (r) => rs(r.totalFee), sort: (r) => r.totalFee, align: 'right' },
-  { key: 'received', header: 'Received', cell: (r) => rs(r.received), sort: (r) => r.received, align: 'right' },
+  { key: 'received', header: 'Paid', cell: (r) => rs(r.received), sort: (r) => r.received, align: 'right' },
   { key: 'balance', header: 'Balance', cell: (r) => <span className="font-medium">{rs(r.balance)}</span>, sort: (r) => r.balance, align: 'right' },
   {
     key: 'days', header: 'Days overdue', sort: (r) => r.daysOverdue, align: 'right',

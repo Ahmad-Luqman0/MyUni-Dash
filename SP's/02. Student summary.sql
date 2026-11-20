@@ -4,8 +4,9 @@
 --           (a semester runs from its start until the next one starts, so every date belongs to a semester).
 -- RegisteredStudents, NewAdmissions: for the chosen semester, or the semesters running in the dates.
 -- DegreeCompleted: students flagged as completed; with dates, those whose completion date falls in them.
--- Billed, Received, Outstanding, Discounts: challans dated in the range (rules of Dashboard_MyUni_Receivables).
--- Overdue, Defaulters: challans that fell due in the dates, judged on @EndDate (rules of Dashboard_MyUni_Defaulters).
+-- Billed (shown as Total challan), Received (Paid), Outstanding (Unpaid), Discounts: challans dated in the range
+--           (rules of Dashboard_MyUni_Receivables: total = ChallanStatus 4 or 62, paid = 62, unpaid = 4, open).
+-- Overdue, Defaulters: open challans (ChallanStatus 4) that fell due in the dates, judged on @EndDate (rules of Dashboard_MyUni_Defaulters).
 -- Collected: receipts dated in the range (rules of Dashboard_MyUni_Collections).
 -- Check the USE line names the right database. Run the whole script (SSMS: F5; DBeaver: Execute script, Alt+X).
 
@@ -94,9 +95,9 @@ BEGIN
                ISNULL(C.NetChallanAmt, ISNULL(C.TotalAmount, 0) - ISNULL(C.TotalDiscountAmt, 0)) AS Net,
                ISNULL(C.TotalDiscountAmt, 0) + ISNULL(C.GovtFeeDiscountAmt, 0) AS Discount,
                CASE WHEN C.TransDate >= @From AND C.TransDate < @To THEN 1 ELSE 0 END AS InRange,
-               CASE WHEN C.ParentIdGuid IS NULL AND C.ChallanStatus NOT IN (3, 40, 63, 64, 65, 66) THEN 1 ELSE 0 END AS IsBilled,
-               CASE WHEN C.ChallanStatus IN (1, 62) THEN 1 ELSE 0 END AS IsPaid,
-               CASE WHEN C.ParentIdGuid IS NULL AND C.ChallanStatus NOT IN (1, 62, 3, 40, 63, 64)
+               CASE WHEN C.ChallanStatus IN (4, 62) THEN 1 ELSE 0 END AS IsBilled,
+               CASE WHEN C.ChallanStatus = 62 THEN 1 ELSE 0 END AS IsPaid,
+               CASE WHEN C.ChallanStatus = 4
                          AND ISNULL(C.ValidityDate, C.DueDate) < @AsOf THEN 1 ELSE 0 END AS IsOverdue,
                CASE WHEN @AllDates = 1 OR (ISNULL(C.ValidityDate, C.DueDate) >= @From AND ISNULL(C.ValidityDate, C.DueDate) < @To) THEN 1 ELSE 0 END AS InDue
         FROM UNIStudentsChallan C WITH (NOLOCK)

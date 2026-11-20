@@ -30,7 +30,7 @@ They only read the ERP tables: they call no other procedure and change no table.
 | 03 | `Dashboard_MyUni_Registrations` | Students | Students per semester, degree, semester number, shift |
 | 04 | `Dashboard_MyUni_Admissions` | Admissions | Seats announced and students admitted |
 | 05 | `Dashboard_MyUni_Collections` | Collections | Money received per day, source, degree, challan type |
-| 06 | `Dashboard_MyUni_Receivables` | Receivables | Billed, received, overdue per semester, degree, challan type |
+| 06 | `Dashboard_MyUni_Receivables` | Receivables | Total challan, paid, unpaid, overdue per semester, degree, challan type |
 | 07 | `Dashboard_MyUni_Defaulters` | Defaulters | One row per student with an overdue balance |
 | 08 | `Dashboard_MyUni_Installments` | Installments | Installments per month, degree, plan status, state |
 | 09 | `Dashboard_MyUni_Discounts` | Discounts | Discounts per type, category, fee type, degree, status |
@@ -50,7 +50,7 @@ Every tab follows the From and To dates. What "in the dates" means depends on th
 | Figure | Follows the dates by |
 |---|---|
 | Students, registrations, admissions | Semesters that overlap the dates |
-| Billed, received, discounts | Challan date |
+| Total challan, paid, unpaid, discounts | Challan date |
 | Collected | Receipt date |
 | Overdue, defaulters | Challans that fell due in the dates, judged on the To date (never a day that has not come yet) |
 | Installments | Installment month |
@@ -64,9 +64,9 @@ With no dates chosen, everything is counted and overdue is judged as of today.
 The rules follow the ERP's own reports so the numbers match them.
 
 - **Registered students** (`UNIStudents_Rp_GetRegisteredStudent`): active registrations of active students, in the semester they registered in (`RegisterInId`; the first semester when that is empty).
-- **Billed**: net amount of main challans (`ParentIdGuid` empty) that are not expired or cancelled (`ChallanStatus` 3, 40).
-- **Received**: net amount of paid challans (`ChallanStatus` 1, 62). **Balance** = Billed - Received.
-- **Overdue / defaulter** (`UNIStudents_Rp_GetDefaulterData`): a main challan still open (not 1, 62, 3, 40, 63, 64) whose validity date (else due date) has passed, for a student whose balance is above zero.
+- **Total challan** (`Billed` in the procedures): net amount of challans that are open or paid (`ChallanStatus` 4, 62), full-fee and installment challans alike.
+- **Paid** (`Received`): net amount of paid challans (`ChallanStatus` 62). **Unpaid** = Total challan - Paid = the open challans (`ChallanStatus` 4).
+- **Overdue / defaulter**: an open challan (`ChallanStatus` 4) whose validity date (else due date) has passed, for a student whose unpaid balance is above zero.
 - **Collected**: cash fee receipts of university students (`AEOFeeReceipts`, not deleted, `FeeStatus` 4 received or 19 approved, not against a cancelled challan), plus bank receipt lines that are verified (`DocStatus` 35) on an approved or posted upload (`BankReceiptStatus` 2, 34). A cash fee receipt whose challan already has a verified bank receipt is left out so nothing is counted twice. The ERP saves a university fee receipt with `FeeStatus` 4 and marks its challan paid at once, so 4 is money received.
 - **Employees**: active employees of the company (`Employees.Status = 1`, not discontinued), plus those who have left so leavers can be counted. The HR tabs filter by the employee's own department, not the academic one.
 - **Salary structure**: each active employee's current structure (`HRMSalaryStructure.Status = 1`, latest by effective date).

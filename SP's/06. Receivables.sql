@@ -1,9 +1,9 @@
--- 06. Dashboard_MyUni_Receivables: fee billed, received and overdue per semester, degree and challan type (Receivables tab).
--- Same rules as the ERP report UNIStudents_Rp_GetDefaulterData:
---   Billed   = NetChallanAmt of main challans (ParentIdGuid empty) that are not expired / cancelled (ChallanStatus 3, 40)
---   Received = NetChallanAmt of paid challans (ChallanStatus 1, 62)
---   Overdue  = main challans still open (not 1, 62, 3, 40, 63, 64) whose validity date (else due date) has passed
--- Balance = Billed - Received. The date range is on the challan date (TransDate).
+-- 06. Dashboard_MyUni_Receivables: total challan, paid, unpaid and overdue per semester, degree and challan type (Receivables tab).
+-- A challan is counted by its ChallanStatus alone (4 = open, 62 = paid), whether it is a full-fee or an installment challan:
+--   Billed   (Total challan) = NetChallanAmt of challans that are open or paid (ChallanStatus 4, 62)
+--   Received (Paid)          = NetChallanAmt of paid challans (ChallanStatus 62)
+--   Overdue                  = open challans (ChallanStatus 4) whose validity date (else due date) has passed
+-- Unpaid = Billed - Received = the open challans (ChallanStatus 4). The date range is on the challan date (TransDate).
 -- Check the USE line names the right database. Run the whole script (SSMS: F5; DBeaver: Execute script, Alt+X).
 
 USE SAC400;
@@ -49,9 +49,9 @@ BEGIN
                ISNULL(C.NetChallanAmt, ISNULL(C.TotalAmount, 0) - ISNULL(C.TotalDiscountAmt, 0)) AS Net,
                ISNULL(C.TotalDiscountAmt, 0) + ISNULL(C.GovtFeeDiscountAmt, 0) AS Discount,
                ISNULL(C.FineAmount, 0) AS Fine,
-               CASE WHEN C.ParentIdGuid IS NULL AND C.ChallanStatus NOT IN (3, 40, 63, 64, 65, 66) THEN 1 ELSE 0 END AS IsBilled,
-               CASE WHEN C.ChallanStatus IN (1, 62) THEN 1 ELSE 0 END AS IsPaid,
-               CASE WHEN C.ParentIdGuid IS NULL AND C.ChallanStatus NOT IN (1, 62, 3, 40, 63, 64)
+               CASE WHEN C.ChallanStatus IN (4, 62) THEN 1 ELSE 0 END AS IsBilled,
+               CASE WHEN C.ChallanStatus = 62 THEN 1 ELSE 0 END AS IsPaid,
+               CASE WHEN C.ChallanStatus = 4
                          AND ISNULL(C.ValidityDate, C.DueDate) < @Today THEN 1 ELSE 0 END AS IsOverdue
         FROM UNIStudentsChallan C WITH (NOLOCK)
         JOIN UNIStudents S WITH (NOLOCK) ON S.Id = C.StudentId AND S.Status = 1

@@ -25,9 +25,9 @@ export function Overview({ q, reload }: SectionProps) {
               <Tile label="Active students" value={count(s.students)} note={`${count(s.programs)} degree programs`} />
               <Tile label="Registered" value={count(s.registeredStudents)} note={`${count(s.degreeCompleted)} have completed their degree`} />
               <Tile label="New admissions" value={count(s.newAdmissions)} note="Students admitted" />
-              <Tile label="Fee billed" value={rsShort(s.billed)} full={rs(s.billed)} note={`${rsShort(s.discounts)} given in discounts`} />
-              <Tile label="Fee received" value={rsShort(s.received)} full={rs(s.received)} note={`${pct(s.received, s.billed)} of billed`} />
-              <Tile label="Outstanding" value={rsShort(s.outstanding)} full={rs(s.outstanding)} note={`${pct(s.outstanding, s.billed)} of billed, not yet paid`} />
+              <Tile label="Total challan" value={rsShort(s.billed)} full={rs(s.billed)} note={`${rsShort(s.discounts)} given in discounts`} />
+              <Tile label="Paid" value={rsShort(s.received)} full={rs(s.received)} note={`${pct(s.received, s.billed)} of total challan`} />
+              <Tile label="Unpaid" value={rsShort(s.outstanding)} full={rs(s.outstanding)} note={`${pct(s.outstanding, s.billed)} of total challan, still open`} />
               <Tile alert={s.overdue > 0} label="Overdue" value={rsShort(s.overdue)} full={rs(s.overdue)} note="Unpaid and past the due date" />
               <Tile alert={s.defaulters > 0} label="Defaulters" value={count(s.defaulters)} note="Students with an overdue balance" />
             </Ledger>
@@ -45,9 +45,9 @@ export function Overview({ q, reload }: SectionProps) {
           }}
         </Block>
 
-        <Block title="Billed and received by degree" subtitle="Fee billed on challans, and how much of it has been paid" state={recv} noun="receivables">
+        <Block title="Total challan and paid by degree" subtitle="Challan amount raised, and how much of it has been paid" state={recv} noun="receivables">
           {(rows) => (
-            <BarList format={rsShort} max={7} series={[{ label: 'Billed', color: C.s1 }, { label: 'Received', color: C.s3 }]}
+            <BarList format={rsShort} max={7} series={[{ label: 'Total challan', color: C.s1 }, { label: 'Paid', color: C.s3 }]}
               rows={rollup(rows, degreeKey, ['billed', 'received']).map((g) => ({
                 key: g.key, label: degreeName(g.first), values: [g.billed, g.received], note: `${pct(g.received, g.billed)} paid`,
               }))} />
