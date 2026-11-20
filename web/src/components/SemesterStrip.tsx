@@ -9,6 +9,22 @@ const RECENT = 6 // how many semesters the strip shows
 const BAR_MAX = 52 // px, the tallest bar
 
 /**
+ * The semester the dashboard opens on: the one marked IsAdmissionOpen (the latest, if several are). When none is, the
+ * one in session today (the busiest, if calendars overlap); between semesters, the latest one that has started and has
+ * students. Null when there is none.
+ */
+export function currentSemester(list: Semester[]): string | null {
+  const open = list.filter((s) => s.isAdmissionOpen).sort((a, b) => (b.startDate ?? '').localeCompare(a.startDate ?? ''))
+  if (open.length > 0) return open[0].id
+  const started = list.filter((s) => s.startDate && s.startDate.slice(0, 10) <= TODAY)
+  const inSession = started.filter((s) => s.endDate && TODAY <= s.endDate.slice(0, 10))
+  const pick = inSession.length > 0
+    ? inSession.sort((a, b) => b.students - a.students)[0]
+    : started.filter((s) => s.students > 0).sort((a, b) => (b.startDate ?? '').localeCompare(a.startDate ?? ''))[0]
+  return pick?.id ?? null
+}
+
+/**
  * The most recent semesters that have students, newest first. Each one carries a bar whose height is its registered students.
  * Choosing a semester filters the whole dashboard; "All semesters" clears it.
  */

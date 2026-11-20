@@ -3,7 +3,7 @@ import { AlarmClock, BadgePercent, Banknote, CalendarCheck, CalendarClock, Flask
 import { SAMPLE_MODE, urls, type Branch, type Company, type Degree, type Department, type EmployeeDepartment, type Faculty, type Query, type Semester } from './api'
 import { useData } from './useData'
 import { Rail, type NavItem } from './components/Rail'
-import { SemesterStrip } from './components/SemesterStrip'
+import { currentSemester, SemesterStrip } from './components/SemesterStrip'
 import { FilterBar, type Selection } from './components/FilterBar'
 import { DashContext, type DashActions } from './context'
 import { ErrorState } from './components/ui'
@@ -43,7 +43,7 @@ const HR_SECTIONS = new Set(['employees', 'salary-structure', 'salary-sheet', 'a
 
 const sectionFromHash = () => SECTIONS.find((s) => `#${s.id}` === location.hash)?.id ?? 'overview'
 
-const EMPTY: Selection = { companyId: null, branchId: null, facultyId: null, departmentId: null, hrDepartmentId: null, degreeId: null, semesterId: null, startDate: '', endDate: '' }
+const EMPTY: Selection = { companyId: null, branchId: null, facultyId: null, departmentId: null, hrDepartmentId: null, degreeId: null, semesterId: undefined, startDate: '', endDate: '' }
 
 /**
  * A chosen id only counts while it is still in its list, so changing a parent filter drops a child it no longer offers.
@@ -81,7 +81,12 @@ export default function App() {
   const degrees = useData<Degree[]>(companyId ? urls.degrees(companyId, branchId, facultyId, departmentId) : null, reload)
   const degreeId = still(sel.degreeId, degrees)
   const semesters = useData<Semester[]>(companyId ? urls.semesters(companyId, branchId) : null, reload)
-  const semesterId = still(sel.semesterId, semesters)
+  // Until a semester is picked, the current one is chosen. The figures wait for the semester list so they are not
+  // loaded twice (once for all semesters, then for the current one); if the list fails, they show all semesters.
+  const semesterPending = sel.semesterId === undefined && semesters.loading
+  const semesterId = sel.semesterId === undefined
+    ? (semesters.loading ? null : currentSemester(semesters.data ?? []))
+    : still(sel.semesterId, semesters)
   // The HR pages have their own department list (the employees' departments) and their own choice from it.
   const hr = HR_SECTIONS.has(section)
   const hrDepartments = useData<EmployeeDepartment[]>(hr && companyId ? urls.employeeDepartments(companyId, branchId) : null, reload)
@@ -91,8 +96,9 @@ export default function App() {
   const startDate = validDate(sel.startDate), endDate = validDate(sel.endDate)
   const q = useMemo<Query | null>(() => (companyId === null ? null : hr
     ? { companyId, branchId, facultyId: null, departmentId: hrDepartmentId, degreeId: null, semesterId: null, startDate, endDate }
+    : semesterPending ? null
     : { companyId, branchId, facultyId, departmentId, degreeId, semesterId, startDate, endDate }
-  ), [hr, companyId, branchId, facultyId, departmentId, hrDepartmentId, degreeId, semesterId, startDate, endDate])
+  ), [hr, companyId, branchId, facultyId, departmentId, hrDepartmentId, degreeId, semesterId, semesterPending, startDate, endDate])
 
   const change = useCallback((patch: Partial<Selection>) => setSel((s) => ({ ...s, ...patch })), [])
   const refresh = useCallback(() => setReload((n) => n + 1), [])
@@ -112,7 +118,7 @@ export default function App() {
     if (degreeId) narrowed.push('the degree')
     else if (departmentId) narrowed.push('the department')
     else if (facultyId) narrowed.push('the faculty')
-    return { retry: refresh, narrowed, clearFilters: () => setSel((s) => ({ ...EMPTY, companyId: s.companyId, hrDepartmentId: s.hrDepartmentId })) }
+    return { retry: refresh, narrowed, clearFilters: () => setSel((s) => ({ ...EMPTY, companyId: s.companyId, hrDepartmentId: s.hrDepartmentId, semesterId: null })) }
   }, [hr, hrDepartmentId, semesterId, semesters.data, startDate, endDate, branchId, degreeId, departmentId, facultyId, refresh])
 
   const current = SECTIONS.find((s) => s.id === section) ?? SECTIONS[0]
