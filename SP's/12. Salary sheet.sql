@@ -67,6 +67,7 @@ BEGIN
     LEFT JOIN Departments DP WITH (NOLOCK) ON DP.Id = L.DepartmentId
     LEFT JOIN Branches B     WITH (NOLOCK) ON B.Id  = L.BranchId
     GROUP BY L.[Month], DP.[Description], B.[Description]
-    ORDER BY L.[Month], DP.[Description];
+    ORDER BY L.[Month], DP.[Description]
+    OPTION (RECOMPILE);   -- plan for the filters actually chosen
 END
 GO

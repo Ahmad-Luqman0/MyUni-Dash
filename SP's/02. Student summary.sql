@@ -6,7 +6,8 @@
 -- DegreeCompleted: students flagged as completed; with dates, those whose completion date falls in them.
 -- Billed (shown as Total challan), Received (Paid), Outstanding (Unpaid), Discounts: challans dated in the range
 --           (rules of Dashboard_MyUni_Receivables: total = ChallanStatus 4 or 62, paid = 62, unpaid = 4, open).
--- Overdue, Defaulters: open challans (ChallanStatus 4) that fell due in the dates, judged on @EndDate (rules of Dashboard_MyUni_Defaulters).
+-- Overdue: open challans (ChallanStatus 4) that fell due in the dates, judged on @EndDate.
+-- Defaulters: students of Dashboard_MyUni_Defaulters (rules of the ERP report UNIStudents_Rp_GetDefaulterData).
 -- Collected: receipts dated in the range (rules of Dashboard_MyUni_Collections).
 -- Check the USE line names the right database. Run the whole script (SSMS: F5; DBeaver: Execute script, Alt+X).
 
@@ -35,48 +36,97 @@ BEGIN
     DECLARE @Today    DATE = CAST(GETDATE() AS DATE);
     DECLARE @AsOf     DATE = CASE WHEN @EndDate IS NULL OR @EndDate > @Today THEN @Today ELSE DATEADD(DAY, 1, @EndDate) END;
 
-    -- The challans that already have a verified bank receipt, keyed so each cash fee receipt is checked with one
-    -- index seek. (Checking against the bank receipt tables directly took minutes on a full database.)
-    DECLARE @BankPaid TABLE (StudentId UNIQUEIDENTIFIER NOT NULL, ChallanNo NVARCHAR(200) NOT NULL, PRIMARY KEY (StudentId, ChallanNo));
-    INSERT INTO @BankPaid (StudentId, ChallanNo)
+    -- #BankPaid: the challans that already have a verified bank receipt, keyed so each cash fee receipt is checked with
+    -- one index seek. (Checking against the bank receipt tables directly took minutes on a full database.)
+    CREATE TABLE #BankPaid (StudentId UNIQUEIDENTIFIER NOT NULL, ChallanNo NVARCHAR(200) NOT NULL, PRIMARY KEY (StudentId, ChallanNo));
+    INSERT INTO #BankPaid (StudentId, ChallanNo)
     SELECT DISTINCT BD.StudentId, CAST(BD.ChallanNo AS NVARCHAR(200))
     FROM UNIBankReceiptsDetail BD WITH (NOLOCK)
     JOIN UNIBankReceipts BH WITH (NOLOCK) ON BH.Id = BD.BankReceiptId
     WHERE BH.Status = 1 AND BD.DocStatus = 35 AND BH.BankReceiptStatus IN (2, 34)
       AND BD.StudentId IS NOT NULL AND BD.ChallanNo IS NOT NULL;
 
-    -- Every challan by student and challan number (Seq 1 = the latest), keyed so each bank receipt line finds its
-    -- challan with one index seek. Looking the challan up in UNIStudentsChallan once per bank line took minutes.
-    DECLARE @Chal TABLE (StudentId UNIQUEIDENTIFIER NOT NULL, ChallanNo NVARCHAR(200) NOT NULL, Seq INT NOT NULL,
-                         ChallanTypeId INT NULL, RegisterInId UNIQUEIDENTIFIER NULL,
-                         PRIMARY KEY (StudentId, ChallanNo, Seq));
-    INSERT INTO @Chal (StudentId, ChallanNo, Seq, ChallanTypeId, RegisterInId)
-    SELECT C.StudentId, CAST(C.ChallanNo AS NVARCHAR(200)),
-           ROW_NUMBER() OVER (PARTITION BY C.StudentId, C.ChallanNo ORDER BY C.TransDate DESC, C.Id),
-           C.ChallanTypeId, C.RegisterInId
-    FROM UNIStudentsChallan C WITH (NOLOCK)
-    WHERE C.StudentId IS NOT NULL AND C.ChallanNo IS NOT NULL;
+    -- #Bank: the verified bank receipt lines in the dates, read once.
+    SELECT BR.UploadedDate, BRD.StudentId, CAST(BRD.ChallanNo AS NVARCHAR(200)) AS ChallanNo,
+           ISNULL(BRD.DegreeId, S.DegreeId) AS DegreeId, ISNULL(BRD.Amount, 0) AS Amount
+    INTO #Bank
+    FROM UNIBankReceiptsDetail BRD WITH (NOLOCK)
+    JOIN UNIBankReceipts BR WITH (NOLOCK) ON BR.Id = BRD.BankReceiptId
+    JOIN UNIStudents S WITH (NOLOCK) ON S.Id = BRD.StudentId AND S.Status = 1
+    WHERE BR.Status = 1
+      AND BRD.DocStatus = 35
+      AND BR.BankReceiptStatus IN (2, 34)
+      AND (ISNULL(@BranchId, 0) = 0 OR BR.BranchId = @BranchId)
+      AND BR.UploadedDate >= @From AND BR.UploadedDate < @To
+    OPTION (RECOMPILE);
 
-    -- Deg: the degree programs the filters allow, with their department and faculty names.
-    ;WITH Deg AS (
-        SELECT UD.Id, UD.DegreeCode, UD.DegreeName, UD.Status, D.[Description] AS Department, FA.Faculty
-        FROM UNIDegree UD WITH (NOLOCK)
-        LEFT JOIN Departments D WITH (NOLOCK) ON D.Id = UD.DepartmentId
-        OUTER APPLY (SELECT TOP 1 F.[Description] AS Faculty
-                     FROM FacultyDetails FD WITH (NOLOCK)
-                     JOIN Faculty F WITH (NOLOCK) ON F.FacultyGUID = FD.FacultyGUID
-                     WHERE FD.DepartmentId = UD.DepartmentId
-                     ORDER BY F.[Description]) FA
-        WHERE UD.CompanyId = @CompanyId
-          AND (@DegreeId IS NULL OR UD.Id = @DegreeId)
-          AND (ISNULL(@DepartmentId, 0) = 0 OR UD.DepartmentId = @DepartmentId)
-          AND (@FacultyId IS NULL OR EXISTS (SELECT 1 FROM FacultyDetails FD2 WITH (NOLOCK)
-                                             WHERE FD2.DepartmentId = UD.DepartmentId AND FD2.FacultyGUID = @FacultyId))
-    ),
+    -- #ChalSem: with a semester chosen, a bank line counts when the latest challan of its student and challan number
+    -- belongs to that semester. Only the students who have a challan in the semester are looked at. (Listing every
+    -- challan of the database, or looking the challan up once per bank line, took minutes.)
+    CREATE TABLE #ChalSem (StudentId UNIQUEIDENTIFIER NOT NULL, ChallanNo NVARCHAR(200) NOT NULL);
+    IF @SemesterId IS NOT NULL
+        INSERT INTO #ChalSem (StudentId, ChallanNo)
+        SELECT X.StudentId, X.ChallanNo
+        FROM (SELECT C.StudentId, CAST(C.ChallanNo AS NVARCHAR(200)) AS ChallanNo, C.RegisterInId,
+                     ROW_NUMBER() OVER (PARTITION BY C.StudentId, C.ChallanNo ORDER BY C.TransDate DESC, C.Id) AS Seq
+              FROM UNIStudentsChallan C WITH (NOLOCK)
+              WHERE C.ChallanNo IS NOT NULL
+                AND C.StudentId IN (SELECT C2.StudentId FROM UNIStudentsChallan C2 WITH (NOLOCK) WHERE C2.RegisterInId = @SemesterId)
+                AND C.StudentId IN (SELECT B.StudentId FROM #Bank B)) X
+        WHERE X.Seq = 1 AND X.RegisterInId = @SemesterId
+        OPTION (RECOMPILE);
+    CREATE CLUSTERED INDEX IX_ChalSem ON #ChalSem (StudentId, ChallanNo);
+
+    -- #Deg: the degree programs the filters allow, with their department and faculty names. Worked out once and kept
+    -- in a temporary table, because more than one query below needs it.
+    SELECT UD.Id, UD.DegreeCode, UD.DegreeName, UD.Status, D.[Description] AS Department, FA.Faculty
+    INTO #Deg
+    FROM UNIDegree UD WITH (NOLOCK)
+    LEFT JOIN Departments D WITH (NOLOCK) ON D.Id = UD.DepartmentId
+    OUTER APPLY (SELECT TOP 1 F.[Description] AS Faculty
+                 FROM FacultyDetails FD WITH (NOLOCK)
+                 JOIN Faculty F WITH (NOLOCK) ON F.FacultyGUID = FD.FacultyGUID
+                 WHERE FD.DepartmentId = UD.DepartmentId
+                 ORDER BY F.[Description]) FA
+    WHERE UD.CompanyId = @CompanyId
+      AND (@DegreeId IS NULL OR UD.Id = @DegreeId)
+      AND (ISNULL(@DepartmentId, 0) = 0 OR UD.DepartmentId = @DepartmentId)
+      AND (@FacultyId IS NULL OR EXISTS (SELECT 1 FROM FacultyDetails FD2 WITH (NOLOCK)
+                                         WHERE FD2.DepartmentId = UD.DepartmentId AND FD2.FacultyGUID = @FacultyId))
+    OPTION (RECOMPILE);
+
+
+    -- #Ch: the challans of the filters, read once; every money figure and the defaulters count come from it.
+    SELECT C.StudentId, C.DegreeId,
+           ISNULL(C.NetChallanAmt, ISNULL(C.TotalAmount, 0) - ISNULL(C.TotalDiscountAmt, 0)) AS Net,
+           ISNULL(C.TotalDiscountAmt, 0) + ISNULL(C.GovtFeeDiscountAmt, 0) AS Discount,
+           CASE WHEN C.TransDate >= @From AND C.TransDate < @To THEN 1 ELSE 0 END AS InRange,
+           CASE WHEN C.ChallanStatus IN (4, 62) THEN 1 ELSE 0 END AS IsBilled,
+           CASE WHEN C.ChallanStatus = 62 THEN 1 ELSE 0 END AS IsPaid,
+           CASE WHEN C.ChallanStatus = 4
+                     AND ISNULL(C.ValidityDate, C.DueDate) < @AsOf THEN 1 ELSE 0 END AS IsOverdue,
+           -- for the defaulters count (rules of Dashboard_MyUni_Defaulters)
+           CASE WHEN C.ParentIdGuid IS NULL AND C.ChallanStatus NOT IN (3, 40) THEN 1 ELSE 0 END AS DefFee,
+           CASE WHEN C.ChallanStatus IN (1, 62) THEN 1 ELSE 0 END AS DefPaid,
+           CASE WHEN ISNULL(C.ValidityDate, C.DueDate) < @AsOf THEN 1 ELSE 0 END AS DefPastDue,
+           CASE WHEN C.ChallanStatus NOT IN (40, 63)
+                     AND (S.AdmissionNumber <> 'Admission Offer'
+                          OR (S.AdmissionNumber = 'Admission Offer' AND C.ChallanStatus IN (1, 62))) THEN 1 ELSE 0 END AS DefListed,
+           CASE WHEN @AllDates = 1 OR (ISNULL(C.ValidityDate, C.DueDate) >= @From AND ISNULL(C.ValidityDate, C.DueDate) < @To) THEN 1 ELSE 0 END AS InDue
+    INTO #Ch
+    FROM UNIStudentsChallan C WITH (NOLOCK)
+    JOIN UNIStudents S WITH (NOLOCK) ON S.Id = C.StudentId AND S.Status = 1
+    JOIN #Deg G ON G.Id = C.DegreeId
+    WHERE C.CompanyId = @CompanyId
+      AND C.Status = 1
+      AND (ISNULL(@BranchId, 0) = 0 OR C.BranchId = @BranchId)
+      AND (@SemesterId IS NULL OR C.RegisterInId = @SemesterId)
+    OPTION (RECOMPILE);
+
     -- Sem: the semesters the dates select. A semester is taken to run from its start until the next semester of the
     -- company starts (or to its own end date when that is later), and the latest one has no end. So the gaps between
     -- semesters, and a semester stored with a one-day span, still belong to a semester.
-    Sem AS (
+    ;WITH Sem AS (
         SELECT SD.Id
         FROM UNIAcademicYearSemesterDetails SD WITH (NOLOCK)
         JOIN UNIAcademicCalender AC WITH (NOLOCK) ON AC.Id = SD.AcademicCalenderId AND AC.CompanyId = @CompanyId
@@ -89,36 +139,21 @@ BEGIN
                    WHEN SD.EndDate > DATEADD(DAY, -1, NX.NextStart) THEN SD.EndDate
                    ELSE DATEADD(DAY, -1, NX.NextStart) END >= @From
     ),
-    Ch AS (
-        SELECT C.Id, C.StudentId, C.DegreeId, C.ChallanDescription,
-               ISNULL(C.ValidityDate, C.DueDate) AS DueOn,
-               ISNULL(C.NetChallanAmt, ISNULL(C.TotalAmount, 0) - ISNULL(C.TotalDiscountAmt, 0)) AS Net,
-               ISNULL(C.TotalDiscountAmt, 0) + ISNULL(C.GovtFeeDiscountAmt, 0) AS Discount,
-               CASE WHEN C.TransDate >= @From AND C.TransDate < @To THEN 1 ELSE 0 END AS InRange,
-               CASE WHEN C.ChallanStatus IN (4, 62) THEN 1 ELSE 0 END AS IsBilled,
-               CASE WHEN C.ChallanStatus = 62 THEN 1 ELSE 0 END AS IsPaid,
-               CASE WHEN C.ChallanStatus = 4
-                         AND ISNULL(C.ValidityDate, C.DueDate) < @AsOf THEN 1 ELSE 0 END AS IsOverdue,
-               CASE WHEN @AllDates = 1 OR (ISNULL(C.ValidityDate, C.DueDate) >= @From AND ISNULL(C.ValidityDate, C.DueDate) < @To) THEN 1 ELSE 0 END AS InDue
-        FROM UNIStudentsChallan C WITH (NOLOCK)
-        JOIN UNIStudents S WITH (NOLOCK) ON S.Id = C.StudentId AND S.Status = 1
-        JOIN Deg G ON G.Id = C.DegreeId
-        WHERE C.CompanyId = @CompanyId
-          AND C.Status = 1
-          AND (ISNULL(@BranchId, 0) = 0 OR C.BranchId = @BranchId)
-          AND (@SemesterId IS NULL OR C.RegisterInId = @SemesterId)
-    ),
-    -- Due: one row per student and degree; a defaulter has a balance and at least one overdue challan.
+    -- Due: one row per student and degree; a defaulter has a balance and a challan whose validity date has passed.
     Due AS (
-        SELECT C.StudentId, C.DegreeId,
-               SUM(C.IsBilled * C.Net) AS TotalFee,
-               SUM(C.IsPaid * C.Net)   AS Received,
-               SUM(C.IsOverdue)        AS UnpaidChallans,
-               MIN(CASE WHEN C.IsOverdue = 1 THEN C.DueOn END) AS OldestDueDate
-        FROM Ch C
+        SELECT C.StudentId, C.DegreeId
+        FROM #Ch C
         WHERE C.InDue = 1
         GROUP BY C.StudentId, C.DegreeId
-        HAVING SUM(C.IsBilled * C.Net) - SUM(C.IsPaid * C.Net) > 0 AND SUM(C.IsOverdue) > 0
+        HAVING SUM(C.DefFee * C.Net) - SUM(C.DefPaid * C.Net) > 0 AND SUM(C.DefPastDue) > 0 AND SUM(C.DefListed) > 0
+    ),
+    -- Fin: the money figures, added up in one pass over the challans.
+    Fin AS (
+        SELECT SUM(CASE WHEN C.InRange = 1 THEN C.IsBilled * C.Net END)      AS Billed,
+               SUM(CASE WHEN C.InRange = 1 THEN C.IsPaid * C.Net END)        AS Received,
+               SUM(CASE WHEN C.InRange = 1 THEN C.IsBilled * C.Discount END) AS Discounts,
+               SUM(CASE WHEN C.IsOverdue = 1 AND C.InDue = 1 THEN C.Net END) AS Overdue
+        FROM #Ch C
     ),
     Rec AS (
         SELECT ISNULL(SC.DegreeId, S.DegreeId) AS DegreeId, ISNULL(FR.FeeAmount, ISNULL(FR.TotalAmount, 0)) AS Amount
@@ -130,27 +165,20 @@ BEGIN
           AND FR.FeeStatus IN (4, 19)                       -- 4 = received (set when the receipt is saved), 19 = approved
           AND (SC.Id IS NULL OR SC.ChallanStatus <> 40)     -- not against a cancelled challan
           -- not already counted as a bank receipt for the same challan
-          AND NOT EXISTS (SELECT 1 FROM @BankPaid BP WHERE BP.StudentId = FR.UNIStudentId AND BP.ChallanNo = SC.ChallanNo)
+          AND NOT EXISTS (SELECT 1 FROM #BankPaid BP WHERE BP.StudentId = FR.UNIStudentId AND BP.ChallanNo = SC.ChallanNo)
           AND (ISNULL(@BranchId, 0) = 0 OR FR.BranchId = @BranchId)
           AND FR.TransDate >= @From AND FR.TransDate < @To
           AND (@SemesterId IS NULL OR SC.RegisterInId = @SemesterId)
 
         UNION ALL
 
-        SELECT ISNULL(BRD.DegreeId, S.DegreeId), ISNULL(BRD.Amount, 0)
-        FROM UNIBankReceiptsDetail BRD WITH (NOLOCK)
-        JOIN UNIBankReceipts BR WITH (NOLOCK) ON BR.Id = BRD.BankReceiptId
-        JOIN UNIStudents S WITH (NOLOCK) ON S.Id = BRD.StudentId AND S.Status = 1
-        LEFT JOIN @Chal SC ON SC.StudentId = BRD.StudentId AND SC.ChallanNo = BRD.ChallanNo AND SC.Seq = 1
-        WHERE BR.Status = 1
-          AND BRD.DocStatus = 35
-          AND BR.BankReceiptStatus IN (2, 34)
-          AND (ISNULL(@BranchId, 0) = 0 OR BR.BranchId = @BranchId)
-          AND BR.UploadedDate >= @From AND BR.UploadedDate < @To
-          AND (@SemesterId IS NULL OR SC.RegisterInId = @SemesterId)
+        SELECT B.DegreeId, B.Amount
+        FROM #Bank B
+        WHERE @SemesterId IS NULL
+           OR EXISTS (SELECT 1 FROM #ChalSem SC WHERE SC.StudentId = B.StudentId AND SC.ChallanNo = B.ChallanNo)
     )
     SELECT
-        (SELECT COUNT(*) FROM UNIStudents S WITH (NOLOCK) JOIN Deg G ON G.Id = S.DegreeId
+        (SELECT COUNT(*) FROM UNIStudents S WITH (NOLOCK) JOIN #Deg G ON G.Id = S.DegreeId
          WHERE S.Status = 1 AND (ISNULL(@BranchId, 0) = 0 OR S.BranchId = @BranchId)
            AND (@AllDates = 1 OR EXISTS (SELECT 1 FROM UNIStudentsRegistrations R WITH (NOLOCK)
                                          WHERE R.StudentsId = S.Id AND R.Status = 1
@@ -159,35 +187,36 @@ BEGIN
         (SELECT COUNT(DISTINCT R.StudentsId)
          FROM UNIStudentsRegistrations R WITH (NOLOCK)
          JOIN UNIStudents S WITH (NOLOCK) ON S.Id = R.StudentsId AND S.Status = 1
-         JOIN Deg G ON G.Id = R.DegreeId
+         JOIN #Deg G ON G.Id = R.DegreeId
          WHERE R.CompanyId = @CompanyId AND R.Status = 1
            AND (ISNULL(@BranchId, 0) = 0 OR R.BranchId = @BranchId)
            AND (@SemesterId IS NULL OR ISNULL(R.RegisterInId, R.SemesterSessionId) = @SemesterId)
            AND (@AllDates = 1 OR ISNULL(R.RegisterInId, R.SemesterSessionId) IN (SELECT Id FROM Sem))) AS RegisteredStudents,
 
-        (SELECT COUNT(*) FROM UNIStudents S WITH (NOLOCK) JOIN Deg G ON G.Id = S.DegreeId
+        (SELECT COUNT(*) FROM UNIStudents S WITH (NOLOCK) JOIN #Deg G ON G.Id = S.DegreeId
          WHERE S.Status = 1 AND S.IsDegreeCompleted = 1
            AND (ISNULL(@BranchId, 0) = 0 OR S.BranchId = @BranchId)
            AND (@AllDates = 1 OR (S.CompletionDate >= @From AND S.CompletionDate < @To))) AS DegreeCompleted,
 
-        (SELECT COUNT(*) FROM Deg G WHERE G.Status = 1) AS Programs,
+        (SELECT COUNT(*) FROM #Deg G WHERE G.Status = 1) AS Programs,
 
         (SELECT COUNT(DISTINCT SA.StudentsId)
          FROM UNIStudentAnnounceDetails SA WITH (NOLOCK)
          JOIN UNIStudents S WITH (NOLOCK) ON S.Id = SA.StudentsId AND S.Status = 1
-         JOIN Deg G ON G.Id = SA.DegreeId
+         JOIN #Deg G ON G.Id = SA.DegreeId
          WHERE SA.Status = 1
            AND (ISNULL(@BranchId, 0) = 0 OR S.BranchId = @BranchId)
            AND (@SemesterId IS NULL OR SA.SemesterSessionId = @SemesterId)
            AND (@AllDates = 1 OR SA.SemesterSessionId IN (SELECT Id FROM Sem))) AS NewAdmissions,
 
-        ISNULL((SELECT SUM(C.IsBilled * C.Net) FROM Ch C WHERE C.InRange = 1), 0) AS Billed,
-        ISNULL((SELECT SUM(C.IsPaid * C.Net)   FROM Ch C WHERE C.InRange = 1), 0) AS Received,
-        ISNULL((SELECT SUM(C.IsBilled * C.Net) - SUM(C.IsPaid * C.Net) FROM Ch C WHERE C.InRange = 1), 0) AS Outstanding,
-        ISNULL((SELECT SUM(C.Net) FROM Ch C WHERE C.IsOverdue = 1 AND C.InDue = 1), 0) AS Overdue,
+        ISNULL(F.Billed, 0) AS Billed,
+        ISNULL(F.Received, 0) AS Received,
+        ISNULL(F.Billed - F.Received, 0) AS Outstanding,
+        ISNULL(F.Overdue, 0) AS Overdue,
         (SELECT COUNT(DISTINCT D.StudentId) FROM Due D) AS Defaulters,
-        ISNULL((SELECT SUM(C.IsBilled * C.Discount) FROM Ch C WHERE C.InRange = 1), 0) AS Discounts,
-        ISNULL((SELECT SUM(R.Amount) FROM Rec R JOIN Deg G ON G.Id = R.DegreeId), 0) AS Collected
-    OPTION (RECOMPILE);   -- plan for the dates actually asked for, and for the real size of the two lists above
+        ISNULL(F.Discounts, 0) AS Discounts,
+        ISNULL((SELECT SUM(R.Amount) FROM Rec R JOIN #Deg G ON G.Id = R.DegreeId), 0) AS Collected
+    FROM Fin F
+    OPTION (RECOMPILE);   -- plan for the dates actually asked for, and for the real size of the lists above
 END
 GO

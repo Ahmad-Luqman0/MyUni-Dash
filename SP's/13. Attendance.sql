@@ -47,6 +47,7 @@ BEGIN
       AND (ISNULL(@BranchId, 0) = 0 OR A.BranchId = @BranchId)
       AND (ISNULL(@DepartmentId, 0) = 0 OR E.DepartmentId = @DepartmentId)
     GROUP BY DATEFROMPARTS(YEAR(A.[Month]), MONTH(A.[Month]), 1), DP.[Description], B.[Description]
-    ORDER BY 1, DP.[Description];
+    ORDER BY 1, DP.[Description]
+    OPTION (RECOMPILE);   -- plan for the filters actually chosen
 END
 GO

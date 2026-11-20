@@ -60,6 +60,7 @@ BEGIN
           AND (ISNULL(@BranchId, 0) = 0 OR C.BranchId = @BranchId)
           AND (@SemesterId IS NULL OR C.RegisterInId = @SemesterId)
           AND C.TransDate >= @From AND C.TransDate < @To
+          AND C.ChallanStatus IN (4, 62)   -- only open and paid challans are counted
     )
     SELECT SEM.Id AS SemesterId, SEM.Code AS Semester, SEM.StartDate AS SemesterStart,
            G.Id AS DegreeId, G.DegreeCode, G.DegreeName AS Degree, G.Department, G.Faculty,
@@ -75,8 +76,8 @@ BEGIN
     JOIN Deg G ON G.Id = C.DegreeId
     LEFT JOIN UNIAcademicYearSemesterDetails SEM WITH (NOLOCK) ON SEM.Id = C.SemesterId
     LEFT JOIN UNIChallanTypes CT ON CT.Id = C.ChallanTypeId
-    WHERE C.IsBilled = 1 OR C.IsPaid = 1
     GROUP BY SEM.Id, SEM.Code, SEM.StartDate, G.Id, G.DegreeCode, G.DegreeName, G.Department, G.Faculty, CT.ChallanType
-    ORDER BY SEM.StartDate, G.DegreeName, CT.ChallanType;
+    ORDER BY SEM.StartDate, G.DegreeName, CT.ChallanType
+    OPTION (RECOMPILE);   -- plan for the filters actually chosen
 END
 GO

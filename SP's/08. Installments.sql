@@ -94,6 +94,7 @@ BEGIN
     FROM Ins I
     JOIN Deg G ON G.Id = I.DegreeId
     GROUP BY I.[Month], G.Id, G.DegreeCode, G.DegreeName, G.Department, G.Faculty, I.PlanStatus, I.[State]
-    ORDER BY I.[Month], G.DegreeName;
+    ORDER BY I.[Month], G.DegreeName
+    OPTION (RECOMPILE);   -- plan for the filters actually chosen
 END
 GO

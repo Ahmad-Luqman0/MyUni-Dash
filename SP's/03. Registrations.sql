@@ -75,6 +75,7 @@ BEGIN
       AND (@AllDates = 1 OR ISNULL(R.RegisterInId, R.SemesterSessionId) IN (SELECT Id FROM Sem))
     GROUP BY SEM.Id, SEM.Code, SEM.StartDate, G.Id, G.DegreeCode, G.DegreeName, G.Department, G.Faculty,
              R.SemesterNo, PT.[Description]
-    ORDER BY SEM.StartDate, G.DegreeName, R.SemesterNo;
+    ORDER BY SEM.StartDate, G.DegreeName, R.SemesterNo
+    OPTION (RECOMPILE);   -- plan for the filters actually chosen
 END
 GO

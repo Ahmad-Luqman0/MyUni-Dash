@@ -45,6 +45,7 @@ BEGIN
       AND (E.DiscontinuationDate IS NULL OR E.DiscontinuationDate >= @From)
       AND (ISNULL(@BranchId, 0) = 0 OR E.BranchId = @BranchId)
       AND (ISNULL(@DepartmentId, 0) = 0 OR E.DepartmentId = @DepartmentId)
-    ORDER BY E.[Name];
+    ORDER BY E.[Name]
+    OPTION (RECOMPILE);   -- plan for the filters actually chosen
 END
 GO

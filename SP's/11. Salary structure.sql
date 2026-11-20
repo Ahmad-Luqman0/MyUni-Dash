@@ -53,6 +53,7 @@ BEGIN
     WHERE C.Rn = 1
       AND (ISNULL(@BranchId, 0) = 0 OR E.BranchId = @BranchId)
       AND (ISNULL(@DepartmentId, 0) = 0 OR E.DepartmentId = @DepartmentId)
-    ORDER BY ISNULL(C.GrossSalary, 0) DESC, E.[Name];
+    ORDER BY ISNULL(C.GrossSalary, 0) DESC, E.[Name]
+    OPTION (RECOMPILE);   -- plan for the filters actually chosen
 END
 GO

@@ -34,9 +34,14 @@ BEGIN
     BEGIN
         SELECT B.Id, B.[Description], B.Code,
                CT.[Description] AS City,
-               (SELECT COUNT(*) FROM UNIStudents S WITH (NOLOCK) WHERE S.BranchId = B.Id AND S.Status = 1) AS Students
+               ISNULL(SC.Students, 0) AS Students
         FROM Branches B WITH (NOLOCK)
         LEFT JOIN City CT WITH (NOLOCK) ON CT.Id = B.CityId
+        -- counted once for all branches, not once per branch
+        LEFT JOIN (SELECT S.BranchId, COUNT(*) AS Students
+                   FROM UNIStudents S WITH (NOLOCK)
+                   WHERE S.Status = 1
+                   GROUP BY S.BranchId) SC ON SC.BranchId = B.Id
         WHERE B.Status = 1 AND B.CompanyId = @CompanyId
         ORDER BY B.Id;
 
@@ -80,7 +85,8 @@ BEGIN
           AND (ISNULL(@DepartmentId, 0) = 0 OR UD.DepartmentId = @DepartmentId)
           AND (@FacultyId IS NULL OR EXISTS (SELECT 1 FROM FacultyDetails FD WITH (NOLOCK)
                                              WHERE FD.DepartmentId = UD.DepartmentId AND FD.FacultyGUID = @FacultyId))
-        ORDER BY UD.DegreeName;
+        ORDER BY UD.DegreeName
+        OPTION (RECOMPILE);   -- plan for the filters actually chosen
 
         RETURN;
     END
@@ -91,17 +97,20 @@ BEGIN
     BEGIN
         SELECT SEM.Id, SEM.Code, AC.CalenderName AS Calendar, SEM.StartDate, SEM.EndDate,
                ISNULL(SEM.IsAdmissionOpen, 0) AS IsAdmissionOpen,
-               (SELECT COUNT(DISTINCT R.StudentsId)
-                FROM UNIStudentsRegistrations R WITH (NOLOCK)
-                JOIN UNIStudents S WITH (NOLOCK) ON S.Id = R.StudentsId AND S.Status = 1
-                WHERE ISNULL(R.RegisterInId, R.SemesterSessionId) = SEM.Id
-                  AND R.Status = 1 AND R.CompanyId = @CompanyId
-                  AND (ISNULL(@BranchId, 0) = 0 OR R.BranchId = @BranchId)) AS Students
+               ISNULL(RC.Students, 0) AS Students
         FROM UNIAcademicYearSemesterDetails SEM WITH (NOLOCK)
         JOIN UNIAcademicCalender AC WITH (NOLOCK) ON AC.Id = SEM.AcademicCalenderId
+        -- the registrations are read once and counted per semester, not once per semester
+        LEFT JOIN (SELECT ISNULL(R.RegisterInId, R.SemesterSessionId) AS SemesterId, COUNT(DISTINCT R.StudentsId) AS Students
+                   FROM UNIStudentsRegistrations R WITH (NOLOCK)
+                   JOIN UNIStudents S WITH (NOLOCK) ON S.Id = R.StudentsId AND S.Status = 1
+                   WHERE R.Status = 1 AND R.CompanyId = @CompanyId
+                     AND (ISNULL(@BranchId, 0) = 0 OR R.BranchId = @BranchId)
+                   GROUP BY ISNULL(R.RegisterInId, R.SemesterSessionId)) RC ON RC.SemesterId = SEM.Id
         WHERE AC.CompanyId = @CompanyId
           AND (ISNULL(@BranchId, 0) = 0 OR AC.BranchId = @BranchId)
-        ORDER BY SEM.StartDate, SEM.OrderId;
+        ORDER BY SEM.StartDate, SEM.OrderId
+        OPTION (RECOMPILE);   -- plan for the filters actually chosen
 
         RETURN;
     END

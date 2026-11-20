@@ -62,6 +62,7 @@ BEGIN
     GROUP BY DT.[Description], DC.[Description], FT.[Description],
              G.Id, G.DegreeCode, G.DegreeName, G.Department, G.Faculty,
              CASE WHEN H.DiscountStatus = 2 THEN 'Approved' ELSE 'Pending' END
-    ORDER BY SUM(ISNULL(D.DiscountedAmount, 0)) DESC;
+    ORDER BY SUM(ISNULL(D.DiscountedAmount, 0)) DESC
+    OPTION (RECOMPILE);   -- plan for the filters actually chosen
 END
 GO
