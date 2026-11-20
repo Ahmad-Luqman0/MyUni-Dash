@@ -184,7 +184,7 @@ export function Ledger({ children, cols }: { children: ReactNode; cols: 3 | 4 })
   )
 }
 
-export function Tile({ label, value, full, note, alert }: { label: string; value: string; full?: string; note?: ReactNode; alert?: boolean }) {
+export function Tile({ label, value, full, note, alert }: { label: ReactNode; value: string; full?: string; note?: ReactNode; alert?: boolean }) {
   return (
     <div className="min-w-0 bg-surface px-4 py-3.5 sm:px-5 sm:py-4">
       <div className="flex items-start gap-1.5 text-[13px] text-ink-2">
