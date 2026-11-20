@@ -11,8 +11,7 @@ export interface Selection {
   /** The employee department chosen on the HR pages: a different list from the academic departments. */
   hrDepartmentId: number | null
   degreeId: string | null
-  /** Undefined until the user picks one: the current semester is used. Null = all semesters. */
-  semesterId: string | null | undefined
+  semesterId: string | null
   startDate: string
   endDate: string
 }
@@ -58,7 +57,7 @@ export function FilterBar({ sel, change, lists, busy, onRefresh, hr = false }: {
       className={`grid grid-cols-2 items-end gap-x-3 gap-y-3 rounded-lg border border-line bg-surface p-4 sm:grid-cols-3 sm:px-5 lg:grid-cols-4 xl:grid-cols-5 ${wide}`}>
       <Field label="Company" className="col-span-2 sm:col-span-1">
         <Select value={String(sel.companyId ?? '')} disabled={!lists.companies}
-          onChange={(v) => change({ companyId: Number(v), branchId: null, facultyId: null, departmentId: null, hrDepartmentId: null, degreeId: null, semesterId: undefined })}>
+          onChange={(v) => change({ companyId: Number(v), branchId: null, facultyId: null, departmentId: null, hrDepartmentId: null, degreeId: null, semesterId: null })}>
           {!lists.companies && <option value="">Loading</option>}
           {lists.companies?.map((c) => <option key={c.id} value={c.id}>{nice(c.companyName)}</option>)}
         </Select>
