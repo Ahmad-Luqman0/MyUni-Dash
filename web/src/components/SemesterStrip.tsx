@@ -79,7 +79,8 @@ export function SemesterStrip({ state, selected, onSelect, onRetry }: {
     <section aria-label="Semesters" className={`rounded-lg border border-line bg-surface transition-opacity ${state.loading ? 'opacity-55' : ''}`}>
       <div ref={scroller} className="no-scrollbar relative flex overflow-x-auto" role="group" aria-label="Choose a semester">
         <button type="button" aria-pressed={selected === null} onClick={() => onSelect(null)}
-          className={`group flex w-[124px] shrink-0 flex-col justify-end rounded-l-lg border-r border-line px-4 pt-3 pb-3 text-left transition-colors sm:w-[148px] sm:px-5 ${selected === null ? 'bg-chalk-soft' : 'hover:bg-bg'}`}>
+          className={`group relative isolate flex w-[124px] shrink-0 flex-col justify-end rounded-l-lg border-r border-line px-4 pt-3 pb-3 text-left transition-colors sm:w-[148px] sm:px-5 ${selected === null ? '' : 'hover:bg-bg'}`}>
+          {selected === null && <span aria-hidden className="frost absolute inset-1.5 -z-10 rounded-md" />}
           <span className="font-display text-base leading-tight font-semibold text-ink">All semesters</span>
           <span className="mt-1 text-xs text-ink-2">{selected === null ? 'Showing the whole record' : 'Clear the semester'}</span>
           <span aria-hidden className={`mt-2.5 block h-[3px] w-8 rounded-full ${selected === null ? 'bg-chalk' : 'bg-transparent'}`} />
@@ -91,15 +92,16 @@ export function SemesterStrip({ state, selected, onSelect, onRetry }: {
           return (
             <button key={s.id} type="button" aria-pressed={on} data-on={on} onClick={() => onSelect(on ? null : s.id)}
               title={on ? 'Click again to show all semesters' : `Show only ${s.code}`}
-              className={`group relative flex min-w-[152px] flex-1 flex-col justify-start px-3 pt-3 pb-3 text-left transition-colors last:rounded-r-lg sm:px-4 ${on ? 'bg-chalk-soft' : 'hover:bg-bg'}`}>
+              className={`group relative isolate flex min-w-[152px] flex-1 flex-col justify-start px-3 pt-3 pb-3 text-left transition-colors last:rounded-r-lg sm:px-4 ${on ? '' : 'hover:bg-bg'}`}>
+              {on && <span aria-hidden className="frost absolute inset-1.5 -z-10 rounded-md" />}
               <span className="flex h-14 items-end gap-2">
                 <span aria-hidden className="rise block w-7 rounded-t-[4px] transition-colors"
                   style={{ height: h, animationDelay: `${i * 45}ms`, background: on ? 'var(--accent)' : selected === null ? 'var(--s1)' : 'var(--s1-soft)' }} />
                 <span className="pb-0.5 text-[13px] leading-tight text-ink-2"><span className="font-semibold text-ink">{count(s.students)}</span><br />students</span>
               </span>
               {/* the timeline: one continuous rule with a tick at each semester's start */}
-              <span aria-hidden className={`absolute inset-x-0 top-[68px] h-px ${on ? 'bg-transparent' : 'bg-line'}`} />
-              <span aria-hidden className={`absolute top-[67px] h-[3px] rounded-full ${on ? 'inset-x-0 bg-chalk' : 'left-3 w-7 bg-transparent sm:left-4'}`} />
+              <span aria-hidden className="absolute inset-x-0 top-[68px] -z-20 h-px bg-line" />
+              <span aria-hidden className={`absolute top-[67px] h-[3px] rounded-full ${on ? 'inset-x-1.5 bg-chalk' : 'left-3 w-7 bg-transparent sm:left-4'}`} />
               <span className="mt-3 block font-display text-base leading-tight font-semibold whitespace-nowrap text-ink">{s.code}</span>
               <span className="mt-0.5 block text-xs whitespace-nowrap text-ink-2">
                 {s.startDate && s.endDate ? rangeLabel(s.startDate, s.endDate) : 'Dates not set'}
