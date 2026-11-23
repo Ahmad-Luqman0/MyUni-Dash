@@ -31,9 +31,9 @@ export function Rail({ items, current, onSelect }: { items: NavItem[]; current: 
               <li key={it.id} className="shrink-0">
                 <a href={`#${it.id}`} aria-current={active ? 'page' : undefined}
                   onClick={(e) => { e.preventDefault(); onSelect(it.id) }}
-                  className={`relative flex items-center gap-2.5 px-3 py-2.5 text-sm font-medium whitespace-nowrap transition-colors lg:rounded-md lg:py-2.5 ${
+                  className={`relative flex items-center gap-2.5 px-3 py-2.5 text-sm font-medium whitespace-nowrap transition-colors lg:rounded-md lg:py-2 ${
                     active ? 'text-accent-deep lg:bg-rail-2' : 'text-rail-ink-2 hover:text-ink lg:hover:bg-bg'}`}>
-                  <it.icon aria-hidden className="hidden size-[18px] shrink-0 lg:block" strokeWidth={1.8} />
+                  <it.icon aria-hidden className="hidden size-[18px] shrink-0 lg:block" strokeWidth={1.5} />
                   {it.label}
                   {active && <span aria-hidden className="absolute inset-x-3 bottom-0 h-[3px] rounded-full bg-accent lg:inset-x-auto lg:inset-y-2 lg:left-0 lg:h-auto lg:w-[3px]" />}
                 </a>

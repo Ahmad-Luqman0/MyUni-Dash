@@ -38,7 +38,7 @@ export function Overview({ q, reload, semester }: SectionProps) {
 
       <div className="grid gap-4 xl:grid-cols-2">
         <Block title="Fee collected by month" className="xl:col-span-2" state={cols} noun="collections"
-          subtitle={cols.data?.length ? `${rs(collected)} received through fee and bank receipts` : 'Money received through fee and bank receipts'}>
+          subtitle={cols.data?.length ? `${rsShort(collected)} received through fee and bank receipts` : 'Money received through fee and bank receipts'}>
           {(rows) => {
             const months = rollup(rows, (r) => monthKey(r.receiptDate), ['amount']).sort((a, b) => a.key.localeCompare(b.key))
             return <TrendArea name="Collected" format={rs} axisFormat={rsShort} height={230}

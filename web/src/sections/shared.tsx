@@ -51,5 +51,5 @@ export function SectionSkeleton({ tiles = 4, cols = 4 }: { tiles?: number; cols?
 
 /** Shown in place of a comparison chart when only one semester is in view. */
 export function Quiet({ children }: { children: ReactNode }) {
-  return <p className="rounded-md bg-bg px-3 py-6 text-center text-sm text-ink-2">{children}</p>
+  return <p className="flex flex-1 items-center justify-center rounded-md bg-bg px-3 py-6 text-center text-sm text-ink-2">{children}</p>
 }

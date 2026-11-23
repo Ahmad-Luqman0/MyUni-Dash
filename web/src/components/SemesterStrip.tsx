@@ -81,7 +81,7 @@ export function SemesterStrip({ state, selected, onSelect, onRetry }: {
     <section aria-label="Semesters" className={`rounded-lg border border-line bg-surface transition-opacity ${state.loading ? 'opacity-55' : ''}`}>
       <div ref={scroller} className="no-scrollbar relative flex overflow-x-auto" role="group" aria-label="Choose a semester">
         <button type="button" aria-pressed={selected === null} onClick={() => onSelect(null)}
-          className={`group relative isolate flex w-[124px] shrink-0 flex-col justify-end rounded-l-lg border-r border-line px-4 pt-3 pb-3 text-left transition-colors sm:w-[148px] sm:px-5 ${selected === null ? '' : 'hover:bg-bg'}`}>
+          className={`group relative isolate flex w-32 shrink-0 flex-col justify-end rounded-l-lg border-r border-line px-4 pt-3 pb-3 text-left transition-colors sm:w-40 sm:px-5 ${selected === null ? '' : 'hover:bg-bg'}`}>
           {selected === null && <span aria-hidden className="frost absolute inset-1.5 -z-10 rounded-md" />}
           <span className="font-display text-base leading-tight font-semibold text-ink">All semesters</span>
           <span className="mt-1 text-xs text-ink-2">{selected === null ? 'Showing the whole record' : 'Clear the semester'}</span>

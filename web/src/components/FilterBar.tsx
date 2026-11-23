@@ -105,7 +105,7 @@ export function FilterBar({ sel, change, lists, busy, onRefresh, hr = false }: {
         <DateInput value={sel.endDate} min={sel.startDate || undefined} onChange={(v) => change({ endDate: v })} />
       </Field>
       <div className="col-span-2 sm:col-span-1 [&>button]:w-full">
-        <Button onClick={onRefresh} disabled={busy}>
+        <Button quiet onClick={onRefresh} disabled={busy}>
           <RotateCw aria-hidden className={`size-4 ${busy ? 'motion-safe:animate-spin' : ''}`} />Refresh
         </Button>
       </div>

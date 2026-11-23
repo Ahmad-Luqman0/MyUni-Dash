@@ -7,7 +7,7 @@ export function Card({ title, subtitle, action, children, className = '' }: {
   title?: string; subtitle?: ReactNode; action?: ReactNode; children: ReactNode; className?: string
 }) {
   return (
-    <section className={`min-w-0 rounded-lg border border-line bg-surface p-4 sm:p-5 ${className}`}>
+    <section className={`flex min-w-0 flex-col rounded-lg border border-line bg-surface p-4 sm:p-5 ${className}`}>
       {(title || action) && (
         <header className="mb-4 flex flex-wrap items-start justify-between gap-x-3 gap-y-2">
           <div className="min-w-0">
@@ -52,7 +52,7 @@ export function DateInput({ value, onChange, min, max }: { value: string; onChan
 export function Button({ children, onClick, disabled, quiet }: { children: ReactNode; onClick: () => void; disabled?: boolean; quiet?: boolean }) {
   return (
     <button type="button" onClick={onClick} disabled={disabled}
-      className={`inline-flex h-10 shrink-0 items-center justify-center gap-2 rounded-md px-3.5 text-sm font-medium transition-colors disabled:opacity-60 ${
+      className={`inline-flex h-10 shrink-0 items-center justify-center gap-2 rounded-md px-4 text-sm font-medium transition-colors disabled:opacity-60 ${
         quiet ? 'border border-line bg-surface text-ink hover:border-ink-3' : 'bg-accent text-white hover:bg-accent-deep'}`}>
       {children}
     </button>
@@ -67,7 +67,7 @@ export function Segmented<T extends string>({ value, options, onChange, label }:
     <div role="group" aria-label={label} className="inline-flex shrink-0 rounded-md border border-line bg-bg p-0.5 text-[13px]">
       {options.map(([v, text]) => (
         <button key={v} type="button" aria-pressed={v === value} onClick={() => onChange(v)}
-          className={`rounded-[5px] px-2.5 py-1 font-medium transition-colors ${v === value ? 'bg-surface text-ink shadow-[0_0_0_1px_var(--border)]' : 'text-ink-2 hover:text-ink'}`}>
+          className={`rounded-sm px-2.5 py-1 font-medium transition-colors ${v === value ? 'bg-surface text-ink shadow-[0_0_0_1px_var(--border)]' : 'text-ink-2 hover:text-ink'}`}>
           {text}
         </button>
       ))}

@@ -13,7 +13,7 @@ const num = (v: unknown) => (typeof v === 'number' ? v : 0)
 
 function TipCard({ title, rows, total }: { title: string; rows: { label: string; color: string; value: string }[]; total?: string }) {
   return (
-    <div className="max-w-72 min-w-44 rounded-md border border-line bg-surface px-3 py-2.5 text-[13px] shadow-[0_4px_14px_rgba(21,35,29,0.10)]">
+    <div className="max-w-72 min-w-44 rounded-md border border-line bg-surface px-3 py-2.5 text-[13px] shadow-[0_8px_24px_rgba(0,0,0,0.06)]">
       <div className="mb-1.5 font-medium text-ink">{title}</div>
       <ul className="space-y-1">
         {rows.map((r) => (
@@ -131,7 +131,7 @@ export function BarList({ rows, series, format, max = 8, sort = true, otherLabel
               <span className={`tnum shrink-0 ${single ? 'font-medium text-ink' : 'text-ink-2'}`}>{single ? format(r.values[0]) : r.note}</span>
             </div>
             {single && r.note && <div className="text-xs text-ink-3">{r.note}</div>}
-            <div className={`mt-1.5 ${single ? '' : 'space-y-[3px]'}`}>
+            <div className={`mt-1.5 ${single ? '' : 'space-y-1'}`}>
               {series.map((s, i) => (
                 <div key={s.label} className="flex items-center gap-2.5" title={`${r.label}: ${s.label} ${format(r.values[i])}`}>
                   <div className="h-2 min-w-0 flex-1">
@@ -186,7 +186,7 @@ export function Ledger({ children, cols }: { children: ReactNode; cols: 3 | 4 })
 
 export function Tile({ label, value, full, note, alert }: { label: ReactNode; value: string; full?: string; note?: ReactNode; alert?: boolean }) {
   return (
-    <div className="min-w-0 bg-surface px-4 py-3.5 sm:px-5 sm:py-4">
+    <div className="min-w-0 bg-surface px-4 py-4 sm:px-5">
       <div className="flex items-start gap-1.5 text-[13px] text-ink-2">
         {alert && <span aria-hidden className="mt-[7px] size-1.5 shrink-0 rounded-full bg-bad" />}
         {label}
